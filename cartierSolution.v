@@ -35,8 +35,72 @@ copairing operation applied onto some cocone of morphisms, one shall require
 simultaneous full-reduction of every reductible morphism in the cocone. Most of this
 COQ program and deduction is automated.
 
-keywords: 1337777.OOO//cartierSolution.v ; metafunctors-grammar ; duality ;
+Keywords: 1337777.OOO//cartierSolution.v ; metafunctors-grammar ; duality ;
 classifying topos
+
+-----
+
+Memo :
+
+The 1337777.OOO SOLUTION PROGRAMME originates from some random-moment discovery of
+some convergence of the DOSEN PROGRAMME [[http://www.mi.sanu.ac.rs/~kosta]] along the
+COQ PROGRAMME [[https://coq.inria.fr]].
+   
+The 1337777.OOO has discovered [[1337777.OOO//coherence2.v]]
+[[google.com/#q=1337777.OOO/coherence2.v]]
+[[https://web.archive.org/web/20170516011054/https://github.com/1337777/dosen/blob/master/coherence2.v]]
+[fn:4] [fn:5] that the attempt to deduce associative coherence by Maclane is not the
+reality, because this famous pentagone is in fact some recursive square. This
+associative coherence is the meta of the semiassociative coherence
+[[1337777.OOO//coherence.v]] which does lack some more-common Newman-style confluence
+lemma.
+
+Moreover the 1337777.OOO has discovered [[1337777.OOO//borceuxSolution2.v]]
+[[1337777.OOO//chic05.pdf]] that the "categories" ( "enriched categories" ) only-named
+by the homologist Maclane are in reality interdependent-cyclic with the natural
+polymorphism of the logic of Gentzen, this enables some programming of congruent
+resolution by cut-elimination [[1337777.OOO//dosenSolution3.v]] which will serve as
+specification (reflection) technique to semi-decide the questions of coherence, in
+comparasion from the ssreflect-style.
+
+Furthermore the 1337777.OOO has discovered [[1337777.OOO//aignerSolution.v]]
+[[1337777.OOO//ocic04-where-is-combinatorics.pdf]] that the Galois-action for the
+resolution-modulo ( "symmetry groupoid action" ), is in fact some instance of
+polymorph functors.
+
+And the 1337777.OOO has discovered [[1337777.OOO//ocic03-what-is-normal.djvu]]
+[[1337777.OOO//laoziSolution2.v]] how to program polymorph coparametrism functors (
+"comonad" ).
+
+And the 1337777.OOO has discovered [[1337777.OOO//chuSolution.v]] how to program
+contextual limits of polymorph functors ( "Kan extension" ).
+
+And the 1337777.OOO has discovered [[1337777.OOO//cartierSolution.v]] how to program
+the metafunctors-grammar ( "topos" ), as the primo step towards the programming of the
+( "classifying-topos" ) sheaf-metafunctors-grammar which is held as augmented-syntax
+in the Diaconescu duality lemma ( "coreflective-metafunctors models" ). Another
+further step shall be to GAP-and-COQ program [[https://www.gap-system.org]] the
+computational logic for Tarski's decidability in free groups and for convergence in
+infinite groups ...
+
+Additionnally, the 1337777.OOO has discovered random dia-para-logic discoveries
+[[1337777.OOO//1337777solution.txt]] and information-technology
+[[1337777.OOO//init.html]] [[1337777.OOO//init.pdf]] [[1337777.OOO//makegit.sh.org]]
+[[1337777.OOO//editableTree.urp]] [[1337777.OOO//gongji.ml4]] based on the _EMACS
+org-mode_ logiciel which enables communication of _timed-synchronized_ _geolocated_
+_simultaneously-edited_ _multi-authors_ _format-able_ _searchable_ text, and therefore
+_personal email_ and _public communication_ of _multiple-market/language_ (中文话）
+textual COQ math programming, and which enables _personal archiving_ and _public
+archiving_ and therefore _public reviews / webcitations_ .
+
+Whatever is discovered, its format, its communication is simultaneously some
+predictable-time (1337) computational-logical discovery and some random-moment (777)
+dia-para-computalogical discovery.
+
+-----
+
+paypal 1337777.OOO@gmail.com , wechatpay 2796386464@qq.com , irc #OOO1337777
+
 
 **)
 
