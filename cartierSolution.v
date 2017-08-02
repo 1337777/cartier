@@ -350,7 +350,6 @@ of View1 *)
       (w o>Topos [[ (fun A0 => (v_ A0) \o (transf A0)) @ func1 ]])
         ~~~ (w o>Topos_transf) o>Topos [[ v_ @ func'1 ]]
 
-(* for sense only, non-necessary for reduction *)
 | PolyMetaTransf_PolyMetaFunctor :
     forall (func0 : obIndexer -> Type)
       (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
@@ -361,6 +360,20 @@ of View1 *)
       ( PolyMetaFunctor func'1 (transf A x) )
         ~~~ ( (PolyMetaFunctor func1 x o>Topos_transf)
               : 'Topos(0 View0 A ~> MetaFunctor func'1 )0 )
+
+| PolyMetaTransf_PolyMetaTransf :
+    forall (func0 : obIndexer -> Type)
+      (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
+    forall (func'0 : obIndexer -> Type)
+      (func'1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func'0 A' -> func'0 A),
+    forall (transf : forall (A : obIndexer), func0 A -> func'0 A),
+    forall (func''0 : obIndexer -> Type)
+      (func''1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func''0 A' -> func''0 A),
+    forall (transf' : forall (A : obIndexer), func'0 A -> func''0 A),
+    forall (A : obIndexer) (v : 'Topos(0 (View0 A) ~> (MetaFunctor func1) )0),
+      ( v o>Topos_( fun A0 => (transf' A0) \o (transf A0) ) )
+        ~~~ ( ( v o>Topos_transf @ func'1 ) o>Topos_transf' @ func''1
+              : 'Topos(0 View0 A ~> MetaFunctor func''1 )0 )
 
 (* for sense only, non-necessary for reduction *)
 | CoLimitator_PolyMetaFunctor :
@@ -525,15 +538,6 @@ Module Sol.
           (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
           (forall (A : obIndexer), func0 A -> 'Topos(0 (View0 A) ~> (MetaFunctor func1) )0)
 
-    | PolyMetaTransf :
-        forall (func0 : obIndexer -> Type)
-          (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
-        forall (func'0 : obIndexer -> Type)
-          (func'1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func'0 A' -> func'0 A),
-        forall (transf : forall (A : obIndexer), func0 A -> func'0 A),
-          (forall (A : obIndexer), 'Topos(0 (View0 A) ~> (MetaFunctor func1) )0
-                              -> 'Topos(0 (View0 A) ~> (MetaFunctor func'1) )0)
-
     | CoLimitator :
         forall (func0 : obIndexer -> Type)
           (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
@@ -581,30 +585,25 @@ Module Sol.
         forall (func0 : obIndexer -> Type)
           (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
         forall (A : obIndexer) (x : func0 A),
-          Topos00_domView (Sol.PolyMetaFunctor func1 x)%sol
-
-    | PolyMetaTransf :
-        forall (func0 : obIndexer -> Type)
-          (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
-        forall (func'0 : obIndexer -> Type)
-          (func'1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func'0 A' -> func'0 A),
-        forall (transf : forall (A : obIndexer), func0 A -> func'0 A),
-          forall (A : obIndexer) (f : 'Topos(0 (View0 A) ~> (MetaFunctor func1) )0 %sol),
-              Topos00_domView (f o>Topos_transf @ func'1)%sol .
+          Topos00_domView (Sol.PolyMetaFunctor func1 x)%sol .
 
     Lemma Topos00_domViewP : forall F1 F2 ( f : 'Topos(0 F1 ~> F2 )0 %sol ),
-           match F1 as o return (forall F2 : obTopos, ('Topos(0 o ~> F2 )0)%sol -> Type) with
-           | View0 A => fun F2 : obTopos => [eta Topos00_domView (F2:=F2)]
-           | @MetaFunctor func0 func1 =>
-             fun _ _  => unit
-           end F2 f.
+        ltac:( destruct F1; [| intros; refine (unit : Type)];
+                 refine (Topos00_domView f) ).
+    (*
+  forall (F1 F2 : obTopos) (f : ('Topos(0 F1 ~> F2 )0)%sol),
+  match F1 as o return (('Topos(0 o ~> F2 )0)%sol -> Type) with
+  | View0 A => [eta Topos00_domView (F2:=F2)]
+  | @MetaFunctor func0 func1 => fun _ : ('Topos(0 MetaFunctor func1 ~> F2 )0)%sol => unit : Type
+  end f
+     *)
     Proof.
       intros. case: F1 F2 / f.
-      - destruct F. constructor 1.  exact: tt.
+      - destruct F; [| intros; exact: tt].
+        constructor 1.
       - constructor 2.
       - constructor 3.
-      - constructor 4.
-      - intros. exact: tt.
+      - intros; exact: tt.
     Defined.
 
   End Destruct_domView.
@@ -629,21 +628,45 @@ Module Sol.
           Topos00_domMetaFunctor ([[ v_ @ func1 ]] %sol).
 
     Lemma Topos00_domMetaFunctorP : forall F1 F2 ( f : 'Topos(0 F1 ~> F2 )0 %sol ),
-           match F1 as o return (forall F2 : obTopos, ('Topos(0 o ~> F2 )0)%sol -> Type) with
-           | View0 A => fun _ _  => unit
-           | @MetaFunctor func0 func1 =>
-             fun F2 : obTopos => [eta Topos00_domMetaFunctor (F2:=F2)]
-           end F2 f.
+        ltac:( destruct F1; [intros; refine (unit : Type)|];
+                 refine (Topos00_domMetaFunctor f) ).
     Proof.
       intros. case: F1 F2 / f.
       - destruct F.  exact: tt. constructor 1.
-      - intros. exact: tt.
       - intros. exact: tt.
       - intros. exact: tt.
       - constructor 2.
     Defined.
 
   End Destruct_domMetaFunctor.
+
+  Module Destruct_domView_codomMetaFunctor.
+
+    Inductive Topos00_domView_codomMetaFunctor :
+      forall (A : obIndexer)
+        (func0 : obIndexer -> Type)  
+        (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
+        ( 'Topos(0 View0 A ~> MetaFunctor func1 )0 %sol ) -> Type :=
+
+    | PolyMetaFunctor :
+        forall (func0 : obIndexer -> Type)
+          (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
+        forall (A : obIndexer) (x : func0 A),
+          Topos00_domView_codomMetaFunctor (Sol.PolyMetaFunctor func1 x)%sol .
+
+    Lemma Topos00_domView_codomMetaFunctorP : forall F1 F2 ( f : 'Topos(0 F1 ~> F2 )0 %sol ),
+        ltac:( destruct F1; [| intros; refine (unit : Type)];
+                 destruct F2; [intros; refine (unit) |];
+                   refine (Topos00_domView_codomMetaFunctor f) ).
+    Proof.
+      intros. case: F1 F2 / f.
+      - destruct F; intros; exact: tt.
+      - intros; exact: tt.
+      - constructor 1.
+      - intros; exact: tt.
+    Defined.
+
+  End Destruct_domView_codomMetaFunctor.
 
   Definition toTopos :
     forall (F1 F2 : obTopos), 'Topos(0 F1 ~> F2 )0 %sol -> 'Topos(0 F1 ~> F2 )0.
@@ -652,12 +675,10 @@ Module Sol.
     [ F
     | A A' a
     | func0 func1 A x
-    | func0 func1 func'0 func'1 transf A fSol fSol_toMod
     | func0 func1 F vSol_ vSol_toMod ];
       [ apply: (@uTopos F)
       | apply: (METAFUNCTORS.View1 a)
       | apply: (METAFUNCTORS.PolyMetaFunctor func1 x)
-      | apply: (fSol_toMod o>Topos_transf)
       | apply: [[ vSol_toMod ]]
       ].
   Defined.
@@ -668,7 +689,7 @@ Module Sol.
     - intros. exact: false.
     - intros. exact: true.
     - intros. exact: true.
-    - intros. assumption.
+    - intros. exact: false.
     - intros func0 func1 F v_ IH_v_. exact: (regularCardinalAll IH_v_). 
   Defined.
 
@@ -681,16 +702,14 @@ Module Sol.
   Proof.
     move => F1 F2 f ; elim : F1 F2 / f => 
     [ F _  (* @uTopos F %sol*)
-    | //
+    | F2 F1 f_ F1' f' //  (* f_ o>Topos f' *)
     | A A' a (* SolView1 a *)
     | func0 func1 A x _ (* SolPolyMetaFunctor func1 x *)
-    | func0 func1 func'0 func'1 transf A f  (* f o>Topos_transf %sol *)
+    | func0 func1 func'0 func'1 transf A f //  (* f o>Topos_transf %sol *)
     | func0 func1 F f_ ] (* [[ f_ @ func1 ]] %sol *).
     - exists ((@uTopos F)%sol). reflexivity.
     - exists ((Sol.View1 a)%sol). reflexivity.
     - exists ((Sol.PolyMetaFunctor func1 x)%sol). reflexivity.
-    - move => H /H [fSol fSol_prop].
-      exists ((fSol o>Topos_transf)%sol). by subst.
     - move => IH /= /regularCardinalAllP f_isSolb.
       have f_isSolb' : (forall (A : obIndexer) (x : func0 A), isSolb (f_ A x))
         by intros; clear -f_isSolb; apply/negPn/negP; intuition eauto.
@@ -884,7 +903,32 @@ of View1 *)
         (A : obIndexer) (w : 'Topos(0 (View0 A) ~> (MetaFunctor func1) )0),
         (w o>Topos [[ (fun A0 => (v_ A0) \o (transf A0)) @ func1 ]])
           <~~ (w o>Topos_transf) o>Topos [[ v_ @ func'1 ]]
-          
+                                       
+  | PolyMetaTransf_PolyMetaFunctor :
+      forall (func0 : obIndexer -> Type)
+        (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
+      forall (func'0 : obIndexer -> Type)
+        (func'1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func'0 A' -> func'0 A)
+        (transf : forall A : obIndexer, func0 A -> func'0 A),
+      forall (A : obIndexer) (x : func0 A),
+        ( PolyMetaFunctor func'1 (transf A x) )
+          <~~ ( (PolyMetaFunctor func1 x o>Topos_transf)
+                : 'Topos(0 View0 A ~> MetaFunctor func'1 )0 )
+
+  | PolyMetaTransf_PolyMetaTransf :
+      forall (func0 : obIndexer -> Type)
+        (func1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func0 A' -> func0 A),
+      forall (func'0 : obIndexer -> Type)
+        (func'1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func'0 A' -> func'0 A),
+      forall (transf : forall (A : obIndexer), func0 A -> func'0 A),
+      forall (func''0 : obIndexer -> Type)
+        (func''1 : forall (A A' : obIndexer), 'Indexer(0 A ~> A' )0 -> func''0 A' -> func''0 A),
+      forall (transf' : forall (A : obIndexer), func'0 A -> func''0 A),
+      forall (A : obIndexer) (v : 'Topos(0 (View0 A) ~> (MetaFunctor func1) )0),
+        ( v o>Topos_( fun A0 => (transf' A0) \o (transf A0) ) )
+          <~~ ( ( v o>Topos_transf @ func'1 ) o>Topos_transf' @ func''1
+              : 'Topos(0 View0 A ~> MetaFunctor func''1 )0 )
+
   where "f2 <~~ f1" := (@convTopos _ _ f2 f1).
 
   Module Export Ex_Notations.
@@ -904,9 +948,12 @@ of View1 *)
     fDeg <~~ f -> fDeg ~~~ f.
   Proof.
     move => F1 F2 f fDeg. elim; rewriterTopos; try eauto.
-    intros.
-    apply: METAFUNCTORS.CoLimitator_cong. intros. 
-  Admitted.
+    intros func0 func1 F v_ v_0 H1 H2 H3 H4 A x H5.
+    apply: METAFUNCTORS.CoLimitator_cong.
+    intros A0 x0. (case_eq (Sol.isSolb (v_ A0 x0)) => H6);
+                    [ rewrite H3 => // 
+                    | apply: H2; rewrite H6 => // ].
+  Qed.
 
   Lemma degrade :
     forall (F1 F2 : obTopos) (fDeg f : 'Topos(0 F1 ~> F2 )0),
@@ -1144,8 +1191,14 @@ Section Section1.
         [ | fSol fSol_prop ].
         * move : H_gradeTotal; clear;
             rewrite /gradeTotal /=; move => *; abstract Omega.omega.
-        * exists (fSol o>Topos_transf)%sol.
-          clear -fSol_prop. tac_reduce.
+        * { clear - solveTopos H_gradeTotal fSol_prop.
+            move: (Sol.Destruct_domView_codomMetaFunctor.Topos00_domView_codomMetaFunctorP fSol) => fSol_domView_codomMetaFunctorP.
+            destruct fSol_domView_codomMetaFunctorP as
+                [ func0 func1 A x (* SolPolyMetaFunctor func1 x *) ].
+            
+            + exists (Sol.PolyMetaFunctor func'1 (transf A x))%sol.
+              clear -fSol_prop. tac_reduce.
+          }
 
       (* f is [[ v_ @ func1 ]] *)
       + move => H_gradeTotal.
@@ -1217,7 +1270,6 @@ Section Section1.
             [ F  (* @uTopos F %sol*)
             | A A' f_a (* SolView1 f_a *)
             | func0 func1 A x (* SolPolyMetaFunctor func1 x *)
-            | func0 func1 func'0 func'1 transf A f_Sol' (* f_Sol' o>Topos_transf %sol *)
             | func0 func1 F f_Sol_ ] (* [[ f_Sol_ @ func1 ]] %sol *).
 
 
@@ -1234,8 +1286,7 @@ Section Section1.
         destruct f'Sol_domViewP as
             [ _A  (* @uTopos F %sol*)
             | _A A' f'a (* SolView1 f'a *)
-            | func0 func1 _A x (* SolPolyMetaFunctor func1 x *)
-            | func0 func1 func'0 func'1 transf _A f'Sol' ] (* f'Sol' o>Topos_transf %sol *).
+            | func0 func1 _A x (* SolPolyMetaFunctor func1 x *) ].
 
         (* f is (f_ o>Topos f') , to (f_Sol o>Topos f'Sol)  , is (View1 f_a o>Topos f'Sol) , is  (View1 f_a o>Topos (@uTopos _A)) *)
         * exists ( (Sol.View1 f_a)%sol ) .
@@ -1248,14 +1299,6 @@ Section Section1.
         (* f is (f_ o>Topos f') , to (f_Sol o>Topos f'Sol)  , is (View1 f_a o>Topos f'Sol) , is  (View1 f_a o>Topos SolPolyMetaFunctor func1 x) *)
         * exists (Sol.PolyMetaFunctor func1 (func1 _ _ f_a x)%sol).
           clear -f_Sol_prop f'Sol_prop. tac_reduce.
-
-        (* f is (f_ o>Topos f') , to (f_Sol o>Topos f'Sol)  , is (View1 f_a o>Topos f'Sol) , is  (View1 f_a o>Topos (f'Sol' o>Topos_transf) *)
-        * { case : (solveTopos len _ _ ((Sol.toTopos (Sol.View1 f_a) o>Topos (Sol.toTopos f'Sol')))) =>
-            [ | f_Sol_o_f'Sol f_Sol_o_f'Sol_prop ].
-            - tac_degrade H_gradeTotal f_Sol_prop f'Sol_prop.
-            - exists (f_Sol_o_f'Sol o>Topos_transf)%sol.
-              clear -f_Sol_prop f'Sol_prop f_Sol_o_f'Sol_prop. tac_reduce.
-          }
 
       (* f is (f_ o>Topos f') , to (f_Sol o>Topos f'Sol)  , is (SolPolyMetaFunctor func1 x o>Topos f'Sol) *)
       + clear - solveTopos H_gradeTotal f_Sol_prop f'Sol_prop.
@@ -1271,27 +1314,6 @@ Section Section1.
         (* f is (f_ o>Topos f') , to (f_Sol o>Topos f'Sol)  , is (SolPolyMetaFunctor func1 x o>Topos [[ f'Sol_ ]]) *)
         * exists ((f'Sol_ A x))%sol.
           clear -f_Sol_prop f'Sol_prop. tac_reduce.
-
-      (* f is (f_ o>Topos f') , to (f_Sol o>Topos f'Sol)  , is ((f_Sol' o>Topos_transf) o>Topos f'Sol) *)
-      + clear - solveTopos H_gradeTotal f_Sol_prop f'Sol_prop.
-        move: (Sol.Destruct_domMetaFunctor.Topos00_domMetaFunctorP f'Sol) => f'Sol_domMetaFunctorP.
-        destruct f'Sol_domMetaFunctorP as
-            [ _func0 _func1  (* @uTopos (MetaFunctor _func1) %sol*)
-            | _func0 _func1 F f'Sol_ ] (* [[ f'Sol_ @ func1 ]] *).
-
-        (* f is (f_ o>Topos f') , to (f_Sol o>Topos f'Sol)  , is ((f_Sol' o>Topos_transf) o>Topos (@uTopos (MetaFunctor _func1))) *)
-        * exists ( f_Sol' o>Topos_transf )%sol .
-          clear -f_Sol_prop f'Sol_prop. tac_reduce.
-
-        (* f is (f_ o>Topos f') , to (f_Sol o>Topos f'Sol)  , is ((f_Sol' o>Topos_transf) o>Topos [[ f'Sol_ ]]) *)
-        * { case : (solveTopos len _ _ ((Sol.toTopos f_Sol') o>Topos [[ (fun A0 => ((fun A1 x1 => Sol.toTopos (f'Sol_ A1 x1)) A0) \o (transf A0)) @ func1 ]] )) =>
-            [ | f_Sol_o_f'Sol f_Sol_o_f'Sol_prop ].
-            - (* copy-paste degrade lemma case PolyMetaTransf_CoLimitator *)
-              tac_degrade_transf (fun A1 x1 => Sol.toTopos (f'Sol_ A1 x1)) transf.
-              tac_degrade H_gradeTotal f_Sol_prop f'Sol_prop.
-            - exists (f_Sol_o_f'Sol).
-              clear -f_Sol_prop f'Sol_prop f_Sol_o_f'Sol_prop. tac_reduce.
-          }
 
       (* f is (f_ o>Topos f') , to (f_Sol o>Topos f'Sol)  , is ( [[ f_Sol_ ]] o>Topos f'Sol) *)
       + have gradeTotal_f_Sol_o_f'Sol : forall A x , (gradeTotal (((fun A1 x1 => Sol.toTopos (f_Sol_ A1 x1)) A x) o>Topos (Sol.toTopos f'Sol)) <= len)%coq_nat.
