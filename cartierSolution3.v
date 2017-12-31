@@ -10,9 +10,9 @@ The ends is to start from some generating/views data and then to add equalizers 
 
 In contrast from the earlier grammatical presentation of pairing-projections (product), now the equalizer-objects do depend on the morphisms . BUT THIS DEPENDENCE NEED-NOT BE GRAMMATICAL ! This dependence could be expressed via the sense-decoding ( "Yoneda" ) of the grammatical morphisms .
 
-The grammatical objects/morphisms are simultaneously-mutually presented with their sense-decoding ; this could be done via some common inductive-recursive presentation or alternatively by inferring the sense-decoding computation into extra indices of the type-family of the object/morphismss .
+The grammatical objects/morphisms are simultaneously-mutually presented with their sense-decoding ; this could be done via some common inductive-recursive presentation or alternatively by inferring the sense-decoding computation into extra indexes of the type-family of the object/morphisms .
 
-The conversion-relation shall convert across two morphisms whose sense-decoding indices are not syntactically/grammatically-the-same. But oneself does show that, by logical-deduction, these two sense-decoding are indeed propositionally equal ( "soundness lemma" ) . 
+The conversion-relation shall convert across two morphisms whose sense-decoding indexes are not syntactically/grammatically-the-same. But oneself does show that, by logical-deduction, these two sense-decoding are indeed propositionally equal ( "soundness lemma" ) . 
 
 Finally, some linear total/asymptotic grade is defined on the morphisms and the tactics-automated degradation lemma shows that each of the conversion indeed degrades the redex morphism .
 
@@ -46,7 +46,7 @@ KEYWORDS : 1337777.OOO ; COQ ; cut-elimination ; equalizers ; polymorph metafunc
 
 OUTLINE :
 
-  * Views/Generators data
+  * Generating-views data
 
   * Grammatical presentation of objects and morphisms , with sense-decoding as metafunctors and metatransformations
   ** Grammatical presentation of objects
@@ -65,7 +65,7 @@ OUTLINE :
 
 -----
 
-EPILOGUE : Now there is enough data (for multiple masters-engineering) to confirm the presence of some MODOS technique , which is some style of "substructural topos" ... where oneself could present grammatical polymorph views data ( "sheaves" ) , grammatical polymorph generators ( "presentable category" ) , grammatical polymorph internal functors ( "internal category" ) , grammatical polymorph image functor ( "regular category" ) , grammatical polymorph union functors ( "coherent category" ) ...
+EPILOGUE : Now there is enough data (for multiple masters-engineering) to confirm the presence of some MODOS grammar, which is some style of "substructural topos" ... where oneself could present grammatical polymorph views-data ( "sheaves" ) , grammatical polymorph generating-views ( "presentable category" ) , grammatical polymorph internal functors ( "internal category" ) , grammatical polymorph images ( "regular category" ) , grammatical polymorph unions ( "coherent category" ) ...
 
 -----
 
@@ -75,7 +75,7 @@ BUY RECURSIVE T-SQUARE paypal.me/1337777 ; 微信支付 2796386464@qq.com ; eth 
 
 (**
 
-* Views/Generators data
+* Generating-views data
 
 The ends is to start from some generating data and then to add equalizers of morphisms ; but where are those equalizers ? Oneself could get them as metafunctors on this generating data, as long as oneself grammatically distinguishes whatever-is-interesting .
 
@@ -125,9 +125,9 @@ Axiom unitIndexer_polyIndexer :
 
 In contrast from the earlier grammatical presentation of pairing-projections (product), now the equalizer-objects do depend on the morphisms . BUT THIS DEPENDENCE NEED-NOT BE GRAMMATICAL ! This dependence could be expressed via the sense-decoding ( "Yoneda" ) of the grammatical morphisms .
 
-The sense-decoding of any object is some metafunctor . The sense-decoding of any morphism is some metatransformation . The grammatical objects are simultaneously-mutually presented with their sense-decoding ; this could be done via some common inductive-recursive presentation or alternatively by inferring the sense-decoding computation into extra indices of the type-family of the objects . This same comment holds for the presentation of grammatical morphisms .
+The sense-decoding of any object is some metafunctor . The sense-decoding of any morphism is some metatransformation . The grammatical objects are simultaneously-mutually presented with their sense-decoding ; this could be done via some common inductive-recursive presentation or alternatively by inferring the sense-decoding computation into extra indexes of the type-family of the objects . This same comment holds for the presentation of grammatical morphisms .
 
-While the common choice would be to use the inductive-recursive presentation, it is true that the extra-indices presentation enable the easy sharing of indices among grammatical objects and grammatical morphisms ; therefore this extra-indices presentation avoids the need for manipulating extra propositional-equalities which express these sharings .
+While the common choice would be to use the inductive-recursive presentation, it is true that the extra-indexes presentation enable the easy sharing of indexes among grammatical objects and grammatical morphisms ; therefore this extra-indexes presentation avoids the need for manipulating extra propositional-equalities which express these sharings .
 
 ** Grammatical presentation of objects
 
@@ -431,7 +431,7 @@ As common, the grammatical conversions are classified into the total/(multi-step
 
 In contrast, now the congruences enable also any conversion of each of the grammatical two-equalized-morphisms parameters, as long as the sense-decoding stays the same.
 
-Also in contrast, because of the embedded extra-indices in the type-family of the morphisms, the conversion-relation shall convert across two morphisms whose sense-decoding indices are not syntactically/grammatically-the-same. But oneself does show that, by logical-deduction, these two sense-decoding are indeed propositionally equal ( "soundness lemma" ) . 
+Also in contrast, because of the embedded extra-indexes in the type-family of the morphisms, the conversion-relation shall convert across two morphisms whose sense-decoding indexes are not syntactically/grammatically-the-same. But oneself does show that, by logical-deduction, these two sense-decoding are indeed propositionally equal ( "soundness lemma" ) . 
 
 It is "clear" that, using the polymorphism/cut-elimination lemma and the confluence lemma, oneself shall be able to deduce that the same-sense-decoding property across two morphisms infers grammatical-conversion across these two morphisms ( "completeness lemma" ) ...
 
@@ -1139,7 +1139,7 @@ Module Sol.
 
 ** Destruction of morphisms with inner-instantiation of object-indexes
 
-Regardless the extra-indices in the type-families , oneself easily still-gets the common dependent-destruction of morphisms with inner-instantiation of object-indexes
+Regardless the extra-indexes in the type-families , oneself easily still-gets the common dependent-destruction of morphisms with inner-instantiation of object-indexes
 
 #+BEGIN_SRC coq :exports both :results silent **)
   
@@ -1260,9 +1260,9 @@ End Sol.
 
 As common, this resolution is by some non-structurally recursive function .
 
-In contrast, this resolution also computes the sense-decoding index of the resolved morphism, this index is inferred as metavariable from the actual resolved morphism via the [eexists] tactic. The technical progress of this resolution does require the earlier lemma that convertible morphisms do have the sense-decoding indices.
+In contrast, this resolution also computes the sense-decoding index of the resolved morphism, this index is inferred as metavariable from the actual resolved morphism via the [eexists] tactic. The technical progress of this resolution does require the earlier lemma that convertible morphisms do have the sense-decoding indexes.
 
-This COQ program and deduction is mostly-automated ; but memo that COQ lacks inductive-recursive presentations and memo that here the automation-tactics use only logical eauto-resolution because COQ lacks some more-efficient heterogeneous-rewriting tactics, because the conversion-relation do convert across two morphisms whose sense-decoding indices are not syntactically/grammatically-the-same.
+This COQ program and deduction is mostly-automated ; but memo that COQ lacks inductive-recursive presentations and memo that here the automation-tactics use only logical eauto-resolution because COQ lacks some more-efficient heterogeneous-rewriting tactics, because the conversion-relation do convert across two morphisms whose sense-decoding indexes are not syntactically/grammatically-the-same.
 
 #+BEGIN_SRC coq :exports both :results silent **)
 
