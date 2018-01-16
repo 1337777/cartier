@@ -4,19 +4,22 @@ Proph
 
 https://gitee.com/OOO1337777/cartier/blob/master/cartierSolution4.v
 
-solves half of some question of Cartier which is how to program grammatical polymorph internal ( "typed" , "small" ) functors
+solves half of some question of Cartier which is how to program grammatical polymorph internal ( "typed" , "small" ) functors ...
 
-TODO: ?ERRATA?: in cartierSolution3.v Project1_cong and else , shall allow more general : additional _transfL with shared sense Yoneda10_transfL ... ,  
+The ends is to do polymorph mathematics which is internal/small/typed ref some indexer/types (metacategory/topos/modos) ; this infers that the objects and morphisms can no longer be touched individually but many objects shall be touched at the same time via some indexing/dimension/type and many morphisms shall be touched at the same time via some indexing/dimension/type . And for internal polymorph mathematics , the common operations on the morphisms are pointwise/dimensional ; this contrast from enriched/multifolded polymorph mathematics where each object is touched individually and many morphisms are touched at the same time and the common operations on the morphisms are multiplicative .
 
-- contrast enriched which is multiplicative with single object-index which cuts , 
-  versus internal which is dimensional/pointwise/additive with additional object-indexes which cut ; 
-  but both may still have domain-codomain computations embeded in the indexes of the morphisms-type-family
-- new presentation where the indexer EE which contain pullbacks need not contain terminal
+Oneself shall start from some generating data which is internal/small/typed ref some indexer/types (metacategory/topos/modos) and then add pairing-projections ( "product" ) ; but how to describe the two indexes which encode those pair objects and those pairing-projections morphisms ? Oneself could decode ( "Yoneda" ) these two index-for-objects and index-for-morphisms as two metafunctors on this indexer/metacategory ; then these two metafunctors may be commonly programmed by two inductive-families-presentations where the constructors of these two inductive-families-presentations are the decoding ( "Yoneda" ) as metatransformations of the whatever-is-interesting arrows between these two index-for-objects and index-for-morphisms .
+
+The conversion-relation shall convert across two morphisms whose domain/codomain-computation arguments are not syntactically/grammatically-the-same. But oneself does show that, by logical-deduction, these two domain/codomain-computations are indeed propositionally equal ( "soundness lemma" ) .
+
+Finally, some linear total/asymptotic grade is defined on the morphisms and the tactics-automated degradation lemma shows that each of the conversion indeed degrades the redex morphism .
+
+For instant first impression , the conversion-relation constructor which says that the first projection morphism is natural/polyarrow (commutativity with the polyarrow-cut-constructor) , is written as :
 
 #+BEGIN_EXAMPLE
-| Project1_arrow : forall A (F1 F2 : obCoMod A), forall Z1 : obCoMod A,
-      forall (zz1 : 'CoMod(0 F1 ~> Z1 )0), forall A' (a : 'Indexer(0 A' ~> A )0),
-
+| Project1_arrow : forall (A : obIndexer) (F1 F2 : obCoMod A),
+    forall (Z1 : obCoMod A) (zz1 : 'CoMod(0 F1 ~> Z1 )0),
+    forall (A' : obIndexer) (a : 'Indexer(0 A' ~> A )0),
           ( ~_1 @ (ObCoMod_Poly a F2) o>CoMod (a o>* zz1) )
             <~~ ( a o>* ( ~_1 @ F2 o>CoMod zz1 ) )
 #+END_EXAMPLE
@@ -26,6 +29,21 @@ KEYWORDS : 1337777.OOO ; COQ ; cut-elimination ; internal functors ; polymorph m
 OUTLINE :
 
   * Generating data internal some indexer , by decoding the indexes as metafunctors and the arrows as metatransformations
+
+  * Grammatical presentation of objects and morphisms internal some indexer , by decoding the indexes as metafunctors and the arrows as metatransformations
+  ** Grammatical presentation of objects
+  ** Grammatical presentation of morphisms
+
+  * Grammatical conversions of morphisms , which infer the same domain/codomain-computation
+  ** Grammatical conversions of morphisms
+  ** Same domain/codomain-computation for convertible morphisms
+  ** Linear total/asymptotic grade and the degradation lemma
+
+  * Solution
+  ** Solution morphisms without polyarrow/polymorphism
+  ** Destruction of morphisms with inner-instantiation of object-indexes
+
+  * Polyarrow/polymorphism/cut-elimination by computational/total/asymptotic/reduction/(multi-step) resolution
 
 -----
 
@@ -37,11 +55,15 @@ BUY RECURSIVE T-SQUARE paypal.me/1337777 ; 微信支付 2796386464@qq.com ; eth 
 
 * Generating data internal some indexer , by decoding the indexes as metafunctors and the arrows as metatransformations
 
-The ends is to start from some generating data which is internal/small/typed ref some indexer/types (metacategory/topos/modos) and then to add pairing-projections ( "product" ) ; but how to describe the two indexes which encode those pairing-projections objects and those pairing-projections morphisms ? Oneself could decode ( "Yoneda" ) these two index-for-objects and index-for-morphisms as two metafunctors on this indexer-metacategory ; then these two metafunctors may be commonly programmed by two inductive-families-presentations where the constructors of these two inductive-families-presentations are the decoding ( "Yoneda" ) as metatransformations of the whatever-is-interesting arrows between these two index-for-objects and index-for-morphisms .
+The ends is to do polymorph mathematics which is internal/small/typed ref some indexer/types (metacategory/topos/modos) ; this infers that the objects and morphisms can no longer be touched individually but many objects shall be touched at the same time via some indexing/dimension/type and many morphisms shall be touched at the same time via some indexing/dimension/type . And for internal polymorph mathematics , the common operations on the morphisms are pointwise/dimensional ; this contrast from enriched/multifolded polymorph mathematics where each object is touched individually and many morphisms are touched at the same time and the common operations on the morphisms are multiplicative .
 
-Memo that the functoriality ( "arrows-action" ) of each metafunctor (decoded index) and the naturality ( "arrows-action" ) of each metatransformation (decoded arrow-between-indexes) is signified via some additional/embedded constructors of the inductive-families-presentations or is immediately-accumulated onto the constant constructors .
+Oneself shall start from some generating data which is internal/small/typed ref some indexer/types (metacategory/topos/modos) and then add pairing-projections ( "product" ) ; but how to describe the two indexes which encode those pair objects and those pairing-projections morphisms ? Oneself could decode ( "Yoneda" ) these two index-for-objects and index-for-morphisms as two metafunctors on this indexer/metacategory ; then these two metafunctors may be commonly programmed by two inductive-families-presentations where the constructors of these two inductive-families-presentations are the decoding ( "Yoneda" ) as metatransformations of the whatever-is-interesting arrows between these two index-for-objects and index-for-morphisms .
 
-For sure, polymorphism/cut-elimination cannot proceed beyond the polymorphisms/cuts which are contained in the atomic morphisms generated by the generating data. Therefore oneself shall start by presenting the atomic objects and atomic morphisms , and then inject them into all the objects and morphisms .
+Memo that the functoriality ( "arrows-action" ) of each metafunctor (decoded index) and the naturality ( "arrows-action" ) of each metatransformation (decoded arrow-between-indexes) is signified via some additional/embedded constructors of the inductive-families-presentations or is immediately-accumulated onto the constant constructors . Also memo that here polyarrow/polymorphism/cut-elimination says that both this cut-constructor for arrows ( "arrow-action" , "polyarrow" ) and the common cut-constructor for morphisms ( "composition" , "polymorphism" ) are eliminated/erased .
+
+Memo that the decoding ( "Yoneda" ) preserves/(commute-with) any possible limits and pullbacks in the indexer into the limits and pullback in the COQ-sets . In fact oneself could do internal polymorph mathematics only-in the COQ-sets , without assuming limits (terminal) or pullbacks in the indexer ; but such lemmas cannot be linked back to the indexer .
+
+For sure, polyarrow/polymorphism/cut-elimination cannot proceed beyond the polyarrows/polymorphisms/cuts which are contained in the atomic morphisms generated by the generating data . Therefore oneself shall start by presenting the atomic objects and atomic morphisms , and then inject them into all the objects and morphisms .
 
 #+BEGIN_SRC coq :exports both :results silent **)
 
@@ -133,13 +155,23 @@ End Atom.
 
 * Grammatical presentation of objects and morphisms internal some indexer , by decoding the indexes as metafunctors and the arrows as metatransformations
 
-The decoding ( "Yoneda" ) of the index which encode all the objects is some metafunctor which is programmed by the inductive-family-presentation [obCoMod] . The decoding ( "Yoneda" ) of the index which encode all the morphisms is some metafunctor which is programmed by the inductive-family-presentation [morCoMod] . The decoding ( "Yoneda" ) of the two arrows which encode the domain/source and codomain/target are some metatransformations which are programmed as some additional/embedded grammatical-arguments/parameters of the inductive-family-presentation [morCoMod] of morphisms . The decoding ( "Yoneda" ) of the whatever-is-interesting arrows between the index-for-objects and the index-for-morphims are metatransformations which are programmed as some grammatical-constructors of the inductive-presentation-for-objects and the inductive-presentation-for-morphisms .
+The decoding ( "Yoneda" ) of the index-for-objects which encode all the objects is some metafunctor which is programmed by the inductive-family-presentation [obCoMod] .
+
+The decoding ( "Yoneda" ) of the index-for-morphisms which encode all the morphisms is some metafunctor which is programmed by the inductive-family-presentation [morCoMod] .
+
+The decoding ( "Yoneda" ) of the arrow-for-domain and arrow-for-codomain which encode the domain/source and codomain/target are some metatransformations which are programmed as some additional/embedded grammatical-arguments/parameters of the inductive-family-presentation [morCoMod] of morphisms . Memo that it is not critical for sense that the domain function and codomain function must be computed via some inductive-recursive presentation ; indeed these two functions may be embedded as some additional grammatical-arguments/parameters of the inductive-family-presentation [morCoMod] of morphisms .
+
+The decoding ( "Yoneda" ) of the whatever-is-interesting arrows between the index-for-objects and the index-for-morphims are metatransformations which are programmed as some grammatical-constructors of the inductive-presentation-for-objects and the inductive-presentation-for-morphisms .
 
 Memo that the functoriality ( "arrows-action" ) of each metafunctor (decoded index) and the naturality ( "arrows-action" ) of each metatransformation (decoded arrow-between-indexes) is signified via some additional/embedded constructors [ObCoMod_Poly] [MorCoMod_Poly] of the inductive-families-presentations or is immediately-accumulated onto the constant constructors [UnitCoMod] [MorCoMod_Gen] .
 
 ** Grammatical presentation of objects
 
-The decoding ( "Yoneda" ) of the index which encode all the objects is some metafunctor which is programmed by the inductive-family-presentation [obCoMod] whose only argument/parameter is over all the indexes of the indexer [obIndexer] . The functoriality ( "arrows-action" ) of this decoded index and the naturality ( "arrows-action" ) of the decoded arrow for pair-of-objects is signified via the constructor [ObCoMod_Poly] of this inductive-family-presentation [obCoMod] and by the conversion relation [convObCoMod] relating the grammatical-objects .
+The decoding ( "Yoneda" ) of the index-for-objects which encode all the objects is some metafunctor which is programmed by the inductive-family-presentation [obCoMod] whose only argument/parameter is over all the indexes of the indexer [obIndexer] . 
+
+The decoding ( "Yoneda" ) of the arrow-for-pair-of-objects between the index-for-objects is some metatransformation which is programmed as some grammatical-constructor of the inductive-presentation-for-objects  [obCoMod] .
+
+The functoriality ( "arrows-action" ) of this decoded index-for-objects and the naturality ( "arrows-action" ) of the decoded arrow-for-pair-of-objects is signified via the constructor [ObCoMod_Poly] of this inductive-family-presentation [obCoMod] and by the conversion relation [convObCoMod] relating the grammatical-objects .
 
 The common practice in polymorph mathematics assumes some propositional-extensionality properties ; for example that convertible objects/propositions are the same/equal . Therefore the COQ logic shall express such property , via some very-direct axiom [ax1_convObCoMod_extensionality] for example .
 
@@ -199,6 +231,15 @@ Axiom ax1_convObCoMod_extensionality :  forall A (F G : obCoMod A), G ~~~ F -> G
 
 ** Grammatical presentation of morphisms
 
+The decoding ( "Yoneda" ) of the index-for-morphisms which encode all the morphisms is some metafunctor which is programmed by the inductive-family-presentation [morCoMod] .
+
+The decoding ( "Yoneda" ) of the arrow-for-domain and arrow-for-codomain which encode the domain/source and codomain/target are some metatransformations which are programmed as some additional/embedded grammatical-arguments/parameters of the inductive-family-presentation [morCoMod] of morphisms . Memo that it is not critical for sense that the domain function and codomain function must be computed via some inductive-recursive presentation ; indeed these two functions may be embedded as some additional grammatical-arguments/parameters of the inductive-family-presentation [morCoMod] of morphisms .
+
+The decoding ( "Yoneda" ) of the whatever-is-interesting arrows between the index-for-objects and the index-for-morphims are metatransformations which are programmed as some grammatical-constructors of the inductive-presentation-for-objects and the inductive-presentation-for-morphisms .
+
+The functoriality ( "arrows-action" ) of this decoded index-for-morphisms and the naturality ( "arrows-action" ) of the decoded arrows for pairing-projections is signified via the constructor [MorCoMod_Poly] of this inductive-family-presentation [morCoMod] and by the conversion relation [convMorCoMod] relating the grammatical-morphisms . Also memo that here polymorphism/cut-elimination says that both this cut-constructor for arrows ( "arrow-action" , "polyarrow" ) and the common cut-constructor for morphisms ( "composition" , "polymorphism" ) are eliminated/erased .
+
+For internal polymorph mathematics , the common operations on the morphisms are pointwise/dimensional ; this contrast from enriched/multifolded polymorph mathematics where the objects are touched individually and the common operations on the morphisms are multiplicative .
 
 #+BEGIN_SRC coq :exports both :results silent **)
 
@@ -260,6 +301,20 @@ Notation "~_2 o>CoMod zz2" :=
 Notation "<< ff1 ,CoMod ff2 >>" :=
   (@Pairing _ _ _ _ ff1 ff2) (at level 4, ff1 at next level, ff2 at next level) : poly_scope.
 
+(**#+END_SRC
+
+* Grammatical conversions of morphisms , which infer the same domain/codomain-computation
+
+As common, the grammatical conversions are classified into the total/(multi-step) conversions , and the congruences conversions , and the constant conversions which are used in the polyarrow/polymorphism/cut-elimination lemma , and the constant conversions which are only for the wanted sense of pairing-projections-grammar , and the constant conversions which are only for the confluence lemma .
+
+Also in contrast, because of the embedded extra-arguments/parameters in the inductive-family-presentation of the morphisms, the conversion-relation shall convert across two morphisms whose domain/codomain-computation arguments are not syntactically/grammatically-the-same. But oneself does show that, by logical-deduction [convMorCoMod_sense_dom], these two domain/codomain-computations are indeed propositionally equal ( "soundness lemma" ) . 
+
+Finally, some linear total/asymptotic grade is defined on the morphisms and the tactics-automated degradation lemma shows that each of the conversion indeed degrades the redex morphism . (ERRATA: Memo that this new grade function is simplified in comparison from earlier attempts , because strict-degrading-of-the-conversions is not really required but some form of strict-degrading occurs during the computational/total/asymptotic cut-elimination ... )
+
+** Grammatical conversions of morphisms
+
+#+BEGIN_SRC coq :exports both :results silent **)
+
 Reserved Notation "gg0 <~~ gg" (at level 70).
 
 Inductive convMorCoMod : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 %poly ),
@@ -286,7 +341,7 @@ Inductive convMorCoMod : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~>
     forall (F'' : obCoMod A) (ff_ : 'CoMod(0 F'' ~> F' )0),
       ff'0 <~~ ff' -> ( ff_ o>CoMod ff'0 ) <~~ ( ff_ o>CoMod ff' )
 
-(* TODO: ?ERRATA?: as in cartierSolution3.v Project1_cong ,  shall allow more general : additional F2' with F2' ~~~ F2  *)
+(*TODO: ?ERRATA?: as in cartierSolution3.v Project1_cong ,  shall allow more general : additional F2' with F2' ~~~ F2  *)
 | Project1_cong : forall A (F2 : obCoMod A) , forall (F1 Z1 : obCoMod A) (zz1 : 'CoMod(0 F1 ~> Z1 )0),
       forall (F1' Z1' : obCoMod A) (zz1' : 'CoMod(0 F1' ~> Z1' )0),
         zz1' <~~ zz1 ->
@@ -338,14 +393,15 @@ Inductive convMorCoMod : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~>
       ( ( 'MorCoMod_Atom ( (a o>* gg)%atom ) )%poly )
         <~~ ( ( a o>* ( 'MorCoMod_Atom gg ) )%poly )
         
-| Project1_arrow : forall A (F1 F2 : obCoMod A), forall Z1 : obCoMod A,
-      forall (zz1 : 'CoMod(0 F1 ~> Z1 )0), forall A' (a : 'Indexer(0 A' ~> A )0),
-
+| Project1_arrow : forall (A : obIndexer) (F1 F2 : obCoMod A),
+    forall (Z1 : obCoMod A) (zz1 : 'CoMod(0 F1 ~> Z1 )0),
+    forall (A' : obIndexer) (a : 'Indexer(0 A' ~> A )0),
           ( ~_1 @ (ObCoMod_Poly a F2) o>CoMod (a o>* zz1) )
             <~~ ( a o>* ( ~_1 @ F2 o>CoMod zz1 ) )
 
-| Project2_arrow : forall A (F1 F2 : obCoMod A), forall Z2 : obCoMod A,
-      forall (zz2 : 'CoMod(0 F2 ~> Z2 )0), forall A' (a : 'Indexer(0 A' ~> A )0),
+| Project2_arrow : forall A (F1 F2 : obCoMod A),
+    forall (Z2 : obCoMod A) (zz2 : 'CoMod(0 F2 ~> Z2 )0),
+    forall (A' : obIndexer) (a : 'Indexer(0 A' ~> A )0),
 
           ( ~_2 @ (ObCoMod_Poly a F1) o>CoMod (a o>* zz2) )
             <~~ ( a o>* ( ~_2 @ F1 o>CoMod zz2 ) )
@@ -438,6 +494,12 @@ where "gg0 <~~ gg" := (@convMorCoMod _ _ _ gg _ _ gg0).
 
 Hint Constructors convMorCoMod.
 
+(**#+END_SRC
+
+** Same domain/codomain-computation for convertible morphisms
+
+#+BEGIN_SRC coq :exports both :results silent **)
+
 Lemma convMorCoMod_sense_dom : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 ),
       forall (F0 G0 : obCoMod A) ( gg0 : 'CoMod(0 F0 ~> G0 )0 ),
         gg0 <~~ gg -> F0 ~~~ F .
@@ -463,6 +525,12 @@ Proof.
     intros; apply: ax1_convObCoMod_extensionality ;
       apply: convMorCoMod_sense_codom. eassumption.
 Qed.
+
+(**#+END_SRC
+
+** Linear total/asymptotic grade and the degradation lemma
+
+#+BEGIN_SRC coq :exports both :results silent **)
 
 Notation max m n := ((m + (Nat.sub n m))%coq_nat).
 
@@ -532,6 +600,18 @@ Ltac tac_degrade H_grade :=
            move : (degrade Hred) ; clear Hred
          end;
   move: H_grade; simpl; intros; try tac_grade_gt0; intros; Omega.omega.
+
+(**#+END_SRC
+
+* Solution
+
+As common, the purely-grammatical polyarrow [MorCoMod_Poly] cut-constructor and polymorphism cut-constructor [PolyCoMod] are not part of the solution .
+
+For sure, polyarrow/polymorphism/cut-elimination cannot proceed beyond the polyarrows/polymorphisms/cuts which are contained in the atomic morphisms generated by the generating data .
+
+** Solution morphisms without polyarrow/polymorphism
+
+#+BEGIN_SRC coq :exports both :results silent **)
 
 Module Sol.
 
@@ -603,6 +683,14 @@ Module Sol.
            end.
   Defined.
 
+  (**#+END_SRC
+
+** Destruction of morphisms with inner-instantiation of object-indexes
+
+Regardless the extra-arguments/parameters in the inductive-family-presentations , oneself easily still-gets the common dependent-destruction of morphisms with inner-instantiation of object-indexes
+
+#+BEGIN_SRC coq :exports both :results silent **)
+  
   Module Destruct_domPair.
 
   Inductive morCoMod_domPair
@@ -685,6 +773,18 @@ Module Sol.
   End Destruct_domAtom.
   
 End Sol.
+
+(**#+END_SRC
+
+* Polyarrow/polymorphism/cut-elimination by computational/total/asymptotic/reduction/(multi-step) resolution
+
+As common, this resolution is by some non-structurally recursive function .
+
+In contrast, this resolution also computes the domain/codomain argument/parameter of the resolved morphism, this argument/parameter is inferred as metavariable from the actual resolved morphism via the [eexists] tactic. The technical progress of this resolution does require the earlier lemma [convMorCoMod_sense_dom'] that convertible morphisms do have the same domain/codomain-computation arguments .
+
+This COQ program and deduction is mostly-automated ; but memo that COQ lacks inductive-recursive presentations and memo that here the automation-tactics use only logical eauto-resolution because COQ lacks some more-efficient heterogeneous-rewriting tactics, because the conversion-relation do convert across two morphisms whose domain/codomain-computation arguments/parameters are not syntactically/grammatically-the-same.
+
+#+BEGIN_SRC coq :exports both :results silent **)
 
 Module Resolve.
 
