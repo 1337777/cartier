@@ -24,7 +24,7 @@ For instant first impression , the conversion-relation constructor which says th
             <~~ ( a o>* ( ~_1 @ F2 o>CoMod zz1 ) )
 #+END_EXAMPLE
 
-KEYWORDS : 1337777.OOO ; COQ ; cut-elimination ; internal functors ; polymorph metafunctors-grammar ; modos
+KEYWORDS : 1337777.OOO ; COQ ; cut-elimination ; internal functors ; internal product ; polymorph metafunctors-grammar ; modos
 
 OUTLINE :
 
@@ -108,12 +108,58 @@ Parameter morCoMod_Gen : forall A (F G : obCoMod_Gen A), Type.
 
 Reserved Notation "''CoMod' (0 F' ~> F )0" (at level 0, format "''CoMod' (0  F'  ~>  F  )0").
 
+Reserved Notation "gg0 <~~ gg" (at level 70).
+
 Module Atom.
 
   Inductive obCoMod : obIndexer -> Type := 
   | ObCoMod_Poly : forall (A A' : obIndexer), 'Indexer(0 A' ~> A )0 -> obCoMod A -> obCoMod A'
   | ObCoMod_Gen : forall A, obCoMod_Gen A -> forall A' (a : 'Indexer(0 A' ~> A )0), obCoMod A' .
 
+  Reserved Notation "F0 ~~~ F" (at level 70).
+
+  Section Section0.
+  Delimit Scope atom_scope with atom.
+
+  Inductive convObCoMod : forall A (F G : obCoMod A), Prop :=
+
+  | convObCoMod_Refl :
+      forall A (F : obCoMod A),
+        F ~~~ F
+
+  | convObCoMod_Sym :
+      forall A (F G : obCoMod A),
+        G ~~~ F -> F ~~~ G
+
+  | convObCoMod_Trans :
+      forall A (F uTrans : obCoMod A),
+        uTrans ~~~ F -> forall (G : obCoMod A), G ~~~ uTrans -> G ~~~ F
+
+  | ObCoMod_Poly_cong : forall (A A' : obIndexer) (a : 'Indexer(0 A' ~> A )0) (F F0 : obCoMod A),
+      F0 ~~~ F -> ObCoMod_Poly a F0 ~~~ ObCoMod_Poly a F
+
+  | ObCoMod_Poly_polyIndexer : forall (A A' : obIndexer) (a : 'Indexer(0 A' ~> A )0) (F : obCoMod A) A'' (a' : 'Indexer(0 A'' ~> A' )0),
+      ObCoMod_Poly (a' o>Indexer a) F ~~~ ObCoMod_Poly a' (ObCoMod_Poly a F)
+
+  | ObCoMod_Poly_unitIndexer : forall (A : obIndexer) (F : obCoMod A),
+      (ObCoMod_Poly (@unitIndexer A) F) ~~~ F
+
+  | ObCoMod_Gen_arrow : forall A (F : obCoMod_Gen A), forall A' (a : 'Indexer(0 A' ~> A )0),
+        forall A'' (a' : 'Indexer(0 A'' ~> A' )0),
+          ObCoMod_Gen F (a' o>Indexer a) ~~~ ObCoMod_Poly a' (ObCoMod_Gen F a)
+
+  where "F0 ~~~ F" := (@convObCoMod _ F F0) : atom_scope. 
+
+  End Section0.
+
+  Module Import Ex_Notations0.
+      Delimit Scope atom_scope with atom.
+      Notation "F0 ~~~ F" := (@convObCoMod _ F F0) : atom_scope. 
+      Hint Constructors convObCoMod.
+  End Ex_Notations0.
+
+  Axiom ax1_convObCoMod_extensionality :  forall A (F G : obCoMod A), ( G ~~~ F )%atom -> G = F .
+  
   Section Section1.
   Delimit Scope atom_scope with atom.
 
@@ -134,8 +180,8 @@ Module Atom.
 
   End Section1.
 
-  Module Import Ex_Notations.
-    Delimit Scope atom_scope with atom.
+  Module Import Ex_Notations1.
+    Export Ex_Notations0.
 
     Notation "''CoMod' (0 F' ~> F )0" := (@morCoMod _ F' F) : atom_scope. 
 
@@ -147,8 +193,84 @@ Module Atom.
 
     Notation "a o>| ''MorCoMod_Gen' ff" :=
       (@MorCoMod_Gen _ _ _ ff _ a) (at level 3) : atom_scope.
+  End Ex_Notations1.
+
+  Section Section2.
+  Local Open Scope atom_scope.
+
+  Inductive convMorCoMod : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 %poly ),
+        forall (F0 G0 : obCoMod A) ( gg0 : 'CoMod(0 F0 ~> G0 )0 %poly ), Prop :=
+
+  | convMorCoMod_Refl : forall A (F G : obCoMod A) (gg : 'CoMod(0 F ~> G )0 ),
+      gg <~~ gg
+
+  | convMorCoMod_Trans :
+      forall A (F G : obCoMod A) (gg : 'CoMod(0 F ~> G )0 ),
+      forall (F0 G0 : obCoMod A) (uTrans : 'CoMod(0 F0 ~> G0 )0 ),
+        uTrans <~~ gg -> forall (F00 G00 : obCoMod A) (gg00 : 'CoMod(0 F00 ~> G00 )0 ),
+          gg00 <~~ uTrans -> gg00 <~~ gg
+
+  | MorCoMod_Poly_cong : forall (A A' : obIndexer) (a : 'Indexer(0 A' ~> A )0),
+      forall (F G : obCoMod A) (gg gg0 : 'CoMod(0 F ~> G )0),
+        gg0 <~~ gg -> ( a o>* gg0 ) <~~ ( a o>* gg )
+
+  | PolyCoMod_cong_Pre : forall A (F F' : obCoMod A) (ff' : 'CoMod(0 F' ~> F )0),
+      forall (F'' : obCoMod A) (ff_ ff_0 : 'CoMod(0 F'' ~> F' )0 ),
+        ff_0 <~~ ff_ -> ( ff_0 o>CoMod ff' ) <~~ ( ff_ o>CoMod ff' )
+
+  | PolyCoMod_cong_Post : forall A (F F' : obCoMod A) (ff' ff'0 : 'CoMod(0 F' ~> F )0 ),
+      forall (F'' : obCoMod A) (ff_ : 'CoMod(0 F'' ~> F' )0),
+        ff'0 <~~ ff' -> ( ff_ o>CoMod ff'0 ) <~~ ( ff_ o>CoMod ff' )
+
+  | PolyCoMod_arrow : forall A (F F' : obCoMod A) (ff' : 'CoMod(0 F' ~> F )0) (F'' : obCoMod A)
+                        (ff_ : 'CoMod(0 F'' ~> F' )0), forall A' (a : 'Indexer(0 A' ~> A )0),
+
+        ( ( a o>* ff_ ) o>CoMod ( a o>* ff' ) )
+          <~~ ( a o>* (ff_ o>CoMod ff') ) 
+          
+  | MorCoMod_Gen_arrow : forall A (F G : obCoMod_Gen A) (gg : @morCoMod_Gen A F G)
+                           A' (a : 'Indexer(0 A' ~> A )0),
+      forall A'' (a' : 'Indexer(0 A'' ~> A' )0),
+
+        ( (a' o>Indexer a) o>| 'MorCoMod_Gen gg )
+          <~~ ( a' o>* ( a o>| 'MorCoMod_Gen gg ) )
+              
+  where "gg0 <~~ gg" := (@convMorCoMod _ _ _ gg _ _ gg0) : atom_scope.
+
+  End Section2.
+
+  Module Export Ex_Notations.
+    Export Ex_Notations1.
+    Notation "gg0 <~~ gg" := (@convMorCoMod _ _ _ gg _ _ gg0) : atom_scope.
+    Hint Constructors convMorCoMod.
   End Ex_Notations.
 
+  Lemma convMorCoMod_sense_dom : ( forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 ),
+      forall (F0 G0 : obCoMod A) ( gg0 : 'CoMod(0 F0 ~> G0 )0 ),
+        gg0 <~~ gg -> F0 ~~~ F )%atom .
+  Proof. induction 1; simpl; eauto. Qed.
+
+  Lemma convMorCoMod_sense_dom' : ( forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 ),
+        forall (F0 G0 : obCoMod A) ( gg0 : 'CoMod(0 F0 ~> G0 )0 ),
+          gg0 <~~ gg -> F0 = F )%atom .
+  Proof.
+    intros; apply: ax1_convObCoMod_extensionality ;
+      apply: convMorCoMod_sense_dom. eassumption.
+  Qed.
+
+  Lemma convMorCoMod_sense_codom : ( forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 ),
+        forall (F0 G0 : obCoMod A) ( gg0 : 'CoMod(0 F0 ~> G0 )0 ),
+          gg0 <~~ gg -> G0 ~~~ G )%atom .
+  Proof. induction 1; simpl; eauto. Qed.
+
+  Lemma convMorCoMod_sense_codom' : ( forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 ),
+        forall (F0 G0 : obCoMod A) ( gg0 : 'CoMod(0 F0 ~> G0 )0 ),
+          gg0 <~~ gg -> G0 = G )%atom .
+  Proof.
+    intros; apply: ax1_convObCoMod_extensionality ;
+      apply: convMorCoMod_sense_codom. eassumption.
+  Qed.
+  
 End Atom.
 
 (**#+END_SRC
@@ -202,6 +324,9 @@ Inductive convObCoMod : forall A (F G : obCoMod A), Prop :=
 
 | ObCoMod_Poly_cong : forall (A A' : obIndexer) (a : 'Indexer(0 A' ~> A )0) (F F0 : obCoMod A),
     F0 ~~~ F -> ObCoMod_Poly a F0 ~~~ ObCoMod_Poly a F
+
+| ObCoMod_Atom_cong : forall A (F F0 : Atom.obCoMod A),
+    ( F0 ~~~ F )%atom -> ObCoMod_Atom F0 ~~~ ObCoMod_Atom F
            
 | Pair_cong_1 : forall A (F1 F1' F2 : obCoMod A),
     F1' ~~~ F1 -> Pair F1' F2 ~~~ Pair F1 F2
@@ -221,7 +346,7 @@ Inductive convObCoMod : forall A (F G : obCoMod A), Prop :=
 | Pair_arrow : forall A (F G : obCoMod A), forall A' (a : 'Indexer(0 A' ~> A )0),
       Pair (ObCoMod_Poly a F) (ObCoMod_Poly a G) ~~~ ObCoMod_Poly a (Pair F G)
 
-where "F0 ~~~ F" := (@convObCoMod _ F F0).
+where "F0 ~~~ F" := (@convObCoMod _ F F0) : poly_scope.
 
 Hint Constructors convObCoMod.
 
@@ -341,6 +466,10 @@ Inductive convMorCoMod : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~>
     forall (F'' : obCoMod A) (ff_ : 'CoMod(0 F'' ~> F' )0),
       ff'0 <~~ ff' -> ( ff_ o>CoMod ff'0 ) <~~ ( ff_ o>CoMod ff' )
 
+| MorCoMod_Atom_cong : forall A (F G : Atom.obCoMod A) (gg : 'CoMod(0 F ~> G )0 %atom ),
+    forall (F' G' : Atom.obCoMod A) (gg0 : 'CoMod(0 F' ~> G' )0 %atom ),
+    ( gg0 <~~ gg )%atom -> ( 'MorCoMod_Atom gg0 ) <~~ ( 'MorCoMod_Atom gg )
+
 (*TODO: ?ERRATA?: as in cartierSolution3.v Project1_cong ,  shall allow more general : additional F2' with F2' ~~~ F2  *)
 | Project1_cong : forall A (F2 : obCoMod A) , forall (F1 Z1 : obCoMod A) (zz1 : 'CoMod(0 F1 ~> Z1 )0),
       forall (F1' Z1' : obCoMod A) (zz1' : 'CoMod(0 F1' ~> Z1' )0),
@@ -362,13 +491,13 @@ Inductive convMorCoMod : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~>
     forall (F2' : obCoMod A) (ff2' : 'CoMod(0 L ~> F2' )0),
       ff2' <~~ ff2 -> ( << ff1 ,CoMod ff2' >> ) <~~ ( << ff1 ,CoMod ff2 >> )
 
-(*TODO: retrofit - for sense , not in solution,  derivable after cut-elimination , ?maybe? for reduction *)
+(* for sense only , not in solution,  derivable after cut-elimination , not for reduction *)
 | MorCoMod_Poly_polyIndexer : forall (A A' : obIndexer) (a : 'Indexer(0 A' ~> A )0),
     forall (F G : obCoMod A) (gg : 'CoMod(0 F ~> G )0),
     forall (A'' : obIndexer) (a' : 'Indexer(0 A'' ~> A' )0),
       ( (a' o>Indexer a) o>* gg ) <~~ ( a' o>* (a o>* gg) )
 
-(*TODO: retrofit - for sense only , not in solution , derivable after cut-elimination , ?maybe? for reduction *)
+(* for sense only , not in solution , derivable after cut-elimination , not for reduction *)
 | MorCoMod_Poly_unitIndexer : forall (A : obIndexer),
     forall (F G : obCoMod A) (gg : 'CoMod(0 F ~> G )0),
       gg <~~ ( (@unitIndexer A) o>* gg )
@@ -503,7 +632,12 @@ Hint Constructors convMorCoMod.
 Lemma convMorCoMod_sense_dom : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 ),
       forall (F0 G0 : obCoMod A) ( gg0 : 'CoMod(0 F0 ~> G0 )0 ),
         gg0 <~~ gg -> F0 ~~~ F .
-Proof. induction 1; simpl; eauto. Qed.
+Proof. induction 1; simpl; intros;
+         try match goal with
+             | [ Hred : ( _ <~~ _ )%atom |- _ ] =>
+               move : (Atom.convMorCoMod_sense_dom Hred)
+             end; eauto.
+Qed.
 
 Lemma convMorCoMod_sense_dom' : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 ),
       forall (F0 G0 : obCoMod A) ( gg0 : 'CoMod(0 F0 ~> G0 )0 ),
@@ -516,7 +650,12 @@ Qed.
 Lemma convMorCoMod_sense_codom : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 ),
       forall (F0 G0 : obCoMod A) ( gg0 : 'CoMod(0 F0 ~> G0 )0 ),
         gg0 <~~ gg -> G0 ~~~ G .
-Proof. induction 1; simpl; eauto. Qed.
+Proof. induction 1; simpl; intros;
+         try match goal with
+             | [ Hred : ( _ <~~ _ )%atom |- _ ] =>
+               move : (Atom.convMorCoMod_sense_codom Hred)
+             end; eauto.
+Qed.
 
 Lemma convMorCoMod_sense_codom' : forall A, forall (F G : obCoMod A) ( gg : 'CoMod(0 F ~> G )0 ),
       forall (F0 G0 : obCoMod A) ( gg0 : 'CoMod(0 F0 ~> G0 )0 ),
@@ -534,15 +673,25 @@ Qed.
 
 Notation max m n := ((m + (Nat.sub n m))%coq_nat).
 
+Fixpoint grade_Atom A (F G : Atom.obCoMod A) (gg : 'CoMod(0 F ~> G )0 %atom ) {struct gg} : nat . 
+Proof.
+  case : A F G / gg . 
+  - intros ? ? a ? ? gg .
+    exact:  ( S ( grade_Atom _ _ _ gg + ( grade_Atom _ _ _ gg + grade_Atom _ _ _ gg )%coq_nat )%coq_nat ) .
+  - intros ? ? ? ff' ? ff_ .
+    exact: ( S (grade_Atom _ _ _ ff' + grade_Atom _ _ _ ff_)%coq_nat )%coq_nat .
+  - intros. exact: (S O).
+Defined.
+
 Fixpoint grade A (F G : obCoMod A) (gg : 'CoMod(0 F ~> G )0 ) {struct gg} : nat . 
 Proof.
   case : A F G / gg . 
   - intros ? ? a ? ? gg .
-    exact: (S (grade _ _ _ gg) + S (grade _ _ _ gg) )%coq_nat .
+    exact:  ( (S (grade _ _ _ gg) ) + (S (grade _ _ _ gg) + S (grade _ _ _ gg) )%coq_nat )%coq_nat .
   - intros ? ? ? ff' ? ff_ .
     exact: (S (grade _ _ _ ff' + grade _ _ _ ff_)%coq_nat + S (grade _ _ _ ff' + grade _ _ _ ff_)%coq_nat)%coq_nat .
   - intros. exact: (S O).
-  - intros. exact: (S O).
+  - intros ? ? ? gg. exact: (S (grade_Atom gg)).
   - intros ? ? ? ? zz1 .
     exact: (S (grade _ _ _ zz1)).
   - intros ? ? ? ? zz2 .
@@ -551,9 +700,42 @@ Proof.
     refine (S (max (grade _ _ _ ff1) (grade _ _ _ ff2))).
 Defined.
 
+Lemma grade_Atom_gt0 : forall A (F G : Atom.obCoMod A) (gg : 'CoMod(0 F ~> G )0 %atom),
+     ((S O) <= (grade_Atom gg))%coq_nat.
+Proof. intros; case : gg; intros; apply/leP; intros; simpl; auto. Qed.
+
 Lemma grade_gt0 : forall A (F G : obCoMod A) (gg : 'CoMod(0 F ~> G )0 ),
      ((S O) <= (grade gg))%coq_nat.
-Proof. intros; apply/leP; case : gg; simpl; auto. Qed.
+Proof. intros; case : gg; intros; try exact: grade_Atom_gt0; apply/leP; intros; simpl; auto. Qed.
+
+Ltac tac_grade_Atom_gt0 :=
+  match goal with
+  | [ gg1 : 'CoMod(0 _ ~> _ )0 %atom ,
+            gg2 : 'CoMod(0 _ ~> _ )0 %atom ,
+                  gg3 : 'CoMod(0 _ ~> _ )0 %atom ,
+                        gg4 : 'CoMod(0 _ ~> _ )0 %atom |- _ ] =>
+    move : (@grade_Atom_gt0 _ _ _ gg1) (@grade_Atom_gt0 _ _ _ gg2)
+                                          (@grade_Atom_gt0 _ _ _ gg3)
+                                          (@grade_Atom_gt0 _ _ _ gg4)
+  | [ gg1 : 'CoMod(0 _ ~> _ )0 %atom ,
+            gg2 : 'CoMod(0 _ ~> _ )0 %atom ,
+                  gg3 : 'CoMod(0 _ ~> _ )0 %atom ,
+                        gg4 : 'CoMod(0 _ ~> _ )0 %atom |- _ ] =>
+    move : (@grade_Atom_gt0 _ _ _ gg1) (@grade_Atom_gt0 _ _ _ gg2)
+                                          (@grade_Atom_gt0 _ _ _ gg3)
+                                          (@grade_Atom_gt0 _ _ _ gg4)
+  | [ gg1 : 'CoMod(0 _ ~> _ )0 %atom ,
+            gg2 : 'CoMod(0 _ ~> _ )0 %atom ,
+                  gg3 : 'CoMod(0 _ ~> _ )0 %atom |- _ ] =>
+    move : (@grade_Atom_gt0 _ _ _ gg1) (@grade_Atom_gt0 _ _ _ gg2)
+                                          (@grade_Atom_gt0 _ _ _ gg3)
+  | [ gg1 : 'CoMod(0 _ ~> _ )0 %atom ,
+            gg2 : 'CoMod(0 _ ~> _ )0 %atom  |- _ ] =>
+    move : (@grade_Atom_gt0 _ _ _ gg1) (@grade_Atom_gt0 _ _ _ gg2)
+
+  | [ gg1 : 'CoMod(0 _ ~> _ )0 %atom  |- _ ] =>
+    move : (@grade_Atom_gt0 _ _ _ gg1) 
+  end.
 
 Ltac tac_grade_gt0 :=
   match goal with
@@ -584,6 +766,16 @@ Ltac tac_grade_gt0 :=
     move : (@grade_gt0 _ _ _ gg1) 
   end.
 
+Lemma degrade_Atom
+  : ( forall A (F G : Atom.obCoMod A) (gg : 'CoMod(0 F ~> G )0 )
+      (F0 G0 : Atom.obCoMod A) (gg0 : 'CoMod(0 F0 ~> G0 )0 ),
+    gg0 <~~ gg -> ( grade_Atom gg0 <= grade_Atom gg )%coq_nat )%atom .
+Proof.
+  intros until gg0. intros red_gg.
+  elim : A F G gg F0 G0 gg0 / red_gg ;
+    try solve [ simpl; intros; abstract intuition Omega.omega ].
+Qed.
+
 Lemma degrade
   : forall A (F G : obCoMod A) (gg : 'CoMod(0 F ~> G )0 )
       (F0 G0 : obCoMod A) (gg0 : 'CoMod(0 F0 ~> G0 )0 ),
@@ -591,15 +783,23 @@ Lemma degrade
 Proof.
   intros until gg0. intros red_gg.
   elim : A F G gg F0 G0 gg0 / red_gg ;
-    try solve [ simpl; intros; abstract intuition Omega.omega ].
+    try solve [ simpl; intros;
+                try match goal with
+                    | [ Hred : ( _ <~~ _ )%atom |- _ ] =>
+                      move : (degrade_Atom Hred) ; clear Hred
+                    end;
+                abstract intuition Omega.omega ].
 Qed.
 
 Ltac tac_degrade H_grade :=
   repeat match goal with
+         | [ Hred : ( _ <~~ _ )%atom |- _ ] =>
+           move : (degrade_Atom Hred) ; clear Hred
          | [ Hred : ( _ <~~ _ ) |- _ ] =>
            move : (degrade Hred) ; clear Hred
          end;
-  move: H_grade; simpl; intros; try tac_grade_gt0; intros; Omega.omega.
+  move: H_grade; simpl; intros;
+  try tac_grade_Atom_gt0; try tac_grade_gt0; intros; Omega.omega.
 
 (**#+END_SRC
 
@@ -615,7 +815,41 @@ For sure, polyarrow/polymorphism/cut-elimination cannot proceed beyond the polya
 
 Module Sol.
 
+  Module Atom.
+
+    Section Section1.
+    Delimit Scope sol_atom_scope with sol_atom.
+
+    Inductive morCoMod : forall A : obIndexer, Atom.obCoMod A -> Atom.obCoMod A -> Type :=
+
+    | PolyCoMod : forall A (F F' : Atom.obCoMod A),
+        'CoMod(0 F' ~> F )0 -> forall (F'' : Atom.obCoMod A),
+          'CoMod(0 F'' ~> F' )0 -> 'CoMod(0 F'' ~> F )0
+
+    | MorCoMod_Gen : forall A (F G : obCoMod_Gen A),
+        @morCoMod_Gen A F G -> forall A' (a : 'Indexer(0 A' ~> A )0),
+          'CoMod(0 (Atom.ObCoMod_Gen F a) ~> (Atom.ObCoMod_Gen G a) )0
+
+    where "''CoMod' (0 F' ~> F )0" := (@morCoMod _ F' F) : sol_atom_scope. 
+
+    End Section1.
+
+    Module Export Ex_Notations.
+      Delimit Scope sol_atom_scope with sol_atom.
+
+      Notation "''CoMod' (0 F' ~> F )0" := (@morCoMod _ F' F) : sol_atom_scope. 
+
+      Notation "ff_ o>CoMod ff'" :=
+        (@PolyCoMod _ _ _ ff' _ ff_) (at level 40 , ff' at next level) : sol_atom_scope.
+
+      Notation "a o>| ''MorCoMod_Gen' ff" :=
+        (@MorCoMod_Gen _ _ _ ff _ a) (at level 3) : sol_atom_scope.
+    End Ex_Notations.
+    
+  End Atom.
+
   Section Section1.
+  Import Atom.Ex_Notations.
   Delimit Scope sol_scope with sol.
 
   Inductive morCoMod : forall A : obIndexer, obCoMod A -> obCoMod A -> Type :=
@@ -624,7 +858,7 @@ Module Sol.
         'CoMod(0 (ObCoMod_Poly a F) ~> (ObCoMod_Poly a F) )0
 
   | MorCoMod_Atom : forall A (F G : Atom.obCoMod A),
-      'CoMod(0 F ~> G )0 %atom -> 'CoMod(0 (ObCoMod_Atom F) ~> (ObCoMod_Atom G) )0
+      'CoMod(0 F ~> G )0 %sol_atom -> 'CoMod(0 (ObCoMod_Atom F) ~> (ObCoMod_Atom G) )0
 
   | Project1 : forall A (F1 F2 : obCoMod A), forall Z1 : obCoMod A,
         'CoMod(0 F1 ~> Z1 )0 ->
@@ -671,12 +905,21 @@ Module Sol.
       (@Pairing _ _ _ _ ff1 ff2) (at level 4, ff1 at next level, ff2 at next level) : sol_scope.
   End Ex_Notations.
 
+  Fixpoint toPolyMor_Atom A (F G : Atom.obCoMod A) (gg : 'CoMod(0 F ~> G )0 %sol_atom)
+           {struct gg} : 'CoMod(0 F ~> G )0 %atom . 
+  Proof.
+    refine match gg with
+           | ( ff_ o>CoMod ff' )%sol_atom => ( (toPolyMor_Atom _ _ _ ff_) o>CoMod (toPolyMor_Atom _ _ _ ff') )%atom
+           | ( a o>| 'MorCoMod_Gen gg )%sol_atom => ( a o>| 'MorCoMod_Gen gg )%atom
+           end.
+  Defined.
+
   Fixpoint toPolyMor A (F G : obCoMod A) (gg : 'CoMod(0 F ~> G )0 %sol)
            {struct gg} : 'CoMod(0 F ~> G )0 . 
   Proof.
     refine match gg with
            | ( a o>| @'UnitCoMod F )%sol => ( a o>| @'UnitCoMod F )%poly
-           | ( 'MorCoMod_Atom gg )%sol => ( 'MorCoMod_Atom gg )%poly
+           | ( 'MorCoMod_Atom gg )%sol => ( 'MorCoMod_Atom (toPolyMor_Atom gg) )%poly
            | ( ~_1 @ F2 o>CoMod zz1 )%sol => ( ~_1 @ F2 o>CoMod (toPolyMor _ _ _ zz1) )%poly
            | ( ~_2 @ F1 o>CoMod zz2 )%sol => ( ~_2 @ F1 o>CoMod (toPolyMor _ _ _ zz2) )%poly
            | ( << ff1 ,CoMod ff2 >> )%sol => ( << (toPolyMor _ _ _ ff1) ,CoMod (toPolyMor _ _ _ ff2) >> )%poly
@@ -713,23 +956,12 @@ Regardless the extra-arguments/parameters in the inductive-family-presentations 
                        | intros; refine (unit : Type)
                        | refine (morCoMod_domPair gg) ] ).
 
-  Lemma morCoMod_domPairP_Atom
-    : forall A (F G : Atom.obCoMod A) (gg : 'CoMod(0 F ~> G )0 %atom ), morCoMod_domPairP_Type ('MorCoMod_Atom gg)%sol .
-  Proof.
-    intros.  case: A F G / gg.
-    - intros; exact: tt.
-    - rewrite / morCoMod_domPairP_Type. destruct F''; simpl.
-      intros; exact: tt.
-      intros; exact: tt.
-    - intros; exact: tt.
-  Defined.
-
   Lemma morCoMod_domPairP
     : forall A (F G : obCoMod A) (gg : 'CoMod(0 F ~> G )0 %sol ), morCoMod_domPairP_Type gg .
   Proof.
     intros. case: A F G / gg.
     - intros; exact: tt.
-    - intros; exact: morCoMod_domPairP_Atom.
+    - intros; exact: tt.
     - constructor 1.
     - constructor 2.
     - destruct L; [ intros; exact: tt .. | ].
@@ -744,7 +976,7 @@ Regardless the extra-arguments/parameters in the inductive-family-presentations 
   : forall A (F : Atom.obCoMod A) (G : obCoMod A),
         'CoMod(0 (ObCoMod_Atom F) ~> G )0 %sol -> Type :=
 
-  | MorCoMod_Atom : forall A (F G : Atom.obCoMod A) (gg : 'CoMod(0 F ~> G )0 %atom ),
+  | MorCoMod_Atom : forall A (F G : Atom.obCoMod A) (gg : 'CoMod(0 F ~> G )0 %sol_atom ),
       morCoMod_domAtom ( 'MorCoMod_Atom gg )%sol
 
   | Pairing : forall A (L : Atom.obCoMod A) (F1 F2 : obCoMod A)
@@ -793,6 +1025,84 @@ Module Resolve.
   Ltac tac_reduce_eauto12 := simpl in * ; eauto 12.
   Ltac tac_reduce := simpl in * ; eauto.
 
+  Fixpoint solveCoMod_Atom len {struct len} :
+     forall A (F G : Atom.obCoMod A) (gg : 'CoMod(0 F ~> G )0 %atom),
+     forall grade_gg : (grade_Atom gg <= len)%coq_nat,
+       { F0 : Atom.obCoMod A & { G0 : Atom.obCoMod A &
+                                      { ggSol : 'CoMod(0 F0 ~> G0 )0 %sol_atom
+                                      | ( (Sol.toPolyMor_Atom ggSol) <~~ gg )%atom } } }.
+  Proof.
+    case : len => [ | len ].
+
+    (* len is O *)
+    - ( move => ? F G gg grade_gg ); exfalso; abstract tac_degrade grade_gg.
+
+    (* len is (S len) *)
+    - move => ? F G gg; case : _ F G / gg =>
+      [ A A' a F G gg (* a o>* gg *)
+      | A F F' ff' F'' ff_ (* ff_ o>CoMod ff' *)
+      | F G A gg A' a (* a o>| 'MorCoMod_Gen gg *)
+      ] grade_gg .
+
+      (* gg is a o>* gg *)
+      + case: (solveCoMod_Atom len _ _ _ gg)
+        => [ | F0_gg [ G0_gg [ ggSol ggSol_prop ] ] ] ;
+            first by abstract tac_degrade grade_gg.
+        move : (Atom.convMorCoMod_sense_dom' ggSol_prop) => ggSol_prop_eq; subst.
+        move : (Atom.convMorCoMod_sense_codom' ggSol_prop) => ggSol_prop_eq; subst.
+        
+        { destruct ggSol as
+              [ A F F' ff'Sol F'' ff_Sol (* ff_Sol o>CoMod ff'Sol *)
+              | F G A ggSol _A' _a (* _a o>| 'MorCoMod_Gen ggSol *) ] .
+
+          (* gg is  a o>* gg , to  a o>* ggSol , is  a o>* ( ff_Sol o>CoMod ff'Sol ) *)          
+          - case: (solveCoMod_Atom len _ _ _ ((a o>* (Sol.toPolyMor_Atom ff_Sol))%atom))
+            => [ | F0_a_o_ff_Sol [ G0_a_o_ff_Sol [ a_o_ff_Sol a_o_ff_Sol_prop ] ] ] ;
+                first by abstract tac_degrade grade_gg.
+            move : (Atom.convMorCoMod_sense_dom' a_o_ff_Sol_prop) => a_o_ff_Sol_prop_eq; subst.
+            move : (Atom.convMorCoMod_sense_codom' a_o_ff_Sol_prop) => a_o_ff_Sol_prop_eq; subst.
+
+            case: (solveCoMod_Atom len _ _ _ ((a o>* (Sol.toPolyMor_Atom ff'Sol))%atom))
+            => [ | F0_a_o_ff'Sol [ G0_a_o_ff'Sol [ a_o_ff'Sol a_o_ff'Sol_prop ] ] ] ;
+                first by abstract tac_degrade grade_gg.
+            move : (Atom.convMorCoMod_sense_dom' a_o_ff'Sol_prop) => a_o_ff'Sol_prop_eq; subst.
+            move : (Atom.convMorCoMod_sense_codom' a_o_ff'Sol_prop) => a_o_ff'Sol_prop_eq; subst.            
+            eexists. eexists. exists ( a_o_ff_Sol o>CoMod a_o_ff'Sol )%sol_atom .
+            clear - ggSol_prop a_o_ff_Sol_prop a_o_ff'Sol_prop . tac_reduce_eauto12.
+
+          (* gg is  a o>* gg , to  a o>* ggSol , is _a o>| 'MorCoMod_Gen ggSol *)          
+          - eexists. eexists. exists ( (a o>Indexer _a) o>| 'MorCoMod_Gen ggSol )%sol_atom .
+            clear - ggSol_prop. tac_reduce.
+        }
+
+      (* gg is  ff_ o>CoMod ff' *)          
+      + case: (solveCoMod_Atom len _ _ _ ff_)
+        => [ | F0_ff_Sol [ G0_ff_Sol [ ff_Sol ff_Sol_prop ] ] ] ;
+            first by abstract tac_degrade grade_gg.
+        move : (Atom.convMorCoMod_sense_dom' ff_Sol_prop) => ff_Sol_prop_eq; subst.
+        move : (Atom.convMorCoMod_sense_codom' ff_Sol_prop) => ff_Sol_prop_eq; subst.
+
+        case: (solveCoMod_Atom len _ _ _ ff')
+        => [ | F0_ff'Sol [ G0_ff'Sol [ ff'Sol ff'Sol_prop ] ] ] ;
+            first by abstract tac_degrade grade_gg.
+        move : (Atom.convMorCoMod_sense_dom' ff'Sol_prop) => ff'Sol_prop_eq; subst.
+        move : (Atom.convMorCoMod_sense_codom' ff'Sol_prop) => ff'Sol_prop_eq; subst.
+        
+        eexists. eexists. exists ( ff_Sol o>CoMod ff'Sol )%sol_atom .
+        clear - ff_Sol_prop ff'Sol_prop . tac_reduce_eauto12.
+
+      (* gg is  a o>| 'MorCoMod_Gen gg *)          
+      + eexists. eexists. exists ( a o>| 'MorCoMod_Gen gg )%sol_atom .
+        apply: Atom.convMorCoMod_Refl.
+  Defined.
+
+  Definition solveCoMod_Atom' :
+    forall A (F G : Atom.obCoMod A) (gg : 'CoMod(0 F ~> G )0 %atom),
+      { F0 : Atom.obCoMod A & { G0 : Atom.obCoMod A &
+                                     { ggSol : 'CoMod(0 F0 ~> G0 )0 %sol_atom
+                                     | ( (Sol.toPolyMor_Atom ggSol) <~~ gg )%atom } } }.
+  Admitted.
+  
   Fixpoint solveCoMod len {struct len} :
      forall A (F G : obCoMod A) (gg : 'CoMod(0 F ~> G )0 ),
      forall grade_gg : (grade gg <= len)%coq_nat,
@@ -825,7 +1135,10 @@ Module Resolve.
       + eexists. eexists. exists (a o>| @'UnitCoMod F)%sol. apply: convMorCoMod_Refl.
 
       (* gg is  'MorCoMod_Atom gg *)
-      + eexists. eexists. exists ( 'MorCoMod_Atom gg )%sol. apply: convMorCoMod_Refl.
+      + case: (solveCoMod_Atom' gg)
+        => [ F0_gg [ G0_gg [ ggSol ggSol_prop ] ] ] .
+        eexists. eexists. exists ( 'MorCoMod_Atom ggSol )%sol.
+        clear - ggSol_prop. abstract tac_reduce.
 
       (* gg is ~_1 @ F2 o>CoMod zz1 *)
       + case: (solveCoMod len _ _ _ zz1)
@@ -878,10 +1191,13 @@ Module Resolve.
             clear - ggSol_prop. tac_reduce.
 
           (* gg is  a o>* gg , to  a o>* ggSol , is  a o>* 'MorCoMod_Atom ggSol *)          
-          - eexists. eexists. exists ( 'MorCoMod_Atom ( a o>* ggSol )%atom )%sol .
-            clear - ggSol_prop. tac_reduce.
+          - case: (solveCoMod_Atom' ((a o>* (Sol.toPolyMor_Atom ggSol))%atom))
+            => [ F0_a_o_ggSol [ G0_a_o_ggSol [ a_o_ggSol a_o_ggSol_prop ] ] ] .
+
+            eexists. eexists. exists ( 'MorCoMod_Atom ( a_o_ggSol )%atom )%sol .
+            clear - ggSol_prop a_o_ggSol_prop . tac_reduce.
             
-          (* gg is a o>* gg , to a o>* ggSol , is  ~_1 @ F2 o>CoMod zz1Sol *)          
+          (* gg is a o>* gg , to a o>* ggSol , is   a o>* ~_1 @ F2 o>CoMod zz1Sol *)          
           - case: (solveCoMod len _ _ _ (a o>* (Sol.toPolyMor zz1Sol)))
             => [ | F0_a_o_zz1Sol [ G0_a_o_zz1Sol [ a_o_zz1Sol a_o_zz1Sol_prop ] ] ] ;
                 first by abstract tac_degrade grade_gg.
@@ -889,7 +1205,7 @@ Module Resolve.
             eexists. eexists. exists ( ~_1 @ (ObCoMod_Poly a F2) o>CoMod a_o_zz1Sol )%sol .
             clear - ggSol_prop a_o_zz1Sol_prop. tac_reduce.
         
-          (* gg is a o>* gg , to a o>* ggSol , is  ~_2 @ F1 o>CoMod zz2Sol *)          
+          (* gg is a o>* gg , to a o>* ggSol , is  a o>* ~_2 @ F1 o>CoMod zz2Sol *)          
           - case: (solveCoMod len _ _ _ (a o>* (Sol.toPolyMor zz2Sol)))
             => [ | F0_a_o_zz2Sol [ G0_a_o_zz2Sol [ a_o_zz2Sol a_o_zz2Sol_prop ] ] ] ;
                 first by abstract tac_degrade grade_gg.
@@ -897,7 +1213,7 @@ Module Resolve.
             eexists. eexists. exists ( ~_2 @ (ObCoMod_Poly a F1) o>CoMod a_o_zz2Sol )%sol .
             clear - ggSol_prop a_o_zz2Sol_prop. tac_reduce.
 
-          (* gg is a o>* gg , to a o>* ggSol , is  << ff1Sol ,CoMod ff2Sol >> *)          
+          (* gg is a o>* gg , to a o>* ggSol , is   a o>* << ff1Sol ,CoMod ff2Sol >> *)          
           - case: (solveCoMod len _ _ _ (a o>* (Sol.toPolyMor ff1Sol)))
             => [ | F0_a_o_ff1Sol [ G0_a_o_ff1Sol [ a_o_ff1Sol a_o_ff1Sol_prop ] ] ] ;
                 first by abstract tac_degrade grade_gg.
@@ -946,17 +1262,20 @@ Module Resolve.
                 | A L F1 F2 ff1Sol ff2Sol (* << ff1Sol ,CoMod ff2Sol >> %sol *) ] .
 
             (* gg is (ff_ o>CoMod ff') , to  (ff_Sol o>CoMod ff'Sol) , is ( 'MorCoMod_Atom gg_Sol ) o>CoMod ff'Sol , is  ( 'MorCoMod_Atom gg_Sol ) o>CoMod ( 'MorCoMod_Atom gg'Sol )   *)
-            + eexists. eexists. exists ( 'MorCoMod_Atom (gg_Sol o>CoMod gg'Sol)%atom )%sol . 
-              clear -ff_Sol_prop ff'Sol_prop. tac_reduce.
+            + case: (solveCoMod_Atom' ( ( (Sol.toPolyMor_Atom gg_Sol) o>CoMod (Sol.toPolyMor_Atom gg'Sol) )%atom ))
+              => [ F0_ff_Sol_o_ff'Sol [ G0_ff_Sol_o_ff'Sol [ ff_Sol_o_ff'Sol ff_Sol_o_ff'Sol_prop ] ] ].
+
+              eexists. eexists. exists ( 'MorCoMod_Atom ff_Sol_o_ff'Sol )%sol . 
+              clear -ff_Sol_prop ff'Sol_prop ff_Sol_o_ff'Sol_prop . tac_reduce_eauto12.
 
               (* gg is (ff_ o>CoMod ff') , to  (ff_Sol o>CoMod ff'Sol) , is ( 'MorCoMod_Atom gg_Sol ) o>CoMod ff'Sol , is  ( 'MorCoMod_Atom gg_Sol ) o>CoMod ( << ff1Sol ,CoMod ff2Sol >>  )   *)
-            + case: (solveCoMod len _ _ _ (( 'MorCoMod_Atom gg_Sol ) o>CoMod (Sol.toPolyMor ff1Sol)))
+            + case: (solveCoMod len _ _ _ (( Sol.toPolyMor ('MorCoMod_Atom gg_Sol)%sol ) o>CoMod (Sol.toPolyMor ff1Sol)))
               => [ | F0_gg_Sol_o_ff1Sol [ G0_gg_Sol_o_ff1Sol [ gg_Sol_o_ff1Sol gg_Sol_o_ff1Sol_prop ] ] ] ;
                   first by abstract tac_degrade grade_gg.
               move : (convMorCoMod_sense_dom' gg_Sol_o_ff1Sol_prop) => gg_Sol_o_ff1Sol_prop_eq; subst.
               move : (convMorCoMod_sense_codom' gg_Sol_o_ff1Sol_prop) => gg_Sol_o_ff1Sol_prop_eq; subst.
 
-              case: (solveCoMod len _ _ _ (( 'MorCoMod_Atom gg_Sol ) o>CoMod (Sol.toPolyMor ff2Sol)))
+              case: (solveCoMod len _ _ _ ((  Sol.toPolyMor ('MorCoMod_Atom gg_Sol)%sol ) o>CoMod (Sol.toPolyMor ff2Sol)))
               => [ | F0_gg_Sol_o_ff2Sol [ G0_gg_Sol_o_ff2Sol [ gg_Sol_o_ff2Sol gg_Sol_o_ff2Sol_prop ] ] ] ;
                   first by abstract tac_degrade grade_gg.
               move : (convMorCoMod_sense_dom' gg_Sol_o_ff2Sol_prop) => gg_Sol_o_ff2Sol_prop_eq; subst.
@@ -964,9 +1283,9 @@ Module Resolve.
  
               eexists. eexists. exists ( << gg_Sol_o_ff1Sol ,CoMod gg_Sol_o_ff2Sol >> )%sol .
               clear - ff_Sol_prop ff'Sol_prop gg_Sol_o_ff1Sol_prop gg_Sol_o_ff2Sol_prop .
-              abstract (simpl in *; eapply convMorCoMod_Trans with (uTrans := ( 'MorCoMod_Atom gg_Sol ) o>CoMod ff'); first (by eauto);
-                        eapply convMorCoMod_Trans with (uTrans := ( 'MorCoMod_Atom gg_Sol ) o>CoMod ( << Sol.toPolyMor ff1Sol ,CoMod Sol.toPolyMor ff2Sol >> )); first (by eauto);
-                        eapply convMorCoMod_Trans with (uTrans := ( << (( 'MorCoMod_Atom gg_Sol ) o>CoMod (Sol.toPolyMor ff1Sol)) ,CoMod (( 'MorCoMod_Atom gg_Sol ) o>CoMod (Sol.toPolyMor ff2Sol)) >> )); by eauto).
+              abstract (simpl in *; eapply convMorCoMod_Trans with (uTrans := ( Sol.toPolyMor('MorCoMod_Atom gg_Sol)%sol ) o>CoMod ff'); first (by eauto);
+                        eapply convMorCoMod_Trans with (uTrans := ( Sol.toPolyMor('MorCoMod_Atom gg_Sol)%sol ) o>CoMod ( << Sol.toPolyMor ff1Sol ,CoMod Sol.toPolyMor ff2Sol >> )); first (by eauto);
+                        eapply convMorCoMod_Trans with (uTrans := ( << (( Sol.toPolyMor('MorCoMod_Atom gg_Sol)%sol ) o>CoMod (Sol.toPolyMor ff1Sol)) ,CoMod (( Sol.toPolyMor('MorCoMod_Atom gg_Sol)%sol ) o>CoMod (Sol.toPolyMor ff2Sol)) >> )); by eauto).
 
           (* gg is (ff_ o>CoMod ff') , to  (ff_Sol o>CoMod ff'Sol) , is ( ~_1 @ F2 o>CoMod zz1Sol ) o>CoMod ff'Sol  *)
           - case: (solveCoMod len _ _ _ ( (Sol.toPolyMor zz1Sol) o>CoMod (Sol.toPolyMor ff'Sol) ))
