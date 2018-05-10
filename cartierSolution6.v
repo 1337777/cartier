@@ -4,12 +4,13 @@
 Proph
 
 https://gitee.com/OOO1337777/cartier/blob/master/cartierSolution6.v
+https://gitee.com/OOO1337777/cartier/blob/master/cartierSolution6.v.pdf
 
-solves half of some question of Cartier which is how to program grammatical polymorph non-contextual ( "1-weighted" ) 2-fold ( "2-higher" ) pairing-projections ( "product" ) ...
+solves half of some question of Cartier which is how to program grammatical polymorph non-contextual ( "1-weighted" ) 2-fold ( "2-higher" ) pairing-projections ( "product" ) ... ( this multi-folding is the foundation of homotopy "algebraic topology"/"fibre functor" )
 
 SHORT ::
 
-  The ends is to do polymorph mathematics which is 2-folded/enriched ref some indexer which is made of all the graphs as indexes and all the graph-morphisms as arrows . Such indexer admits the generating-views ( "generators" ) subindexer ( 4.5.17.h ) made of : the singleton-object {0} graph ( for « morphisms » , possibly interdependent with « transformations of morphisms » via non-grammatical "Yoneda" ... ) , and the singleton-morphism-between-two-distinct-objects {0 ~> 1} graph ( for « transformations of morphisms » , for « left-whisk » composition , for « right-whisk » composition ) , and the two structural-dividing ( "boundary" ) {0} |- {0 ~> 1} graph-morphims ( for « domain-codomain-morphisms-of-each-transformation » type-indexes ) , and the structural-multiplying ( "degeneracy" ) {0 ~> 1} |- {0} graph-morphism ( for « unit-transformation-on-each-morphism » type-constructor ) .
+  The ends is to do polymorph mathematics which is 2-folded/enriched ref some indexer which is made of all the graphs as indexes and all the graph-morphisms as arrows . Such indexer admits the generating-views ( "generators" ) subindexer ( 4.5.17.h ) made of : the singleton-object {0} graph ( for « morphisms » , possibly interdependent with « transformations of morphisms » via non-grammatical "Yoneda" ... ) , and the singleton-morphism-between-two-distinct-objects {0 ~> 1} graph ( for « transformations of morphisms » , for « left-whisk » composition , for « right-whisk » composition , for « inner » composition along some tight/strict or lax « cut-adherence » ) , and the two structural-dividing ( "boundary" ) {0} |- {0 ~> 1} graph-morphims ( for « domain-codomain-morphisms-of-each-transformation » type-indexes ) , and the structural-multiplying ( "degeneracy" ) {0 ~> 1} |- {0} graph-morphism ( for « unit-transformation-on-each-morphism » type-constructor ) .
 
   The 2-conversion-for-transformations relation shall convert across two transformations whose domain-codomain-morphisms-computation arguments are not syntactically/grammatically-the-same . But oneself does show that , by logical-deduction [convTransfCoMod_convMorCoMod_dom] [convTransfCoMod_convMorCoMod_cod] , these two domain-codomain-morphisms are indeed 1-convertible ( "soundness lemma" ) .
 
@@ -63,13 +64,20 @@ OUTLINE ::
 
 -----
 
-BUY MOM RECURSIVE T-SQUARE paypal.me/1337777 1337777.OOO@gmail.com ; 微信支付 2796386464@qq.com ; eth 0x54810dcb93b37DBE874694407f78959Fa222D920 ; amazon amazon.com/hz/wishlist/ls/28SN02HR4EB8W ; irc #OOO1337777
+HINT :: free master-engineering-thesis ; program this grammatical polymorph generated-functor-along-reindexing ( "Kan extension" ) :
+
+generatedFunc ( I : IndexerCat ) ( G : GeneratorsCat ) :=
+ { R : ReIndexerCat & { f : G ~> generatingFunc R | p : reIndexingFunc R |- I } }
+
+-----
+
+BUY MOM RECURSIVE T-SQUARE :: paypal.me/1337777 1337777.OOO@gmail.com ; 微信支付 2796386464@qq.com ; eth 0x54810dcb93b37DBE874694407f78959Fa222D920 ; amazon amazon.com/hz/wishlist/ls/28SN02HR4EB8W ; irc #OOO1337777
 
 -----
 
 * Indexer metalogic for 2-fold-enrichment
 
-  The ends is to do polymorph mathematics which is 2-folded/enriched ref some indexer which is made of all the graphs as indexes and all the graph-morphisms as arrows . Such indexer admits the generating-views ( "generators" ) subindexer ( 4.5.17.h ) made of : the singleton-object {0} graph ( for « morphisms » , possibly interdependent with « transformations of morphisms » via non-grammatical "Yoneda" ... ) , and the singleton-morphism-between-two-distinct-objects {0 ~> 1} graph ( for « transformations of morphisms » , for « left-whisk » composition , for « right-whisk » composition ) , and the two structural-dividing ( "boundary" ) {0} |- {0 ~> 1} graph-morphims ( for « domain-codomain-morphisms-of-each-transformation » type-indexes ) , and the structural-multiplying ( "degeneracy" ) {0 ~> 1} |- {0} graph-morphism ( for « unit-transformation-on-each-morphism » type-constructor ) .
+  The ends is to do polymorph mathematics which is 2-folded/enriched ref some indexer which is made of all the graphs as indexes and all the graph-morphisms as arrows . Such indexer admits the generating-views ( "generators" ) subindexer ( 4.5.17.h ) made of : the singleton-object {0} graph ( for « morphisms » , possibly interdependent with « transformations of morphisms » via non-grammatical "Yoneda" ... ) , and the singleton-morphism-between-two-distinct-objects {0 ~> 1} graph ( for « transformations of morphisms » , for « left-whisk » composition , for « right-whisk » composition , for « inner » composition along some tight/strict or lax « cut-adherence » ) , and the two structural-dividing ( "boundary" ) {0} |- {0 ~> 1} graph-morphims ( for « domain-codomain-morphisms-of-each-transformation » type-indexes ) , and the structural-multiplying ( "degeneracy" ) {0 ~> 1} |- {0} graph-morphism ( for « unit-transformation-on-each-morphism » type-constructor ) .
 
   Again : The ends is to do polymorph mathematics which is 2-folded/enriched ref some indexer (symmetric-associative-monoidal metalogic/metacategory) which is made of all the graphs as indexes and all the graph-morphisms as arrows . Such indexer admits the generating-views ( "generators" ) subindexer made of : the singleton-object {0} graph , and the singleton-morphism-between-two-distinct-objects {0 ~> 1} graph , and the two structural-dividing ( "boundary" ) {0} |- {0 ~> 1} graph-morphims , and the structural-multiplying ( "degeneracy" ) {0 ~> 1} |- {0} graph-morphism . Primo this infers , for the material ( as contrasted from metalogical ) mathematics , that the morphisms can no longer be touched individually but many morphisms shall be touched at the same time via some indexing/multiplier/shape : when the shape is the singleton-morphism-between-two-distinct-objects {0 ~> 1} graph such touched-morphisms will be named « transformation of morphisms » ; when the shape is the singleton-object {0} graph such touched-morphisms will be named « morphism » . Secondo this infers that the two structural-dividing-arrows ( "boundary" ) actions are represented via the domain-codomain-morphisms-of-each-transformation , and that the structural-multiplying-arrow ( "degeneracy" ) action is represented via the unit-transformation-on-each-morphism .  Tertio this infers , regardless that the common operations on the touched-morphisms are multifold/multiplicative , that oneself can avoid the multiplicative/outer/material ( "horizontal" ) composition of transformation-next-transformation ( whose output multiplicity is outside the subindexer ) and instead it is sufficient to describe the multiplicative/outer/material composition of transformation-next-morphism ( « right-whisk » ) and the multiplicative/outer/material composition of morphism-next-transformation ( « left-whisk » ) ( whose output multiplicity is the shape {0 ~> 1} inside the subindexer ) .
 
@@ -132,7 +140,7 @@ Parameter transfCoMod_Gen : forall (F G : obCoMod_Gen) (g g' : morCoMod_Gen F G)
 
   Memo that the functoriality ( "arrows-action" ) of each metafunctor (decoded index-for-touched-morphisms) and the naturality ( "arrows-action" ) of each metatransformation (decoded arrow-between-indexes) is signified via the additional/embedded type-indexes of [transfCoMod] and type-constructor [UnitTransfCoMod] of [transfCoMod] . All this is effected via the two conversion relations [convMorCoMod] [convTransfCoMod] which relate those grammatical-touched-morphisms : [convMorCoMod] is for morphisms and [convTransfCoMod] is for transformations .
 
-  For 2-folded-enriched polymorph mathematics , the common operations on the touched-morphisms are multiplicative ; this contrast from internal polymorph mathematics where many morphisms are touched at the same time and moreover many objects are touched at the same time and moreover the common operations on the objects or touched-morphisms are coordinatewise/dimensional/pointwise . Memo that here the (multiplicative) outer/material ( "horizontal" ) composition [PolyMorCoMod] [TransfCoMod_PolyMorCoMod_Pre] [TransfCoMod_PolyMorCoMod_Post] is some common operation , but there is also some uncommon operation [PolyTransfCoMod] which is the ( coordinatewise/dimensional/pointwise ) inner/(structure-logical)  ( "vertical" ) composition of transformation-later-transformation inside each enrichment/indexer-graph ; and both compositions cut-constructors shall be eliminated/erased .
+  For 2-folded-enriched polymorph mathematics , the common operations on the touched-morphisms are multiplicative ; this contrast from internal polymorph mathematics where many morphisms are touched at the same time and moreover many objects are touched at the same time and moreover the common operations on the objects or touched-morphisms are coordinatewise/dimensional/pointwise . Memo that here the (multiplicative) outer/material ( "horizontal" ) composition [PolyMorCoMod] [TransfCoMod_PolyMorCoMod_Pre] [TransfCoMod_PolyMorCoMod_Post] is some common operation , but there is also some uncommon operation [PolyTransfCoMod] which is the ( coordinatewise/dimensional/pointwise ) inner/(structure-logical)  ( "vertical" ) composition of transformation-later-transformation ( along some tight/strict or lax « cut-adherence » ) inside each enrichment/indexer-graph ; and both compositions cut-constructors shall be eliminated/erased .
 
   Memo that , for the material mathematics , the decidable equality [obCoMod_eq] on the objects will enable to do any logical-inversion of the very-dependently-typed propositional-equality-across-any-two-morphisms [Inversion_Project1] [Inversion_Exfalso] , and will also enable to do the logical-inversion of any morphism whose domain-codomain-objects are the same [Inversion_domEqcod] [Inversion_toPolyMor] .
 
@@ -583,19 +591,19 @@ pairing-projections-grammar ----- **)
 
 (** ----- the constant conversions which are only for the confluence lemma ---- **)
 
-| Pairing_Mor_morphism_Project1_Mor :  forall (L : obCoMod) (F1 F2 : obCoMod)
-                            (f1 : 'morCoMod(0 L ~> F1 )0) (f2 : 'morCoMod(0 L ~> F2 )0) (H : obCoMod),
+| Pairing_Mor_morphism_Project1_Mor :
+    forall (L : obCoMod) (F1 F2 : obCoMod)
+      (f1 : 'morCoMod(0 L ~> F1 )0) (f2 : 'morCoMod(0 L ~> F2 )0) (H : obCoMod),
+      ( ~_1 @ H o>CoMod ( << f1 ,CoMod f2 >> ) )
+        <~~1 ( << ( ~_1 @ H o>CoMod f1 )
+             ,CoMod ( ~_1 @ H o>CoMod f2 ) >> )
 
-    ( ~_1 @ H o>CoMod ( << f1 ,CoMod f2 >> ) )
-      <~~1 ( << ( ~_1 @ H o>CoMod f1 )
-           ,CoMod ( ~_1 @ H o>CoMod f2 ) >> )
-
-| Pairing_Mor_morphism_Project2_Mor :  forall (L : obCoMod) (F1 F2 : obCoMod)
-                            (f1 : 'morCoMod(0 L ~> F1 )0) (f2 : 'morCoMod(0 L ~> F2 )0) (H : obCoMod),
-
-    ( ~_2 @ H o>CoMod ( << f1 ,CoMod f2 >> ) )
-      <~~1 ( << ( ~_2 @ H o>CoMod f1 )
-           ,CoMod ( ~_2 @ H o>CoMod f2 ) >> )
+| Pairing_Mor_morphism_Project2_Mor :
+    forall (L : obCoMod) (F1 F2 : obCoMod)
+      (f1 : 'morCoMod(0 L ~> F1 )0) (f2 : 'morCoMod(0 L ~> F2 )0) (H : obCoMod),
+      ( ~_2 @ H o>CoMod ( << f1 ,CoMod f2 >> ) )
+        <~~1 ( << ( ~_2 @ H o>CoMod f1 )
+             ,CoMod ( ~_2 @ H o>CoMod f2 ) >> )
 
 (** ----- the constant conversions which are derivable by using the finished
 cut-elimination lemma ----- **)
@@ -1278,7 +1286,7 @@ End Resolve.
 
   Memo that the functoriality ( "arrows-action" ) of each metafunctor (decoded index-for-touched-morphisms) and the naturality ( "arrows-action" ) of each metatransformation (decoded arrow-between-indexes) is signified via the additional/embedded type-indexes of [transfCoMod] and type-constructor [UnitTransfCoMod] of [transfCoMod] . All this is effected via the two conversion relations [convMorCoMod] [convTransfCoMod] which relate those grammatical-touched-morphisms : [convMorCoMod] is for morphisms and [convTransfCoMod] is for transformations .
 
-  Memo that here the (multiplicative) outer/material ( "horizontal" ) composition [PolyMorCoMod] [TransfCoMod_PolyMorCoMod_Pre] [TransfCoMod_PolyMorCoMod_Post] is some common operation , but there is also some uncommon operation [PolyTransfCoMod] which is the ( coordinatewise/dimensional/pointwise ) inner/structural ( "vertical" ) composition of transformation-later-transformation inside each enrichment/indexer-graph ; and both compositions cut-constructors shall be eliminated/erased .
+  Memo that here the (multiplicative) outer/material ( "horizontal" ) composition [PolyMorCoMod] [TransfCoMod_PolyMorCoMod_Pre] [TransfCoMod_PolyMorCoMod_Post] is some common operation , but there is also some uncommon operation [PolyTransfCoMod] which is the ( coordinatewise/dimensional/pointwise ) inner/structural ( "vertical" ) composition of transformation-later-transformation ( along some tight/strict or lax « cut-adherence » ) inside each enrichment/indexer-graph ; and both compositions cut-constructors shall be eliminated/erased .
 
   Attention : the formulation of the inner/structural composition [PolyTransfCoMod] cut-constructor must relate the codomain-morphism of the prefix-input transformation in-relation-with the domain-morphism of the postfix-input transformation , by propositional-equality . In other words, this [PolyTransfCoMod] constructor have some extra argument/parameter , named « cut-adherence/adhesive » , which behold this propositional-equality . Such formulation is because of this fact : the 2-conversion-for-transformations do convert across two transformations whose domain-codomain-morphisms-computation arguments are not syntactically/grammatically-the-same , and therefore , during the recursion step which is the 2-resolution of the inner/structural composition [PolyTransfCoMod] cut-constructor , oneself lacks to know that the codomain-morphism of the recursively 2-resolved prefix-output transformation is grammatically-same ( or propositionally-equal ... ) as the domain-morphism of the recursively 2-resolved postfix-output transformation ; the presence of the cut-adherence in the input will infer some adherence in the output .
 
@@ -1286,7 +1294,7 @@ End Resolve.
 
 ** Inversion of the cut-adherence ( here propositional-equality )
 
-  For the material mathematics , the decidable equality [obCoMod_eq] on the objects enables to do any logical-inversion of the cut-adherence , which here is some very-dependently-typed propositional-equality-across-any-two-morphisms . In the alternative formulation where the cut-adherence is the more-flexible polymorphism-conversion , the lemma [convMorCoMod_toPolyMorP'] would be some confluence lemma-corollary , instead of simply being the inversion lemma below .
+  For the material mathematics , the decidable equality [obCoMod_eq] on the objects enables to do any logical-inversion of the cut-adherence , which here is some very-dependently-typed propositional-equality-across-any-two-morphisms . In the alternative formulation where the cut-adherence is the more-lax ( instead of tight/strict ) polymorphism-conversion , the lemma [convMorCoMod_toPolyMorP'] would be some confluence lemma-corollary , instead of simply being the inversion lemma below .
 
 #+BEGIN_SRC coq :exports both :results silent # # **)
 
@@ -1456,6 +1464,28 @@ Import EqMorCoMod.Ex_Notations.
 
 Reserved Notation "''transfCoMod' (0 g ~> g' )0"
          (at level 0, format "''transfCoMod' (0  g  ~>  g'  )0").
+
+(** here there are none parameter/customized-arrow action ( non-structural
+reindexing , customized boundary-or-degeneracy ) ; is it possible to make sense of
+such ? *)
+
+Inductive transfCoMod : forall (F G : obCoMod), morCoMod F G -> morCoMod F G -> Type :=
+
+| PolyTransfCoMod : forall (F G : obCoMod), forall (g g' : 'morCoMod(0 F ~> G )0),
+      forall (g'g : 'transfCoMod(0 g' ~> g )0), forall (g'0 g'' : 'morCoMod(0 F ~> G )0 ),
+          forall (g''g' : 'transfCoMod(0 g'' ~> g'0 )0),
+          forall (eqMor : g'0 <~>1 g' ) (** cut-adherence **) ,
+            'transfCoMod(0 g'' ~> g )0
+
+| TransfCoMod_PolyMorCoMod_Pre :
+ forall (F G : obCoMod), forall (g g' : 'morCoMod(0 F ~> G )0),
+ forall (g'g : 'transfCoMod(0 g' ~> g )0), forall (E : obCoMod) (f : 'morCoMod(0 E ~> F )0),
+     'transfCoMod(0 f o>CoMod g' ~> f o>CoMod g )0
+
+| TransfCoMod_PolyMorCoMod_Post :
+ forall (G H : obCoMod) (h : 'morCoMod(0 G ~> H )0),
+ forall (F : obCoMod) (g g' : 'morCoMod(0 F ~> G )0) (g'g : 'transfCoMod(0 g' ~> g )0),
+   'transfCoMod(0 g' o>CoMod h ~> g o>CoMod h )0
 
 (** unit-transformation-on-each-morphism **)
 | UnitTransfCoMod : forall (F G : obCoMod), forall (g : 'morCoMod(0 F ~> G )0),
@@ -2362,7 +2392,7 @@ Ltac tac_degradeTransf H_gradeTransf :=
 
   Memo that the technical progress of this 2-resolution does NOT immediately-require the earlier lemma [convTransfCoMod_convMorCoMod_dom] [convTransfCoMod_convMorCoMod_cod] ( "soundness lemma" ) that 2-convertible transformations do have 1-convertible domain/codomain-morphisms .
 
-  Memo that some more-flexible alternative formulation of the inner/structural ( "vertical" ) composition [PolyTransfCoMod] cut-constructor is possible . Such new formulation of the [PolyTransfCoMod] cut-constructor again will have some cut-adherence parameter which will relate the codomain-morphism of the prefix-input transformation in-relation-with the domain-morphism of the postfix-input transformation , by the ( symmetrized , with associativity-conversion ) 1-polymorphism-conversion-relation-for-morphisms , instead of by propositional-equality . Consequently the new 2-resolution [solveTransfCoMod_requireConfluenceOf_solveMorCoMod] shall be formulated , by using 1-conversions instead of propositional-equality , from the domain/codomain of the input transformation to the domain/codomain of the 2-resolved output transformation . Now memo that the 1-confluence lemma for morphisms says that two morphisms are 1-polymorphism-convertible if and only if their 1-resolution is 1-solution-convertible . Finally such new formulations of [PolyTransfCoMod] and [solveTransfCoMod_requireConfluenceOf_solveMorCoMod] , together with the finished 1-confluence lemma for morphisms , will enable to sucessfully do the recursion step which is the 2-resolution of the [PolyTransfCoMod] cut-constructor . BUT , even in such new formulation , for simplicity , the full 1-resolution of morphisms to their final solution will be required , such that the 1-solution-conversion is easier and coincides with proportional-equality ( only congruences ... ) . Elsewhere , memo that , even in this alternative formulation , the "soundness lemma" [convTransfCoMod_convMorCoMod_dom] will not be immediately-used during this alternative 2-resolution , but will only confirm after-the-fact the properties of this alternative 2-resolution .
+  Memo that some more-lax (instead of tight/strict) alternative formulation of the inner/structural ( "vertical" ) composition [PolyTransfCoMod] cut-constructor is possible . Such new formulation of the [PolyTransfCoMod] cut-constructor again will have some cut-adherence parameter which will relate the codomain-morphism of the prefix-input transformation in-relation-with the domain-morphism of the postfix-input transformation , by the ( symmetrized , with associativity-conversion ) 1-polymorphism-conversion-for-morphisms , instead of by propositional-equality . Consequently the new 2-resolution [solveTransfCoMod_requireConfluenceOf_solveMorCoMod] shall be formulated , by using 1-conversions instead of propositional-equality , from the domain/codomain of the input transformation to the domain/codomain of the 2-resolved output transformation . Now memo that the 1-confluence lemma for morphisms says that two morphisms are 1-polymorphism-convertible if and only if their 1-resolution is 1-solution-convertible . Finally such new formulations of [PolyTransfCoMod] and [solveTransfCoMod_requireConfluenceOf_solveMorCoMod] , together with the finished 1-confluence lemma for morphisms , will enable to sucessfully do the recursion step which is the 2-resolution of the [PolyTransfCoMod] cut-constructor . BUT , even in such new formulation , for simplicity ( to avoid any recursively-schematic 2-conversions-for-transformations ... ) , the full 1-resolution of morphisms to their final solution will be required , such that the 1-solution-conversion-for-morphism is easier and coincides with tight/strict propositional-equality ( only congruences ... ) . Elsewhere , memo that , even in this alternative formulation , the "soundness lemma" [convTransfCoMod_convMorCoMod_dom] will not be immediately-used during this alternative 2-resolution , but will only confirm after-the-fact the properties of this alternative 2-resolution .
 
   As always , this COQ program and deduction is mostly-automated !
 
