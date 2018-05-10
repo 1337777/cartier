@@ -1780,7 +1780,7 @@ Lemma transfCoMod_domProject1_MorP
     transfCoMod_domProject1_MorP_Type gg' .
 Proof.
   intros. case: F G g g' / gg' .
-  - destruct g; [ intros; exact: tt | | intros; exact: tt .. ].
+  - destruct g; [ intros; exact: tt | | intros; exact: tt ..] ;
     constructor 1.
   - constructor 2. 
   - intros; exact: tt.
