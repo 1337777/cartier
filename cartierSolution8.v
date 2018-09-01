@@ -6,15 +6,38 @@ Proph
 https://gitee.com/OOO1337777/cartier/blob/master/cartierSolution8.v
 https://gitlab.com/1337777/cartier/blob/master/cartierSolution8.v.pdf
 
-solves half of some question of Cartier which is how to program grammatical polymorph « modos » / modified-colimit-into-viewed-metafunctor ( "sheafification" , "forcing" ) ...
+solves half of some question of Cartier which is how to program grammatical polymorph « modos » / modified-colimit-into-viewed-functor ( "sheafification" , "forcing" ) ...
+
+ERRATA :: this also solves cartierSolution7.v where the default-colimiting was "not-very-clear" (lacking) .
 
 SHORT ::
 
-  The ends is to program the « modos » ...
+  The ends is to start with some given viewing-data on some generator-morphology and then to modify the default-colimiting which says that « each functor is the sum/colimit of its elements ; which is that the (outer) indexings/cocones of the elements of some target functor over all the elements of some source functor correspond with the (inner) transformations from this source functor into this target functor » . In other words : any outer indexing ( X ; (s : S X) |- T X ) corresponds with some inner transformation ( S ~> T ) .  But where are those modified-colimits ? Oneself could get them as metafunctors over this generator-morphology , as long as oneself grammatically-distinguishes whatever-is-interesting . 
+
+  The modified-colimiting presents this « copairing » even when any such indexing ( « real polymorph-cocones » ) is over only some viewing-elements of this source « viewing-functor » ( "local epimorphism" ) , as long as the corresponding transformation is into the (tautologically extended) « viewed-functor » ( "sheafification") of this target functor . Memo that when the target functor is already viewed-functor ( "sheaf" ) then this modified-colimiting becomes the default-colimiting ; in other words it is valid to move from-to :
+
+#+BEGIN_EXAMPLE
+(f : F) ; (v : viewing at f) |- (w : viewing indexing the
+                                       inner cocone (e_ f v)) -> (e_ f v w : E)
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+(f : F) ; ((v : viewing at f) , (w : viewing indexing the
+                                       inner cocone (e_ f v))) |- (e_ f v w : E) 
+#+END_EXAMPLE
+
+  « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics . It shows the interdependence of computational-logic along geometry : sensible "soundness" lemma , cut-elimination , confluence lemma , sense-completeness lemma ( whose combinatorics mimick Dosen "links" ) , maximality lemma ... ; generated-functors ( "Diaconescu lemma " ) ; essential geometric morphisms ( "Cauchy completion" ) , regular free-completion , exact completion ...
 
   For instant first impression , the conversion-relation constructor which says that the polyelement (injection) morphism cancels the polytransf (copairing) morphism , is written as :
 
 #+BEGIN_EXAMPLE
+| PolyTransf_PolyElement : (* ... *) forall G f H v,
+ ( (ee_(G)(f)(H)(v)) o>CoMod 'UnitViewedFunctor )
+   <~~ ( ( 'PolyElement F v
+           : 'CoMod( View H ~> ViewingFunctor F V_ @ _ ) )
+           o>CoMod [[ ee_ @ F, V_data , V_transp, Yoneda10_ee_natural,
+                      Yoneda10_ee_morphism, Yoneda10_ee_real ]]
+         : 'CoMod( View H ~> ViewedFunctor (ViewingFunctor E U_) @ _ ) )
 #+END_EXAMPLE
 
 KEYWORDS :: 1337777.OOO ; COQ ; MODOS
@@ -23,7 +46,7 @@ OUTLINE ::
 
   * Indexer metalogic , viewing data
     + Indexer metalogic
-    + Viewing-data
+    + Viewing data
     + Unit (total) viewing
     + Intersection (point) viewing
     + Inner (dependent sum) viewing
@@ -34,13 +57,13 @@ OUTLINE ::
 
   * Grammatical presentation of morphisms
     + Sense-decodings of the morphisms
-    + Modified colimiting is default (common) colimiting when into viewed-metafunctors
+    + Modified colimiting is default (common) colimiting when into viewed-functors
     + Grammar of the morphisms , which carry the sense-decodings
 
   * Grammatical conversions of morphisms , which infer the same sense-decoding
     + Grammatical conversions of morphisms
     + Same sense-decoding for convertible morphisms
-    + Cardinality of viewing-functor elements
+    + Cardinality of the viewing-elements of some viewing-functor
     + Linear total/asymptotic grade and the degradation lemma
 
   * Solution morphisms
@@ -51,7 +74,20 @@ OUTLINE ::
 
 -----
 
-HINT :: free high-school-engineering ; re-program the generated-functor-along-reindexing cartierSolution7.v as some modified-colimits on the generator-morphology-which now has some viewing-data which becomes the default-colimiting for the indexer ( "Diaconescu lemma" ) : 
+HINT :: free high-school engineering ; re-program the generated-functor-along-reindexing cartierSolution7.v as some modified-colimitS ( "Diaconescu lemma" ) : 
+#+BEGIN_EXAMPLE
+| PolyTransfGenerated : ( forall (I : obIndexer), forall (G : obGenerator) 
+ (R : obReIndexer) (r : 'Generator( G ~> Generating0 R ))
+ (R_viewing : obViewingReIndexer R) 
+ (i : 'Indexer( ReIndexing0 R |- ViewedIndex I )),
+ forall R' (v : 'ReIndexer( R' |- R | R_viewing )),
+  'CoMod( View_Generating0 R' ~> E_ (ViewedIndex I) @ Yoneda10_ee_ r i v ) ) ->
+'CoMod_indexed( Generated ~> ViewedFunctor_indexed E_ @ _ )
+#+END_EXAMPLE
+
+-----
+
+MEMO :: 1337777.OOO ends to COQ computer-engineer the teaching of polymorph mathematics to billions of high-school students ; « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics ...
 
 -----
 
@@ -59,116 +95,24 @@ BUY MOM RECURSIVE T-SQUARE :: paypal.me/1337777 1337777.OOO@gmail.com ; 微信�
 
 -----
 
-TODO:
-
--todo: make Vinner'_transpSol into lemma
--todo: redo PolyTransf_PolyElement sense by transf_inner_modulo
--todo: erase composition_transpViewingCocone ?
--todo: in transf_inner_modulo erase Senses_defaultColimit.
--todo: redo PolyTransf_default_PolyElement avoid naturality h, use polyelement_to_element
--todo: implicit arguments of transf_inner shall show Yoneda10_ee
--todo: rename transf_inner to Yoneda10_PolyTransf_default_components ; rename transf_inner_polytransf to Yoneda10_PolyTransf_default'
--todo: necessary? Yoneda10_ee_morphism_transp  Yoneda10_ee_toView_transp Yoneda10_ee_natural_transp ? directly use Yoneda00_ViewedFunctor_quotient_rev ?
--TODO: redo   Heq_ee0_viewing : forall G f,
-                    projT1_sval_Yoneda10_ee_ G f = fun H v =>
-                    projT1 (sval (polyelement_to_element (Yoneda10_ee0_ G f H v)))
--todo: PolyTransf_default has polyviewing transp: (W <= Vinner_ (projT1 (sval (Yoneda10_ee_))) ) and domain ViewingFunctor F W ; and should PolyTransf has polyviewing ??
--todo: review necessity of identity_transpViewing'
--memo: MEMO: yoneda_ee v w only depends on ( ( (w :>Generator) o>Generator v | _ ) :>Generator )
--todo polyelement o> polytransf_default use (w :>Generator o> v)
--todo: add uncurry example in summary
--memo: viewing-functor-data is similar as local epimorphism but more forward/constructive , and is the mod-ified colimit ( « modos » )
--memo: for each (viewed/"partial") cocone out of some viewing-functor-data colimit into some other functor , then the (extended) viewed-functor of this functor is the recipient of the forced colimitator/copairing out of this modified colimit
-- memo: local epimorphisms is blend of galois-topology on the generators with colimit-structure/topology on the presheaves
-- memo:  the quantification forall Yoneda00_F Yoneda01_F F V_ , signify function with viewing , which is then internalized as viewed-functor ViewedFunctor F
-- memo: inclusion for dense generators is the generic model
-~todo: shortcut for mophism of views 
--memo: viewing/morphology ; algebraic/structural contrast visualization/morphological/geometrical/topological
--todo: modos or ~~morphos or both~~ .. category = morphology (sometimes geometrical morphism , sometimes logical arrows , or logic of morphisms) , sheaf category = modos 
-~todo: v :>Generator|V_ = v' :>Generator|V_' -> PolyElement F V_ G f H v ~ PolyElement F V_'other G f H v'  
-~TODO: NEXT redo lemma ViewedFunctor_PolyTransf with input of the form 'CoMod( View H ~> ViewingFunctor (ViewedFunctor E) None @ _ ) with optional views such can destruct morphism which has only-constructors-and-variables indexes , now extracted sense of views is computed by case ,  now PolyElement and PolyTranst input optional view and output optional view
-~todo: shall hypotheses Yoneda10_ee_morphism be prefixed in the form  polyelement_to_element ( _ ) = polyelement_to_element ( _ ) 
-~memo: errata in cartierSolution7.v polymorphism for counitgenerated : errata where polymorphism occurs , errata naming ?unitgenerated
-~todo: TODO change (projT1 (polyelement_to_element (Yoneda10_ee_ G f _ _ ))) to 
-(sval (polyelement_to_element (Yoneda10_ee_ G f _ _ ))) 
-~todo: rename Views to Viewing
-~todo: the common term ( projT2_sval_polyelement_to_element_Yoneda10_ee_
-             G f (projT1 wv) (projT1 (projT2 wv)) H' (projT2 (projT2 wv)) )
-  when ee_ is actions, will depend on input only ( (Q_prop w).1 :>Generator ) == ( (Q_prop w).2 :>Generator ) == ( ((Q_prop w) :>Generator ) o>Generator (hex :>Generator) ) == ( ( ((Q_prop w) :>Generator) o>Generator hex | ?? _ projT1 ee_Hex?? ) :>Generator ) ... gives output ( Yoneda01_E ( (Q_prop w : U_ by choice of W_ v <= U_ (projT2 (ee_ v))) :>Generator ) (ee_Hex hex) )
-NOT REALLY   | ?? _ projT1 ee_Hex?? 
-~todo: wrap Yoneda01_F inside notation
-~todo: change Yoneda10_ee_morphism to polyelemtn_to_element (Yoneda10_ee_ _) = polyelemtn_to_element (Yoneda10_ee_ _)
-~todo: solve "abstract" cannot handle existentials. in solve [[ ee_ @ F , V_prop ]] 
-~todo: in | UnitCoMod :  forall B : obGenerator, 
-    morCoMod_codomView ( ( @'UnitCoMod (View B) )%sol )
-    rename B to G
-~todo: add cut-adherence for ViewedFunctor _E ~~ ViewedFunctor E -> ViewingFunctor _E _U_prop ~~ ViewingFunctor _E V_prop
--time: for preformat : wed july 18 h16m27  to  august 15 = 29 days - 3 days - 2 days = 24 days
-predicted after format : + 7 days = 31 days = 1 month 
-~todo: in definitions, fold any possible polyelement_to_element
-+todo: wrtie for  (g : 'Generator( G' ~> G )) (v' : 'Generator( H ~> G' | _ )) of (fst (sval (sval (V_prop G G' g f) H v'))) as  ( v' o>>Generator`V_prop` g ) or of similar
-~todo: change Yoneda10_PolyElement implicits
-+todo: move Yoneda10_ee_natural_prop  Yoneda10_ee_toView_prop  up to Yoneda10_ee_morphism_prop
-~todo: at Lemme Yoneda10_PolyTransf add uniqueness is computationally
-~todo:  inYoneda00_ViewedFunctor_quotient'' change projT1 to sval
-~todo: ERRATA cartierSOlution7.v counitgenerated has cut at R , therefore solve by not accepting argument-morphism 
-
--todo: memo generated modified colimis
-
-(I : obIndexer) general param:
-      ( forall (G : obGenerator) R (r : G ~> Generating1 R) Zview (i : forall R' (z : R' ~> R | Zview), ReIndexing R' ~> I) , forall R' (z : R' ~> R | Zview),
-          'CoMod( View_Generatinr0 R' ~> ViewingFunctor (E I) U_transp @ Yoneda10_ee_ r i z ) ) ->
-  'CoMod( (Generated I) ~> ViewedFunctor (ViewingFunctor (E I) U_transp) @ _ )
-
-(I : obIndexer) is some (ViewedFunctorIndexer J) :
-      ( forall (G : obGenerator) R (r : G ~> Generating1 R) Zview (i : ReIndexing R ~> I) , forall R' (z : R' ~> R | Zview),
-          'CoMod( View_Generatinr0 R' ~> ViewingFunctor (E I) U_transp @ Yoneda10_ee_ r i z ) ) ->
-  'CoMod( (Generated I) ~> ViewedFunctor (ViewingFunctor (E I) U_transp) @ _ )
-
-(I : obIndexer) is some (ViewedFunctorIndexer J) :  lacked sufficiency-lemma will hold :
-      ( forall (G : obGenerator) R (r : G ~> Generating1 R) Zview (i : forall R' (z : R' ~> R | Zview), ReIndexing R' ~> I) , forall R' (z : R' ~> R | Zview),
-          'CoMod( View_Generatinr0 R' ~> ViewingFunctor (E (ReIndexing R)) U_transp @ Yoneda10_ee_ r i z ) ) ->
-  'CoMod( (Generated I) ~> ViewedFunctor (ViewingFunctor (E I) U_transp) @ _ )
-
------
-
-(I : obIndexer) refer to (ViewedFunctorIndexer I) :
-
-( forall (I : obIndexer),
-      ( forall (G : obGenerator) (R : obReIndexer) (r : G ~> Generating0 R) (Rview : obViewingReIndexer R) (i : forall R' (z : R' ~> R | Rview), ReIndexing0 R' ~> ViewedFunctorIndex I), forall R' (z : R' ~> R | Rview),
-          'CoMod( View_Generating0 R' ~> (E (ViewedFunctorIndexer I)) @ Yoneda10_ee_ r i z ) ) ) ->
-  'CoMod( Generated ~> ViewedFunctor^ E @ _ )
-
-(ViewedFunctor^ E) I (Generating0 R) := (ViewedFunctor (ViewedFunctorIndexer I)) (Generating0 R) := { Rview : obViewingReIndexer R & forall R' (z : R' ~> R | Generating1 Rview), Yoneda00_E (ViewedFunctorIndexer I) (View_Generating0 R') }
-
-Yoneda00_Generated I G := { R : { R : obReIndexer & { Rview : obViewingReIndexer R & (forall R' (z : R' ~> R | Rview), ReIndexing0 R' ~> ViewedFunctorIndex I) } } & (G ~> Generating0 R) }
-
-| CoUnitGenerated : forall (I : obIndexer),
-    forall (R : obReIndexe) (Rview : obViewingReIndexer R) (i : forall R' (z : R' ~> R | Rview), ReIndexing0 R' ~> ViewedFunctorIndex I), 
-     'CoMod( View_Generating0 R ~> AtIndexOb Generated(I) @ Yoneda10_CoUnitGenerated i )
-
------
-
-(I : obIndexer) refer to (ViewedFunctorIndexer I) :
-
-( forall (I : obIndexer),
-      ( forall (G : obGenerator) (R : obReIndexer) (r : G ~> Generating0 R) (Rview : obViewingReIndexer R) (i : ReIndexing0 R ~> ViewedFunctorIndex I), forall R' (z : R' ~> R | Rview),
-          'CoMod( View_Generating0 R' ~> (E (ViewedFunctorIndexer I)) @ Yoneda10_ee_ r i z ) ) ) ->
-  'CoMod( Generated ~> ViewedFunctor^ E @ _ )
-
-Yoneda00_Generated I G := { R : { R : obReIndexer & { Rview : obViewingReIndexer R & (ReIndexing0 R ~> ViewedFunctorIndex I) } } & (G ~> Generating0 R) }
-
-| CoUnitGenerated : forall (I : obIndexer),
-    forall (R : obReIndexe) (Rview : obViewingReIndexer R) (i : ReIndexing0 R ~> ViewedFunctorIndex I),      'CoMod( View_Generating0 R ~> AtIndexOb Generated(I) @ Yoneda10_CoUnitGenerated i )
-
-(ViewedFunctor^ E) I (Generating0 R) := (ViewedFunctor (E (ViewedFunctorIndexer I))) (Generating0 R) := { Rview : obViewingReIndexer R & forall R' (z : R' ~> R | Generating1 Rview), Yoneda00_E (ViewedFunctorIndexer I) (View_Generating0 R') }
-
-
------
 
 * Indexer metalogic , viewing data
 
-  The ends is to start with some given viewing-data on some generator-morphology and then to modify the default-colimiting which says that « each functor is the sum/colimit of its elements ; which is that the (inner) transformations from some source functor into some target functor correspond with the (outer) indexings/cocones of the elements of this target functor over all the elements of this source functor » . In other words : any inner transformation ( S ~> T ) corresponds with some outer indexing ( X ; (s : S X) |- T X ) . This modified-colimiting presents this correspondence even when any such indexing/cocone is over only some (not-all) elements-under-viewing of the source functor , as long as the new target functor of the corresponding transformation has been (tautologically) viewed/extended .  But where are those modified-colimits ? Oneself could get them as metafunctors over this generator-morphology , as long as oneself grammatically-distinguishes whatever-is-interesting .
+  The ends is to start with some given viewing-data on some generator-morphology and then to modify the default-colimiting which says that « each functor is the sum/colimit of its elements ; which is that the (outer) indexings/cocones of the elements of some target functor over all the elements of some source functor correspond with the (inner) transformations from this source functor into this target functor » . In other words : any outer indexing ( X ; (s : S X) |- T X ) corresponds with some inner transformation ( S ~> T ) .  But where are those modified-colimits ? Oneself could get them as metafunctors over this generator-morphology , as long as oneself grammatically-distinguishes whatever-is-interesting . 
+
+  The modified-colimiting presents this « copairing » even when any such indexing ( « real polymorph-cocones » ) is over only some viewing-elements of this source « viewing-functor » ( "local epimorphism" ) , as long as the corresponding transformation is into the (tautologically extended) « viewed-functor » ( "sheafification") of this target functor . Memo that when the target functor is already viewed-functor ( "sheaf" ) then this modified-colimiting becomes the default-colimiting ; in other words it is valid to move from-to :
+
+#+BEGIN_EXAMPLE
+(f : F) ; (v : viewing at f) |- (w : viewing indexing the
+                                       inner cocone (e_ f v)) -> (e_ f v w : E)
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+(f : F) ; ((v : viewing at f) , (w : viewing indexing the
+                                       inner cocone (e_ f v))) |- (e_ f v w : E) 
+#+END_EXAMPLE
+
+  « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics . It shows the interdependence of computational-logic along geometry : sensible "soundness" lemma , cut-elimination , confluence lemma , sense-completeness lemma ( whose combinatorics mimick Dosen "links" ) , maximality lemma ... ; generated-functors ( "Diaconescu lemma " ) ; essential geometric morphisms ( "Cauchy completion" ) , regular free-completion , exact completion ...
 
 ** Indexer metalogic
 
@@ -264,8 +208,9 @@ Lemma Yoneda01_View : forall (B : obGenerator),
           'Generator( A' ~> A ) -> (Yoneda00_View B) A -> (Yoneda00_View B) A' ) |
      Yoneda01_functor Yoneda01} .
 Proof.
-  intros. exists (fun A A' a x => a o>Generator x).
-  abstract (split; [intros; exact: polyGenerator_morphism
+  intros. unshelve eexists.
+  - intros A A' a. refine (fun b => a o>Generator b).
+  - abstract (split; [intros; exact: polyGenerator_morphism
                    | intros; exact: polyGenerator_unitGenerator]).
 Defined.
 
@@ -511,11 +456,13 @@ End intersecViewing.
   This construction and assumption will be held in the section [Senses_defaultColimit] in the definitions [viewingDefault_] and [Yoneda10_PolyElement_default] , where it is shown that the immediate/easy uncurrying of some (nested) cocone into any viewed-functor will output some (unnested) cocone whose constructed (dependent sum) indexing is indeed viewing-data by assumption . In other words : it is valid to move from-to
 
 #+BEGIN_EXAMPLE
-(f : F) ; (v : viewing at f) |- (w : viewing indexing the inner cocone (e_ f v)) -> (e_ f v w : E) 
+(f : F) ; (v : viewing at f) |- (w : viewing indexing the
+                                       inner cocone (e_ f v)) -> (e_ f v w : E)
 #+END_EXAMPLE
 
 #+BEGIN_EXAMPLE
-(f : F) ; ((v : viewing at f) , (w : viewing indexing the inner cocone (e_ f v))) |- (e_ f v w : E) 
+(f : F) ; ((v : viewing at f) , (w : viewing indexing the
+                                       inner cocone (e_ f v))) |- (e_ f v w : E) 
 #+END_EXAMPLE
 #+BEGIN_SRC coq :exports both :results silent # # **)
 Notation "{< G' ; v ; w >}" := (existT (fun v0 : { G'0 : obGenerator & _ } => _ ) (existT _ G' v) w)
@@ -752,6 +699,8 @@ End Senses_obCoMod.
 
   As common , the [View] constructor is the (covariant) Yoneda-embedding ( therefore [View G] is some contravariant metafunctor ) .
 
+  Memo that the sense-decoding of some [ViewingFunctor] viewing-functor is the same sense-decoding as this same functor without the viewings . But grammatically , only the viewing-elements of the viewing-functor are touchable (via the morphism constructor [PolyElement]) .
+
   Lastly , memo that the viewings-data or polymorph-viewings-transport logical-conditions are not carried by the grammatical objects and will be carried only by the [PolyTransf] reflector/copairing grammatical morphism .
 
 #+BEGIN_SRC coq :exports both :results silent # # **)
@@ -780,13 +729,38 @@ Inductive obCoMod : forall Yoneda00 : obGenerator -> Type,
 
   As common , the [View1] constructor is the (covariant) Yoneda-embedding ( therefore [View G] is some contravariant metafunctor ) .
 
-  Now the sense-decoding of the constructor [ViewedFunctor1] takes some transformation parameter and then inputs some cocone over some viewing , and finally ouputs some other cocone over the same viewing but whose sections have been post-composed/transformed by this transformation parameter .
+  Now the « viewed-functor » construction is functorial via the constructor [ViewedFunctor1] ( « viewed-transformation » ). And the sense-decoding of the constructor [ViewedFunctor1] takes some transformation parameter and then inputs some cocone over some viewing , and finally ouputs some other cocone over the same viewing but whose sections have been post-composed/transformed by this transformation parameter . Memo that the formulation of this [ViewedFunctor1] constructor is (functoriality) polymorphism .
 
-  Now the sense-decoding of the constructor [UnitViewedFunctor] takes some transformation parameter and then inputs some element of some functor , and finally outputs the polyelement form of [this element which has been pre-composed/transformed by this transformation parameter] .
+  For modified-colimits , the [PolyElement] (injection) morphism cancels ( via the conversion [PolyTransf_PolyElement] ) the [PolyTransf] (copairing) morphism , but not tightly/precisely . This cancellation is relaxed by the constructor [UnitViewedFunctor] . Now the sense-decoding of the constructor [UnitViewedFunctor] takes some transformation parameter and then inputs some element of some functor , and finally outputs the polyelement form of [this element which has been pre-composed/transformed by this transformation parameter] . Memo that the formulation of this [UnitViewedFunctor] constructor is (naturality) polymorphism .
 
-  Now the constructor [PolyElement] are the sections/injections/coprojection of the modified-colimit [ViewingFunctor] viewing-functor ; therefore only the viewing-elements (action of some viewing-arrow onto some element) of this viewing-functor are accessible via this [PolyElement] constructor . Memo the dependence of [PolyElement] not in the pair (element , viewing-arrow) but only in its action (sense) , both in the sense-decoding [Yoneda10_PolyElement] and in the conversion [PolyElement_cong] (this is necessary for sense-completeness ... ) .
+  And the constructor [PolyElement] are the sections/injections/coprojection of the modified-colimit [ViewingFunctor] viewing-functor ; therefore only the viewing-elements (action of some viewing-arrow onto some element) of this viewing-functor are accessible via this [PolyElement] constructor . Memo the dependence of [PolyElement] not in the pair (element , viewing-arrow) but only in its action (sense) , both in the sense-decoding [Yoneda10_PolyElement] and in the conversion [PolyElement_cong] (this is necessary for sense-completeness ... ) .
 
-  Now the constructor [PolyTransf] is the reflector/copairing of the modified-colimit [ViewingFunctor] viewing-functor . Its sense-decoding takes some real polymorph-cocones into one target functor over the viewings at each element of some viewing-functor and then inputs some element of this functor , and finally outputs the cocone at this element ; such output cocone is indeed some element of the viewed-functor of the target functor .
+  And the constructor [PolyTransf] is the reflector/copairing of the modified-colimit [ViewingFunctor] viewing-functor . Its sense-decoding takes some « real polymorph-cocones » into one target functor over the viewings at each element of some viewing-functor and then inputs some element of this functor , and finally outputs the cocone at this element ; such output cocone is indeed some element of the viewed-functor of the target functor . Memo that any real polymorph-cocones
+
+#+BEGIN_EXAMPLE
+ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
+      forall (H : obGenerator), 'Generator( H ~> G | (V_ G f) ) ->
+      forall (H' : obGenerator), Yoneda00_View H H' -> Yoneda00_E H'
+ALT:  e_ f v := ee_ f v 1
+#+END_EXAMPLE
+
+is such that it is cocones ( [Yoneda10_ee_natural] ) :
+#+BEGIN_EXAMPLE
+ee_ f (g o> v) h  =  ee_ f v (h o> g)
+ALT:  e_ f (g o> v)  =  g o> (e_ f v)
+#+END_EXAMPLE
+
+and it is polymorph-cocones ( [Yoneda10_ee_morphism] ) :
+#+BEGIN_EXAMPLE
+ee_ (g o> f) v h  =  ee_ f (v o> g) h
+ALT:  e_ (g o> f) v  =  e_ f (v o> g)
+#+END_EXAMPLE
+
+and it is real polymorph-cocones ( [Yoneda10_ee_real] ) :
+#+BEGIN_EXAMPLE
+ee_ f v h  =  ee_ f (v :>Generator) h
+ALT:  e_ f v  =  e_ f (v :>Generator)
+#+END_EXAMPLE
 
   Finally the constructor [PolyTransf_default] corresponds to the constructor [PolyTransf] when the target functor is already some viewed-functor . The sense-decoding of this constructor [PolyTransf_default] is less-immediate to present , and therefore will be presented in the next section [Senses_defaultColimit] .
 
@@ -930,7 +904,7 @@ Proof.
   exact: (element_to_polyelement _ (( v :>Generator ) o>Generator_[sval Yoneda01_F] f )).
 Defined.
 
-(*MEMO: dependence of this lemma in that the viewing is indeed viewing-data [V_data : viewing (V_ G f)] .
+(*MEMO: dependence of this lemma in that the viewing is indeed viewing-data [V_data : viewingData (V_ G f)] .
 MEMO: uniqueness is by computationally *)
 Lemma Yoneda10_PolyTransf :
   forall Yoneda00_F Yoneda01_F (V_ : forall G : obGenerator, Yoneda00_F G -> obViewing G)
@@ -962,7 +936,7 @@ Lemma Yoneda10_PolyTransf :
 Proof.
   intros. unshelve eexists.
   - intros G f. unshelve eexists.
-    + eexists. (* exists (@V_ G f).*)
+    + eexists. (* exists (@V_ G f). *)
       exact: (fun H v => (polyelement_to_element (Yoneda10_ee_ G f H v))).
     + abstract (simpl; split;
                 first (by exact: (V_data G f));
@@ -976,40 +950,64 @@ Proof.
       | exact: identity_transpViewing
       | abstract (intros H; move; simpl; intros v';
                   exact: Yoneda10_ee_morphism) ]) .
-    (*MEMO: (1) add asinnerption on the viewed-functor (the views at the functor) that
-       V_(g o>f) <= pullback of V_(f) along g , which is same as
-       sigma of V_(g o> f) along g <= V_(f)
-       (2) add asinnerption that the sections ee_ hold
-       v' |=> ee_(f) (v' o> g) is 
-       v' |=> ee_(g o> f) v'         
-
-f
-|--------->
-v |- mymap_(f) v
-|--------->>
-v' |- mymap_(f) (v' o> g)
----------------------
-
-f
-|---------->
-g o> f
-|---------->
-v' |- mymap_(g o> f) v'
- *)
 Defined.
 (** # #
 #+END_SRC
 
-** Modified colimiting is default (common) colimiting when into viewed-metafunctors
+** Modified colimiting is default (common) colimiting when into viewed-functors
 
-  BLA
+  Finally the constructor [PolyTransf_default] corresponds to the constructor [PolyTransf] when the target functor is already some viewed-functor . Modified colimiting is default (common) colimiting when into viewed-metafunctors . It is less-immediate to find the sense-decodings which validate this grammatical construction [PolyTransf_default] and grammatical conversion [PolyTransf_default_PolyElement] . 
+
+  In short : given some « nested real polymorph-cocones » into some viewed-functor (whose elements are therefore inner cocones) :
+
+#+BEGIN_EXAMPLE
+e_ : forall (G : obGenerator) (f : Yoneda00_F G),
+     forall (H : obGenerator), 'Generator( H ~> G | (V_ G f) ) ->
+                        (Yoneda00_ViewedFunctor Yoneda01_E) H 
+#+END_EXAMPLE
+
+it is valid to move from-to :
+
+#+BEGIN_EXAMPLE
+(f : F) ; (v : viewing at f) |- (w : viewing indexing the
+                                       inner cocone (e_ f v)) -> (e_ f v w : E)
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+(f : F) ; ((v : viewing at f) , (w : viewing indexing the
+                                       inner cocone (e_ f v))) |- (e_ f v w : E) 
+#+END_EXAMPLE
+
+where the later (unnested) real polymorph-cocones [Yoneda10_PolyElement_default] are each over some constructed inner (dependent sum) viewing [viewingDefault_] ( « viewings-for-default-colimiting » ) .
+
+  Memo that here the form of the assumed logical-conditions for such (nested) real polymorph-cocones into some viewed-functor will become :
+
+that it is cocones ( [Yoneda10_e_natural] ) :
+#+BEGIN_EXAMPLE
+e_ f (g o> v) w = (g o> (e_ f v)) w == e_ f v (w o> g)
+#+END_EXAMPLE
+
+and (same) that it is polymorph-cocones ( [Yoneda10_e_morphism] ) :
+#+BEGIN_EXAMPLE
+e_ (g o> f) v w  =  e_ f (v o> g) w
+#+END_EXAMPLE
+
+and that it is real polymorph-cocones ( [Yoneda10_e_real] ) :
+#+BEGIN_EXAMPLE
+e_ f v w  ==  e_ f v (1 o> (w :>Generator))
+  ==  (w :>Generator) o> (e_ f v 1)
+  ==  e_ f ((w :>Generator) o> v) 1
+  =   e_ f (((w :>Generator) o> v) :>Generator) 1 
+  ==   e_ f ((w :>Generator) o> (v :>Generator)) 1 
+#+END_EXAMPLE
+
 #+BEGIN_SRC coq :exports both :results silent # # **)
 Section Senses_defaultColimit.
 
 (**memo:   ee_ := Yoneda10_ee_ : (forall G f H (v : 'Generator( H ~> G | (V_ G f) )) H' (h : 'Generator( H' ~> H )), Yoneda00_E H')  ;
            e_ := polyelement_to_element ee_  ;
-           ee__ := Yoneda10_PolyElement_default : (forall G f H' (wv : 'Generator( H' ~> G | (viewingDefault_ (projT1 (sval (e_ f))) )), Yoneda00_E H')  ;
-           e__ := polyelement_to_element ee__  **)
+           e__ := Yoneda10_PolyElement_default : (forall G f H' (wv : 'Generator( H' ~> G | (viewingDefault_ (projT1 (sval (e_ f))) )), Yoneda00_E H')  ;
+           ee__ := element_to_polyelement e__  **)
 
 Section transp.
 Variables (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : { Yoneda01 : ( forall G G' : obGenerator,
@@ -1183,7 +1181,7 @@ Proof.
 Time Defined. (* TOTAL TIME 66s + 25s + 38s *)
 
 (**memo: e__ := Yoneda10_PolyElement_default ;
-         ee__ := polyelement e__ **)
+         ee__ := element_to_polyelement e__ **)
 Lemma Yoneda10_PolyElement_default :
   forall Yoneda00_F
          (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G),
@@ -1250,7 +1248,7 @@ Defined.
 (**memo:
 e__ f wv  =  e_ f v w
   =[w factorize along w as 1]  (w o> (e_ f v)) 1 
-  =[naturality]  e_ f (w o> v) 1  
+  =[outer naturality]  e_ f (w o> v) 1  
   =[real]  e_ f (w0 o> v0) 1  =  ...  =  e__ f w0v0 
 
 alternative using lemma Yoneda10_PolyElement_default_outerNatural :
@@ -1311,7 +1309,7 @@ Proof.
   simpl. (*  unitGenerator = unitGenerator *) reflexivity.
 Qed.
 
-(*memo: uniqueness is by computationally *)
+(**memo: uniqueness is by computationally *)
 Lemma Yoneda10_PolyElement_default_unique :
   forall Yoneda00_F
          (V_ : forall G : obGenerator, Yoneda00_F G -> obViewing G),
@@ -1370,7 +1368,7 @@ Proof.
   reflexivity.
 Qed.
 
-(**memo:
+(**memo: (todo: reverse equalities)
 e__ (g o> f) wv  =  e_ (g o> f) v w
   =[morphism]  e_ f (v o> g) w  =  e__ f (w o> (v o> g))
   =  e__ f (wv o> g) **)
@@ -1406,7 +1404,7 @@ Proof.
   symmetry; exact: (proj2_sig (Yoneda10_e_morphism_transp Yoneda10_e_morphism _)).
 Qed.
 
-(**memo: holds lemma Yoneda10_PolyElement_default_modulo **)
+(**memo: this holds lemma [Yoneda10_PolyElement_default_modulo] **)
 Lemma Yoneda10_PolyElement_default_real :
   forall Yoneda00_F
          (V_ : forall G : obGenerator, Yoneda00_F G -> obViewing G),
@@ -1449,7 +1447,8 @@ Proof.
     := projT2 (projT1 w0v0).
   set w0 : 'Generator( H' ~> _ |  projT1_sval_Yoneda10_e_ G f H0 v0 )
     := projT2 w0v0.
-  Time do 2 rewrite -(proj2_sig (Yoneda10_realize (V_ G f) )). (* TIME WITHOUT set : 27s + 18s QED = ; TIME WITH set : 0.1 *)  
+  Time do 2 rewrite -(proj2_sig (Yoneda10_realize (V_ G f) )).
+  (* TIME WITHOUT set : 27s + 18s QED = ; TIME WITH set : 0.1 *)  
   exact: Heq. 
 Qed. 
 
@@ -1496,12 +1495,14 @@ Proof.
 
   apply (@ Yoneda10_PolyTransf Yoneda00_F Yoneda01_F (viewingDefault_ projT1_sval_Yoneda10_e_) (viewingDefault_data V_data proj1_proj2Sig_Yoneda10_e_) (viewingDefault_transp Yoneda10_e_morphism) Yoneda00_E Yoneda01_E element_to_polyelement_Yoneda10_PolyElement_default).
   (* Yoneda10_PolyElement_default_natural *)
-  intros; move; intros; do 2 rewrite element_to_polyelement_to_element;
-    exact: Yoneda10_PolyElement_default_natural.
+  - abstract (intros; move; intros; do 2 rewrite element_to_polyelement_to_element;
+              exact: Yoneda10_PolyElement_default_natural).
   (* Yoneda10_PolyElement_default_morphism *)
-  intros; do 2 rewrite element_to_polyelement_to_element. exact: (Yoneda10_PolyElement_default_morphism Yoneda10_e_morphism).
+  - abstract (intros; do 2 rewrite element_to_polyelement_to_element;
+              exact: (Yoneda10_PolyElement_default_morphism Yoneda10_e_morphism)).
   (* Yoneda10_PolyElement_default_real *)
-  intros; do 2 rewrite element_to_polyelement_to_element. exact: (Yoneda10_PolyElement_default_real Yoneda10_e_natural Yoneda10_e_real).
+  - abstract (intros; do 2 rewrite element_to_polyelement_to_element;
+              exact: (Yoneda10_PolyElement_default_real Yoneda10_e_natural Yoneda10_e_real)).
 Defined.
 
 Lemma Yoneda10_PolyTransf_default0_unique :
@@ -1594,22 +1595,6 @@ Proof.
   intros; apply: (@Yoneda10_PolyTransf_default0 Yoneda00_F Yoneda01_F V_ V_data V_transp Yoneda00_E Yoneda01_E (fun G f H v => polyelement_to_element (Yoneda10_ee_ G f H v)) Yoneda10_ee_morphism Yoneda10_ee_natural Yoneda10_ee_real ).
 Defined.
 
-(**TODO: IN OTHER WORDS
- have outer-parameter (the first component of viewed-functor) fixed, then show
-
- [ W_ : forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator), 'Generator( H ~> G | sval (V_ G f) ) -> obViewing H ] (*hypothesis fix : projT1 sval polyelement_to_element Yoneda10_ee_ = W_ *)
-    ;  forall (G : obGenerator) (f : Yoneda00_F G),
-       forall (H : obGenerator) (v : 'Generator( H ~> G | sval (V_ G f) )),
-       (* { e : Yoneda00_ViewedFunctor Yoneda01_E H | fst e = W_ } hyp via Yoneda10_ee_  == *)
-       forall (H' : obGenerator) (w : 'Generator( H' ~> H | W_ G f H v ))  |-  Yoneda00_E H'
-----------------------bij
-... ;  forall (G : obGenerator) (f : Yoneda00_F G),
-       forall (H' : obGenerator) (vw : 'Generator( H' ~> G | innerViewing (W_ G f) ))  |-  Yoneda00_E H'
-----------------------bij
-... |- ViewingFunctor F (\G f => innerViewing (W_ G f)) ~> Yoneda00_E H'
-
-  **)
-
 End Senses_defaultColimit.
 End Senses_morCoMod.
 (** # #
@@ -1617,8 +1602,18 @@ End Senses_morCoMod.
 
 ** Grammar of the morphisms , which carry the sense-decodings
 
-  Lastly , memo that the viewings-data or polymorph-viewings-transport logical-conditions are not carried by the grammatical objects and will be carried only by the [PolyTransf] reflector/copairing grammatical morphism .
-  BLA
+  Memo that grammatically , the target/codomain functor of the parameter transformation of the constructor [ViewedFunctor1] is some viewing-functor . This same memo holds for the constructors [UnitViewedFunctor] and [PolyTransf].
+
+  And , as wanted , the target/codomain functor of the parameter transformation of the constructor [PolyTransf_default] is some viewed-functor ; moreover the codomain of the output is indeed not changed , as for the common default-colimiting . 
+
+  Now the section/injection [PolyElement] constructor inputs some viewing-element of any viewing-functor and changes its format (internalizes) and outputs some grammatical transformation which is the « polyelement » ( the generator-arrows-(functorial-)action ( "Yoneda" ) ) of this viewing-element  . 
+
+  Also the modified-colimiting reflector/copairing [PolyTransf] constructor inputs some real polymorph-cocones at the elements of some viewing-functor into some target functor and changes its format (internalizes) and outputs some grammatical transformation from this same viewing-functor into the viewed-functor of the target functor .
+
+   In contrast , the default-colimiting reflector/copairing [PolyTransf_default] constructor inputs some (nested) real polymorph-cocones at the elements of some viewing-functor into some viewed-functor and changes its format (internalizes) and outputs some grammatical transformation into this same viewed-functor from this sense-same source functor but grammatically with the viewings-for-default-colimiting ( [viewingDefault_] , inner (dependent sum) viewings ) . Attention the « polyviewing » formulation of [PolyTransf_default] where the output viewings is not precisely the expected « viewings-for-default-colimiting » ( [viewingDefault_] ) but is any viewings which is contained/smaller than this viewings-for-default-colimiting .
+
+  Lastly , memo that the viewings-data or polymorph-viewings-transport logical-conditions are carried only by the two constructors [PolyTransf] and [PolyTransf_default] , and are not carried by the other constructors .
+
 #+BEGIN_SRC coq :exports both :results silent # # **)
 Reserved Notation "''CoMod' ( E ~> F @ Yoneda10 )"
          (at level 0, format "''CoMod' (  E  ~>  F  @  Yoneda10  )").
@@ -1659,58 +1654,31 @@ Inductive morCoMod : forall Yoneda00_E Yoneda01_E,
     forall Yoneda10_ff (ff : 'CoMod( E ~> ViewingFunctor F V_ @ Yoneda10_ff )),
       'CoMod( E ~> ViewedFunctor (ViewingFunctor F V_) @ Yoneda10_UnitViewedFunctor Yoneda10_ff )
 
-(** PolyElemant(s) because internalize/poly the element , or PolyElement or injection/section *)              
-| PolyElement : (* memo that cannot yet grammatically distinguish whether any f: Yoneda00_View G H is come from some ( _ :>Generator) , therefore solution is this extra constructor PolyElement ; also therefore such can cancel PolyTransf instead of evaluate as for PolyElement , also shall separate grammatical for touching this many/family/cover-arrows at once ?  *)
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
+| PolyElement : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
            (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G),
     forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (V_ G f) )),
       'CoMod( View H ~> ViewingFunctor F V_ @ Yoneda10_PolyElement Yoneda01_F v) 
 
-(** PolyTransf because internalize the indexing (F) , or CoLimitator or Copairing *)
 | PolyTransf : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
                       (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
                       (V_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (V_ G f))
                       (V_transp : viewingFunctor Yoneda01_F V_),
     forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yoneda01_E)
            (U_ : forall (G : obGenerator) (e : Yoneda00_E G), obViewing G),
-    (**  ee_ f v (h o> g)  =  g o> (ee_ f v h) ;
-      memo:  e_ := ( polyelement_to_element ee_ ) 
-                   : forall G f H, 'Generator( H ~> G | (V_ G f) ) -> Yoneda00_E H **)
     forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
                forall (H : obGenerator), 'Generator( H ~> G | (V_ G f) ) ->
             {Yoneda10 : forall H' : obGenerator, Yoneda00_View H H' -> Yoneda00_E H' |
               Yoneda10_natural (Yoneda01_View H) Yoneda01_E Yoneda10} ),
-    (**  cocones :
-       e_ f (g o> v) = g o> (e_ f v) ;
-                               ee_ f (g o> v) h = ee_ f v (h o> g) ;
-    when into viewed-functor : e_ f (g o> v) w = (g o> (e_ f v)) w == e_ f v (w o> g) ;
-                               ee_ f (g o> v) h w = ee_ f v (h o> g) w == ee_ f v g (w o> h) **)
       forall (Yoneda10_ee_natural :
        forall (G : obGenerator) (f : Yoneda00_F G),
          Yoneda10_natural (Yoneda01_Viewing (V_ G f)) Yoneda01_E
                           (fun (H : obGenerator) (v : 'Generator( H ~> G | (V_ G f) )) =>
                              polyelement_to_element (Yoneda10_ee_ G f H v))),
-    (*TODO: revert this equality to avoid Logic.eq_sym later *)
-           (** polymorph-cocones :
-               e_ (g o> f) v'  =  e_ f (v' o> g)  ; 
-                                 ee_ (g o> f) v' h  =  ee_ f (v' o> g) h  **)
       forall (Yoneda10_ee_morphism : 
        forall (G G' : obGenerator) (g : 'Generator( G' ~> G )) (f : Yoneda00_F G),
          forall (H : obGenerator) (v' : 'Generator( H ~> G' | (V_ G' (g o>Generator_[sval Yoneda01_F] f)) )),
            polyelement_to_element (Yoneda10_ee_ G f H (fst (sval (sval (V_transp G G' g f) H v')))) =
            polyelement_to_element (Yoneda10_ee_ G' (g o>Generator_[sval Yoneda01_F] f) H v')),
-      (** real polymorph-cocones :
-         e_ f v  =  e_ f (v :>Generator)  ;
-                            ee_ f v h  =  ee_ f (v :>Generator) h ;
-      when into viewed-functor : e_ f v w  ==  e_ f v (1 o> (w :>Generator))
-                               =   e_ f ((w :>Generator) o> v) 1
-                               =   e_ f (((w :>Generator) o> v) :>Generator) 1 
-                               ==   e_ f ((w :>Generator) o> (v :>Generator)) 1 ;
-
-                               ee_ f v h w  ==  ee_ f v h (1 o> (w :>Generator))
-                               =   ee_ f v ((w :>Generator) o> h) 1
-                               =   ee_ f (((w :>Generator) o> h) o> v) 1 1
-                               =   ee_ f (((w :>Generator) o> h) o> (v :>Generator)) 1 1   **)
       forall (Yoneda10_ee_real : 
        forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v v' : 'Generator( H ~> G | (V_ G f) )),
          ((v :>Generator) = (v' :>Generator)) ->
@@ -1730,8 +1698,6 @@ Inductive morCoMod : forall Yoneda00_E Yoneda01_E,
                forall (H : obGenerator), 'Generator( H ~> G | (V_ G f) ) ->
             {Yoneda10 : forall H' : obGenerator, Yoneda00_View H H' -> (Yoneda00_ViewedFunctor Yoneda01_E) H' |
               Yoneda10_natural (Yoneda01_View H) (Yoneda01_ViewedFunctor Yoneda01_E) Yoneda10} ),
-    (** here into viewed-functor : e_ f (g o> v) w = (g o> (e_ f v)) w == e_ f v (w o> g) ;
-                                ee_ f (g o> v) h w = ee_ f v (h o> g) w == ee_ f v g (w o> h) **)
     forall (Yoneda10_ee_natural :
        forall (G : obGenerator) (f : Yoneda00_F G),
          Yoneda10_natural (Yoneda01_Viewing (V_ G f)) (Yoneda01_ViewedFunctor Yoneda01_E)
@@ -1742,15 +1708,6 @@ Inductive morCoMod : forall Yoneda00_E Yoneda01_E,
          forall (H : obGenerator) (v' : 'Generator( H ~> G' | (V_ G' (g o>Generator_[sval Yoneda01_F] f)) )),
            polyelement_to_element (Yoneda10_ee_ G f H (fst (sval (sval (V_transp G G' g f) H v')))) =
            polyelement_to_element (Yoneda10_ee_ G' (g o>Generator_[sval Yoneda01_F] f) H v')),
-    (** here into viewed-functor : e_ f v w  ==  e_ f v (1 o> (w :>Generator))
-                               =   e_ f ((w :>Generator) o> v) 1
-                               =   e_ f (((w :>Generator) o> v) :>Generator) 1 
-                               ==   e_ f ((w :>Generator) o> (v :>Generator)) 1 ;
-
-                               ee_ f v h w  ==  ee_ f v h (1 o> (w :>Generator))
-                               =   ee_ f v ((w :>Generator) o> h) 1
-                               =   ee_ f (((w :>Generator) o> h) o> v) 1 1
-                               =   ee_ f (((w :>Generator) o> h) o> (v :>Generator)) 1 1   **)
       forall (Yoneda10_ee_real :
                 forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v v' : 'Generator( H ~> G | (V_ G f) )),
          ((v :>Generator) = (v' :>Generator)) ->
@@ -1810,17 +1767,25 @@ Notation "[[[ ee_ @ F , V_ , viewingDefault'_ ]]]" :=
   (@PolyTransf_default _ _ F V_ _ _ _ _ _ _ _ _ _ ee_ viewingDefault'_ _)
     (at level 4, F , V_ ,  viewingDefault'_ at next level ,
      format "[[[  ee_  @  F  ,  V_  ,  viewingDefault'_  ]]]" ) : poly_scope.
-
 (** # #
 #+END_SRC
 
 * Grammatical conversions of morphisms , which infer the same sense-decoding
 
-  BLA
+  As common , the grammatical conversions are classified into : the total/(multi-step) conversions , and the congruences (recursive) conversions , and the constant (non-recursive) conversions which are used in the polymorphism/cut-elimination lemma , and the constant conversions which are only for the wanted sense of modified-colimit-into-viewed-functor , and the constant conversions which are only for the confluence lemma (TODO:) , and the constant conversions which are derivable by using the finished cut-elimination lemma . ( Memo that the section/injection [PolyElement] transformation has constructor-ed functors at both the codomain ( [ViewingFunctor] ) and the codomain ( [View] ) , therefore the confluence lemma will not ( ? ) lack any additional conversion ... )
+
+  In contrast , because of the embedded sense-decoding extra-indexes/arguments in the datatype-families [morCoMod] of the morphisms , the conversion-relation shall convert across two morphisms whose sense-decoding datatype-indexes/arguments are not syntactically/grammatically-the-same . But oneself does show that , by logical-deduction [convCoMod_sense] , these two sense-decodings are indeed propositionally equal ( « sensible lemma » , "soundness lemma" ) .
+
+  The converse inference is the « sense-completeness lemma » , whose deduction will lack the finished cut-elimination lemma . Such sense-completeness lemma is expected because : some sense-completeness lemma are known to hold for adjunctions and for comonad and for (cartesian) products but using the combinatorial "links" sense ( in the style of Dosen ) ; the attention is that this combinatorial "links" sense is the combinatorial essense of this ongoing (algebraic) metafunctors ( "presheaf" ) sense ; therefore those completeness lemma shall transfer . Similarly the « maximality lemma » says that any non-deductible extra conversion constructor which is assumed to hold in the sense (model) , will make any two grammatical morphisms equal ( preorder ) in the sense . Such maximality lemma which are known to hold for adjunctions and for comonad and for (cartesian) products shall transfer to this ongoing metafunctors ( "presheaf" ) sense .
+
+  Memo that the polymorphism conversions [PolyTransf_morphism] and [PolyTransf_default_morphism] have different form ; where [PolyTransf_default_morphism] has the more-common form for default-colimiting but only among the viewed-transformations ( of the form [ViewedFunctor1] ) . Also memo that the cancellation conversions [PolyTransf_PolyElement] and [PolyTransf_default_PolyElement] have different form ; where for [PolyTransf_PolyElement] the pair ( element , viewing-arrow ) of the viewing-element of the viewing-functor is material and the contractum (the selected component) is relaxed by [UnitViewedFunctor] , but for [PolyTransf_default_PolyElement] only the (acted/resulting) viewing-element is material and the contractum (the selected component) is not relaxed by [UnitViewedFunctor] .
+
+  Now memo the conversion-for-morphisms constructor [AtIndexMor'MorCoMod_indexed] which says that [ grammatically collecting/familiarize many morphisms and then grammatically selecting some singleton morphism from this collection/family at some index ] is convertible to [ applying/substituting this index in the original collection/family/function ] . This conversion-relation will be held during the polymorphism/cut-elimination resolution . One question is whether such similar conversion-for-objects ( instead of for-morphisms ) across singleton-objects and indexed-objects would be useful ?
+
+  Finally , some linear total/asymptotic grade is defined on the morphisms and the tactics-automated degradation lemma shows that each of the conversion indeed degrades the redex morphism .
 
 ** Grammatical conversions of morphisms
 
-  BLA
 #+BEGIN_SRC coq :exports both :results silent # # **)
 Section Senses_convCoMod.
 
@@ -2076,8 +2041,7 @@ Inductive convCoMod : forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yone
       [[[ ee0_ @ F , V_data , V_transp , Yoneda10_ee0_natural , Yoneda10_ee0_morphism , Yoneda10_ee0_real , viewingDefault'_transp0 ]]]
         <~~ [[[ ee_ @ F , V_data , V_transp , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_transp ]]]
 
-(** ----- the constant conversions which are used during the PolyCoMod
-polymorphism elimination ----- **)
+(** ----- the constant conversions which are used during the polymorphism elimination ----- **)
 
 | PolyCoMod'UnitCoMod :
     forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
@@ -2085,18 +2049,20 @@ polymorphism elimination ----- **)
       Yoneda10_gg (gg : 'CoMod( F ~> G @ Yoneda10_gg )),
       gg <~~ ( gg o>CoMod ('UnitCoMod) )
 
-(** not all cases of this conversion are necessary **)
+(**memo: not all cases of this conversion are necessary **)
 | PolyCoMod_UnitCoMod :
     forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
       Yoneda00_G Yoneda01_G (G : @obCoMod Yoneda00_G Yoneda01_G)    
       Yoneda10_gg (gg : 'CoMod( F ~> G @ Yoneda10_gg )),
       gg <~~ ( ('UnitCoMod) o>CoMod gg )
 
-| View1_View1 : forall (G H : obGenerator) (g : 'Generator( H ~> G )) (H' : obGenerator) (h : 'Generator( H' ~> H )),
+(** a.k.a View1_View1 **)         
+| View1_morphism : forall (G H : obGenerator) (g : 'Generator( H ~> G )) (H' : obGenerator) (h : 'Generator( H' ~> H )),
     ('View1 (h o>Generator g))
       <~~ ('View1 h o>CoMod 'View1 g)
 
-| ViewedFunctor1_ViewedFunctor1 :
+(** a.k.a ViewedFunctor1_ViewedFunctor1  **)
+| ViewedFunctor1_morphism :
     forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F),
     forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yoneda01_E)
            (U_ : forall (G : obGenerator) (e : Yoneda00_E G), obViewing G),
@@ -2143,9 +2109,10 @@ polymorphism elimination ----- **)
         ( [[ ( fun G f H v => ee_ G f H v o>CoMod e'e' )
                @ F , V_data , V_transp , Yoneda10_PolyTransf_morphism_natural Yoneda10_ee_natural Yoneda10_e'e' , Yoneda10_PolyTransf_morphism_morphism Yoneda10_ee_morphism  Yoneda10_e'e' ,  Yoneda10_PolyTransf_morphism_real Yoneda01_F Yoneda10_ee_real  Yoneda10_e'e' ]] )
           <~~  ( [[ ee_ @ F , V_data, V_transp , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]]
-                   o>CoMod 'ViewedFunctor1 e'e'
+                   o>CoMod ( 'ViewedFunctor1 e'e' )
                  : 'CoMod( ViewingFunctor F V_ ~> ViewedFunctor (ViewingFunctor E' U'_) @ _ ) )
 
+(** a.k.a ViewedFunctor1_PolyTransf_default **)
 | PolyTransf_default_morphism : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
                               (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
                               (V_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (V_ G f))
@@ -2165,7 +2132,7 @@ polymorphism elimination ----- **)
 
       ( [[[ ( fun G f H v => ( ee_ G f H v ) o>CoMod ( 'ViewedFunctor1 e'e' ) )
                @ F , V_data , V_transp , Yoneda10_PolyTransf_morphism_natural Yoneda10_ee_natural (Yoneda10_ViewedFunctor1 Yoneda10_e'e') , Yoneda10_PolyTransf_morphism_morphism Yoneda10_ee_morphism  (Yoneda10_ViewedFunctor1 Yoneda10_e'e') ,  Yoneda10_PolyTransf_morphism_real Yoneda01_F Yoneda10_ee_real  (Yoneda10_ViewedFunctor1 Yoneda10_e'e') , viewingDefault'_transp  ]]] )
-<~~ ( [[[ ee_ @ F , V_data , V_transp , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_transp ]]] o>CoMod 'ViewedFunctor1 e'e' )          
+<~~ ( [[[ ee_ @ F , V_data , V_transp , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_transp ]]] o>CoMod ( 'ViewedFunctor1 e'e' ) )          
 
 (** a.k.a UnitViewedFunctor_PolyCoMod **)
 | UnitViewedFunctor_morphismPre : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
@@ -2177,7 +2144,8 @@ polymorphism elimination ----- **)
       ( (ee o>CoMod ff) o>CoMod 'UnitViewedFunctor )
         <~~ ( ee o>CoMod ( ff o>CoMod 'UnitViewedFunctor ) )
 
-| PolyElement_View1 :
+(** a.k.a PolyElement_View1 **)
+| PolyElement_morphism :
     forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
            (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G),
     forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (V_ G f) )),
@@ -2205,19 +2173,6 @@ polymorphism elimination ----- **)
                            Yoneda10_ee_morphism, Yoneda10_ee_real ]]
               : 'CoMod( View H ~> ViewedFunctor (ViewingFunctor E U_) @ _ ) )
 
-(** ----- the constant conversions which are only for the wanted sense of
-viewed-metafunctor-along-views-data grammar ----- **)
-
-| PolyTransf'PolyElement :
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-           (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
-           (V_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (V_ G f))
-           (V_transp : viewingFunctor Yoneda01_F V_),
-        (* problem: how to recognize grammatically such many/family/cover of arrows in 'PolyElement ? *)
-        ( 'UnitCoMod o>CoMod 'UnitViewedFunctor )
-          <~~  ( [[ @PolyElement _ _ F V_ @ F , V_data , V_transp , @Yoneda10_PolyElement_natural _ Yoneda01_F V_ , Yoneda10_PolyElement_morphism V_data V_transp , @Yoneda10_PolyElement_real _ Yoneda01_F V_ ]]
-                 : 'CoMod( ViewingFunctor F V_ ~> ViewedFunctor (ViewingFunctor F V_) @ _ ) )
-
 | PolyTransf_default_PolyElement :
  forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
                               (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
@@ -2239,9 +2194,25 @@ viewed-metafunctor-along-views-data grammar ----- **)
                 o>CoMod [[[ ee_ @ F, V_data , V_transp , Yoneda10_ee_natural,
                            Yoneda10_ee_morphism, Yoneda10_ee_real , viewingDefault'_transp ]]] )
 
-(** ----- the constant symmetrized-conversions which are symmetrized-derivable by
-using the finished cut-elimination lemma ----- TODO: COMMENT ALL THIS SECTION
------ **)
+(** ----- the constant conversions which are only for the wanted sense of
+modified-colimit-into-viewed-functor grammar ----- **)
+
+| PolyTransf'PolyElement :
+    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
+           (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
+           (V_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (V_ G f))
+           (V_transp : viewingFunctor Yoneda01_F V_),
+        (*todo: problem: how to recognize grammatically such many/family/cover of arrows in PolyElement ? *)
+        ( 'UnitCoMod o>CoMod 'UnitViewedFunctor )
+          <~~  ( [[ @PolyElement _ _ F V_ @ F , V_data , V_transp , @Yoneda10_PolyElement_natural _ Yoneda01_F V_ , Yoneda10_PolyElement_morphism V_data V_transp , @Yoneda10_PolyElement_real _ Yoneda01_F V_ ]]
+                 : 'CoMod( ViewingFunctor F V_ ~> ViewedFunctor (ViewingFunctor F V_) @ _ ) )
+
+(** ----- the constant conversions which are only for the confluence lemma (TODO:) ----- **)
+
+(** none ? **)
+
+(** ----- the constant conversions which are derivable by using the finished cut-elimination lemma
+ ----- TODO: COMMENT ALL THIS SECTION----- **)
 
 (** (**MEMO: commented now so that it non-prevent the degradation lemma *)
 | PolyCoMod_morphism :
@@ -2263,7 +2234,12 @@ Hint Constructors convCoMod.
 
 ** Same sense-decoding for convertible morphisms
 
-  BLA
+  Because of the embedded sense-decoding extra-indexes/arguments in the datatype-families [morCoMod] of the morphisms , the conversion-relation shall convert across two morphisms whose sense-decoding datatype-indexes/arguments are not syntactically/grammatically-the-same . But oneself does show that , by logical-deduction [convCoMod_sense] , these two sense-decodings are indeed propositionally equal ( « sensible lemma » , "soundness lemma" ) .   The converse inference is the « sense-completeness lemma » , whose deduction will lack the finished cut-elimination lemma . Such sense-completeness lemma is expected because : some sense-completeness lemma does hold for adjunctions and for comonad and for (cartesian) products but using the combinatorial "links" sense ( in the style of Dosen ) ; the attention is that this combinatorial "links" sense is the combinatorial essense of this ongoing (algebraic) metafunctors ( "presheaf" ) sense ; therefore those completeness lemma shall transfer .
+
+  The converse inference is the « sense-completeness lemma » , whose deduction will lack the finished cut-elimination lemma . Such sense-completeness lemma is expected because : some sense-completeness lemma are known to hold for adjunctions and for comonad and for (cartesian) products but using the combinatorial "links" sense ( in the style of Dosen ) ; the attention is that this combinatorial "links" sense is the combinatorial essense of this ongoing (algebraic) metafunctors ( "presheaf" ) sense ; therefore those completeness lemma shall transfer . Similarly the « maximality lemma » says that any non-deductible extra conversion constructor which is assumed to hold in the sense (model) , will make any two grammatical morphisms equal ( preorder ) in the sense . Such maximality lemma which are known to hold for adjunctions and for comonad and for (cartesian) products shall transfer to this ongoing metafunctors ( "presheaf" ) sense .
+
+  Memo that the lemma [convCoMod_sense] will only be used during the polymorphism/cut-elimination resolution [solveCoMod] to show/transfer the logical-properties of some real polymorph-cocones ( [Yoneda10_ee_natural] , [Yoneda10_ee_morphism] , [Yoneda10_ee_real] ) and to show/transfer the polymorphism of some viewings-for-default-colimiting ( [viewingDefault'_transp] ) .
+
 #+BEGIN_SRC coq :exports both :results silent # # **)
 Lemma convCoMod_sense :
   forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yoneda01_E),
@@ -2336,9 +2312,9 @@ Proof.
       polymorphism elimination ----- **)
   - (* PolyCoMod'UnitCoMod *) intros; move; intros f; simpl; reflexivity.
   - (* PolyCoMod_UnitCoMod *) intros; move; intros f; simpl; reflexivity.
-  - (* View1_View1 *)
+  - (* View1_morphism *)
     intros; move; simpl; symmetry; exact: polyGenerator_morphism.
-  - (* ViewedFunctor1_ViewedFunctor1 *)
+  - (* ViewedFunctor1_morphism *)
     intros; move; intros f_ ; simpl.
     unshelve eapply Yoneda00_ViewedFunctor_quotient
     with (W:=  projT1 (sval f_));
@@ -2375,35 +2351,97 @@ Proof.
       [ exact: identity_transpViewing
       | exact: identity_transpViewing | ].
     intros; move; simpl; reflexivity.
-  - (* PolyElement_View1 *)
+  - (* PolyElement_morphism *)
     intros ? Yoneda01_F; intros; move; simpl; intros.
     rewrite [LHS](proj1 (proj2_sig Yoneda01_F)) [RHS](proj1 (proj2_sig Yoneda01_F)).
     rewrite -[in RHS](proj2_sig (Yoneda10_realize _)) [RHS]/=.
     rewrite [in RHS]polyGenerator_morphism. reflexivity.
   - (* PolyTransf_PolyElement *)
-    intros until 2. intros G f H v H0. move. intros h. simpl.
+    abstract (intros until 2; intros G f H v H0; move; intros h; simpl;
     unshelve eapply Yoneda00_ViewedFunctor_quotient
     with (W:= (V_ H0 (h o>Generator_[sval Yoneda01_F] ((v :>Generator) o>Generator_[sval Yoneda01_F] f)))); 
       [ exact: identity_transpViewing
       | exact: real_transpViewing
-      | ].
-    intros H'; move; simpl. 
-    rewrite (proj1 (proj2_sig Yoneda01_F)).
-    rewrite [h]unitGenerator_polyGenerator. intros w.
-    rewrite -[in RHS](proj2_sig (Yoneda10_ee_ _ _ _ _)).
-    rewrite [in RHS](proj1 (proj2_sig Yoneda01_E)).
-    rewrite [in RHS](Yoneda10_ee_natural _ _ ).
-    rewrite -[in LHS]Yoneda10_ee_morphism.
-    apply: Yoneda10_ee_real. 
+      | ];
+    intros H'; move; simpl; 
+    rewrite (proj1 (proj2_sig Yoneda01_F));
+    rewrite [h]unitGenerator_polyGenerator; intros w;
+    rewrite -[in RHS](proj2_sig (Yoneda10_ee_ _ _ _ _));
+    rewrite [in RHS](proj1 (proj2_sig Yoneda01_E));
+    rewrite [in RHS](Yoneda10_ee_natural _ _ );
+    rewrite -[in LHS]Yoneda10_ee_morphism;
+    apply: Yoneda10_ee_real; 
 
-    rewrite -[in RHS](proj1 (proj2_sig (Yoneda01_Viewing _))).
-    rewrite -[RHS](proj2_sig (Yoneda10_realize _)) [RHS]/= .
-    move: w. rewrite -unitGenerator_polyGenerator.
-    rewrite [_ o>Generator (_ :>Generator)](proj2_sig (Yoneda10_realize _)).
-    move : (_ o>Generator _ | _) => hv; clear h v; clear. move => w.
-    rewrite [in LHS](proj2_sig (sval (V_transp _ _ (hv :>Generator) f) _ w)) [LHS]/=.
-    rewrite [X in ( X o>Generator _ ) = _ ](proj2 (proj2_sig (V_transp _ _ (hv :>Generator) f))).
-    reflexivity.
+    rewrite -[in RHS](proj1 (proj2_sig (Yoneda01_Viewing _)));
+    rewrite -[RHS](proj2_sig (Yoneda10_realize _)) [RHS]/= ;
+    move: w; rewrite -unitGenerator_polyGenerator;
+    rewrite [_ o>Generator (_ :>Generator)](proj2_sig (Yoneda10_realize _));
+    move : (_ o>Generator _ | _) => hv; clear h v; clear; move => w;
+    rewrite [in LHS](proj2_sig (sval (V_transp _ _ (hv :>Generator) f) _ w)) [LHS]/=;
+    rewrite [X in ( X o>Generator _ ) = _ ](proj2 (proj2_sig (V_transp _ _ (hv :>Generator) f)));
+    reflexivity).
+  - (* PolyTransf_default_PolyElement *)
+    intros until 2. intros projT1_sval_Yoneda10_ee_ viewingDefault'_
+                           viewingDefault'_transp G f H' wv H''. move. intros h.
+
+    have lem1 :   
+    polyelement_to_element (Yoneda10_PolyCoMod (Yoneda10_PolyElement Yoneda01_F wv)
+       (Yoneda10_PolyTransf_default V_data Yoneda10_ee_natural
+          Yoneda10_ee_morphism Yoneda10_ee_real)) =
+    polyelement_to_element (Yoneda10_ee_ G f H'
+       ((projT2 (sval (viewingDefault'_transp G f) H' wv) :>Generator) o>Generator 
+               projT2 (projT1 (sval (viewingDefault'_transp G f) H' wv)) | V_ G f)) .
+    { set H0 := (projT1 (projT1 (sval (viewingDefault'_transp G f) H' wv))).
+    set v0 : 'Generator( H0 ~> _ |  V_ G f )
+      := (projT2 (projT1 (sval (viewingDefault'_transp G f) H' wv))).
+    set w0  : 'Generator( H' ~> _ | projT1_sval_Yoneda10_ee_ G f H0 v0 )
+      := (projT2 (sval (viewingDefault'_transp G f) H' wv)).
+    have transp2 : transpViewing (viewingDefault'_ _ ((wv :>Generator) o>Generator_[sval Yoneda01_F] f))
+              (projT1 (sval (polyelement_to_element
+                               (Yoneda10_ee_ G f H' ((w0 :>Generator) o>Generator v0 | V_ G f))))).
+    { abstract (apply: (composition_transpViewing (viewingDefault'_transp _ _));
+      apply: (composition_transpViewing (real_transpViewing _));
+      apply: (composition_transpViewing (transpViewing_real w0));
+      apply: (fst (sval (identity_transpViewing' _ ))); 
+      rewrite -[in RHS](Yoneda10_ee_natural _ _ ); reflexivity). }
+     simpl.  rewrite -(proj2 (proj2_sig Yoneda01_F)).  simpl.
+
+    unshelve eapply Yoneda00_ViewedFunctor_quotient'
+    with (W:= (viewingDefault'_ _ ((wv :>Generator) o>Generator_[sval Yoneda01_F] f)));
+      [ exact: viewingDefault'_transp
+      | exact: transp2 | ]. 
+    intros H'''; move; simpl. intros yx.
+     rewrite -[LHS](proj2 (proj2_sig Yoneda01_E)).
+    move: transp2 H''' yx. set wvf := ((wv :>Generator) o>Generator_ f). intros transp2 H''' yx.
+     cbn beta delta [Yoneda10_PolyElement_default]. 
+    set yx_' := sval (viewingDefault'_transp H' wvf) H''' yx.
+     simpl.  unfold   Yoneda10_PolyElement_default.
+    move: (Yoneda00_ViewedFunctor_quotient_rev (Logic.eq_sym (Yoneda10_ee_morphism _ _ (wv :>Generator) f _ (projT2 (projT1 yx_'))))) => Yoneda10_ee_morphism_transp.
+    rewrite [LHS](proj2_sig Yoneda10_ee_morphism_transp).  simpl. 
+    apply: (Yoneda10_PolyElement_default_modulo Yoneda10_ee_natural Yoneda10_ee_real). 
+
+    abstract (repeat rewrite -(proj2_sig (Yoneda10_realize _));
+    rewrite (proj2 (proj2_sig transp2));
+    rewrite (proj2 (proj2_sig (sval Yoneda10_ee_morphism_transp)));
+    rewrite (proj2_sig (sval (V_transp G H' (wv :>Generator) f) (projT1 (projT1 yx_'))
+                      (projT2 (projT1 yx_'))) ) /=;
+    rewrite [X in X o>Generator (wv :>Generator)](proj2 (proj2_sig (V_transp G H' (wv :>Generator) f)));
+    rewrite -[((w0 :>Generator) o>Generator_ (v0 :>Generator))]/((sval (viewingDefault'_transp G f) H' wv) :>Generator);
+    rewrite (proj2 (proj2_sig (viewingDefault'_transp G f)));
+    rewrite [LHS]polyGenerator_morphism; 
+    rewrite -[((projT2 yx_' :>Generator) o>Generator (projT2 (projT1 yx_') :>Generator))]/(yx_' :>Generator);
+    rewrite (proj2 (proj2_sig (viewingDefault'_transp H' wvf)));
+    (*   (yx :>Generator) o>Generator (wv :>Generator) = ... *) reflexivity).
+    }
+
+    rewrite -[LHS]polyelement_to_element_to_polyelement.
+    rewrite -[RHS]polyelement_to_element_to_polyelement. rewrite lem1. reflexivity.
+
+    (**
+ee_ ((w o> v) o> f) x y  = y o> x o> ( ( w o> v ) o> f )  =  y o> (x o> (w o> v)) o> f 
+==
+ee_ f (w o> v) (y o> x)  = ( y o> x ) o> ( w o> v ) o> f    =  y o> (x o> (w o> v)) o> f  **)
+    
   - (* PolyTransf'PolyElement *)
     intros. move. intros f. simpl.
     unshelve eapply Yoneda00_ViewedFunctor_quotient
@@ -2412,116 +2450,41 @@ Proof.
       | exact: real_transpViewing | ].
     intros; move; simpl; intros; rewrite (proj1 (proj2_sig Yoneda01_F));
       rewrite -polyGenerator_unitGenerator; reflexivity.
-  - (* PolyTransf_default_PolyElement *)
-    intros until 2. intros projT1_sval_Yoneda10_ee_ viewingDefault'_ viewingDefault'_transp G f H' wv H''. move. intros h.   have dd :   
-    polyelement_to_element (Yoneda10_PolyCoMod (Yoneda10_PolyElement Yoneda01_F wv)
-       (Yoneda10_PolyTransf_default V_data Yoneda10_ee_natural
-          Yoneda10_ee_morphism Yoneda10_ee_real)) =
-    polyelement_to_element (Yoneda10_ee_ G f H'
-       ((projT2 (sval (viewingDefault'_transp G f) H' wv) :>Generator) o>Generator 
-                                                                   projT2 (projT1 (sval (viewingDefault'_transp G f) H' wv)) | V_ G f)) .
-    set H0 := (projT1 (projT1 (sval (viewingDefault'_transp G f) H' wv))).
-    set v0 : 'Generator( H0 ~> _ |  V_ G f )
-      := (projT2 (projT1 (sval (viewingDefault'_transp G f) H' wv))).
-    set w0  : 'Generator( H' ~> _ | projT1_sval_Yoneda10_ee_ G f H0 v0 )
-      := (projT2 (sval (viewingDefault'_transp G f) H' wv)).
-    have transp2 : transpViewing (viewingDefault'_ _ ((wv :>Generator) o>Generator_[sval Yoneda01_F] f))
-              (projT1 (sval (polyelement_to_element
-                               (Yoneda10_ee_ G f H' ((w0 :>Generator) o>Generator v0 | V_ G f))))).
-    { apply: (composition_transpViewing (viewingDefault'_transp _ _)).
-      apply: (composition_transpViewing (real_transpViewing _)).
-      apply: (composition_transpViewing (transpViewing_real w0)).
-      apply: (fst (sval (identity_transpViewing' _ ))). 
-      rewrite -[in RHS](Yoneda10_ee_natural _ _ ). reflexivity. }
-    Time simpl. Time rewrite -(proj2 (proj2_sig Yoneda01_F)). Time simpl. Show. 
-    (**   [< [< _ ;
-   fun (H : obGenerator)
-     (v : Yoneda00_innerViewing
-            (fun (H1 : obGenerator)
-               (v : 'Generator( H1 ~> _ | V_ H' ((wv :>Generator) o>Generator_ f) )) =>
-             projT1
-               (sval
-                  (polyelement_to_element (Yoneda10_ee_ H' ((wv :>Generator) o>Generator_ f) H1 v))))
-            H) => unitGenerator o>Generator_ Yoneda10_PolyElement_default projT1_sval_Yoneda10_ee_ ((wv :>Generator) o>Generator_ f) v >] | ... >] =
-  polyelement_to_element (Yoneda10_ee_ G f H' ((w0 :>Generator) o>Generator v0 | V_ G f))   **)
-    Time unshelve eapply Yoneda00_ViewedFunctor_quotient'
-    with (W:= (viewingDefault'_ _ ((wv :>Generator) o>Generator_[sval Yoneda01_F] f)));
-      [ exact: viewingDefault'_transp | exact: transp2 | ]. 
-    intros H'''; move; simpl. intros yx.
-    Time rewrite -[LHS](proj2 (proj2_sig Yoneda01_E)).
-    (**   @Yoneda10_PolyElement_default Yoneda00_F V_ Yoneda00_E Yoneda01_E
-    (fun (G0 : obGenerator) (f0 : Yoneda00_F G0) (H : obGenerator)
-       (v : 'Generator( H ~> _ | V_ G0 f0 )) => polyelement_to_element (Yoneda10_ee_ G0 f0 H v)) H'
-    ((wv :>Generator) o>Generator_ f) H'''
-    (sval (viewingDefault'_transp H' ((wv :>Generator) o>Generator_ f)) H''' yx) =
-  projT2
-    (sval (polyelement_to_element (Yoneda10_ee_ G f H' ((w0 :>Generator) o>Generator v0 | V_ G f))))
-    H''' (sval transp2 H''' yx)  **)
-    move: transp2 H''' yx. set wvf := ((wv :>Generator) o>Generator_ f). intros transp2 H''' yx.
-    Time cbn beta delta [Yoneda10_PolyElement_default]. 
-    Check (sval (viewingDefault'_transp H' wvf) H''' yx). 
-    set yx_' := sval (viewingDefault'_transp H' wvf) H''' yx.
-    Time simpl. Time unfold   Yoneda10_PolyElement_default.
-    move: (Yoneda00_ViewedFunctor_quotient_rev (Logic.eq_sym (Yoneda10_ee_morphism _ _ (wv :>Generator) f _ (projT2 (projT1 yx_'))))) => Yoneda10_ee_morphism_transp.
-    rewrite [LHS](proj2_sig Yoneda10_ee_morphism_transp).  simpl. 
-    apply: (Yoneda10_PolyElement_default_modulo Yoneda10_ee_natural Yoneda10_ee_real). 
-    repeat rewrite -(proj2_sig (Yoneda10_realize _)).
-    rewrite (proj2 (proj2_sig transp2)).
-    rewrite (proj2 (proj2_sig (sval Yoneda10_ee_morphism_transp))).
-    rewrite (proj2_sig (sval (V_transp G H' (wv :>Generator) f) (projT1 (projT1 yx_'))
-                      (projT2 (projT1 yx_'))) ) /=.
-    rewrite [X in X o>Generator (wv :>Generator)](proj2 (proj2_sig (V_transp G H' (wv :>Generator) f))).
-    rewrite -[((w0 :>Generator) o>Generator_ (v0 :>Generator))]/((sval (viewingDefault'_transp G f) H' wv) :>Generator).
-    rewrite (proj2 (proj2_sig (viewingDefault'_transp G f))).
-    rewrite [LHS]polyGenerator_morphism. 
-    rewrite -[((projT2 yx_' :>Generator) o>Generator (projT2 (projT1 yx_') :>Generator))]/(yx_' :>Generator).
-    rewrite (proj2 (proj2_sig (viewingDefault'_transp H' wvf))).
-    (*   (yx :>Generator) o>Generator (wv :>Generator) = ... *) reflexivity.
-    rewrite -[LHS]polyelement_to_element_to_polyelement.
-    rewrite -[RHS]polyelement_to_element_to_polyelement. rewrite dd. reflexivity.
 
-    (**
-ee_ ((w o> v) o> f) x y  = y o> x o> ( ( w o> v ) o> f )  =  y o> (x o> (w o> v)) o> f 
-==
-ee_ f (w o> v) (y o> x)  = ( y o> x ) o> ( w o> v ) o> f    =  y o> (x o> (w o> v)) o> f  **)
-    
-  (** ----- the constant symmetrized-conversions which are symmetrized-derivable
+(** ----- the constant symmetrized-conversions which are symmetrized-derivable
   by using the finished cut-elimination lemma ----- **)
   (**  - (* PolyCoMod_morphism *) intros. move. intros f.
     reflexivity (* associativity of function composition *). **)
-Admitted.
+Time Qed. (* /!\ TIME QED 201s *)
 (** # #
 #+END_SRC
 
-** Cardinality of viewing-functor elements
+** Cardinality of the viewing-elements of some viewing-functor
 
-  BLA
+  To facilitate the COQ automatic-arithmetic during the degradation lemma , here oneself shall present the predicate [Inductive is_viewingFunctorElement12 : forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (@V_ G f) )), Type] such to force/assume [Axiom is_viewingFunctorElement12_allP] the finiteness of all the viewing-elements of each viewing-functor (of the grammar) . Memo that only the viewing-elements are touched/accessible via the grammar . Clearly this ongoing COQ program and deduction will still-proceed when those things are confined less than any (fixed) regular cardinal .
+
 #+BEGIN_SRC coq :exports both :results silent # # **)
 Module Cardinality.
 
 Parameter (G1 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
                   (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
                       , obGenerator) .
-Parameter (f1 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-                  (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
+Parameter (f1 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F) V_
                   , Yoneda00_F (G1 F V_)).
 Parameter (H1 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
                   (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
                   , obGenerator).
-Parameter (v1 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-                  (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G),
+Parameter (v1 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F) V_,
               'Generator( (H1 F V_) ~> (G1 F V_) | (@V_ (G1 F V_) (f1 F V_)) )).
 Parameter (G2 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
                   (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
                   , obGenerator) .
-Parameter (f2 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-                  (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
+Parameter (f2 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F) V_
                   , Yoneda00_F (G2 F V_)).
 Parameter (H2 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
                   (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
                   , obGenerator).
-Parameter (v2 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-                  (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G),
+Parameter (v2 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F) V_,
               'Generator( (H2 F V_) ~> (G2 F V_) | (@V_ (G2 F V_) (f2 F V_)) )).
 
 Section Section1.
@@ -2548,7 +2511,12 @@ End Cardinality.
 
 ** Linear total/asymptotic grade and the degradation lemma
 
-  BLA
+  As is common , the grade of the composition constructor [PolyCoMod] is defined as the double of the (sucessor of the) sum of the grades of its arguments ; such doubling is such that for each of the polymorphism conversion-constructors , the enclosing/outer constructor in the contractum has less « effect » than itself in the redex . For example , this polymorphism conversion [(ConstructorX (atomA o> atomB))  <~~  ((ConstructorX atomA) o> atomB)] will produce the degradation [(1 + (2 + 2 + 2))  <  ((2 + 2) + 2 + 2)] . 
+
+  Memo that the grade of the reflector/copairing-constructors [PolyTransf] and [PolyTransf_default] are defined identically , as some (successor of the) maximum of the grades of the component transformations over (only) the viewing-elements .
+
+  Elsewhere , memo that if the conversion-relation constructor [convCoMod_Refl] was absent , then oneself would get some degradation lemma with tight/strict less-than : [( grade ff0 < grade ff )] ; this is the tight/strict-degrading which will occur during the polymorphism/cut-elimination resolution ( by the automatic-arithmetic-tactic calls therein ) .
+
 #+BEGIN_SRC coq :exports both :results silent # # **)
 Notation max m n := ((Nat.add m (Nat.sub n m))%coq_nat).
 Arguments Nat.sub : simpl nomatch.
@@ -2591,7 +2559,7 @@ Qed.
 
 Ltac tac_indexed_all :=
   repeat match goal with
-         | (* this match shall be above *)
+         | (* this match shall be above , for [PolyTransf_default_PolyElement] *)
          [ F : @obCoMod ?Yoneda00_F ?Yoneda01_F ,
                wv : 'Generator( ?H' ~> ?G | (?viewingDefault'_ ?G ?f) )
            |- context [(((projT2 (sval (?viewingDefault'_transp ?G ?f) ?H' ?wv)) :>Generator) o>Generator (projT2 (projT1 (sval (?viewingDefault'_transp ?G ?f) ?H' ?wv))) | (?V_ ?G ?f))] ] =>
@@ -2671,7 +2639,7 @@ Proof.
                try tac_grade_gt0_indexing;
                tac_indexed_all;
                intros; abstract Psatz.lia].
-Qed. (* /!\ LONG TIME 16sec , WAS 9s WITHOUT _default *)
+Qed. (* /!\ LONG TIME 16sec , WAS 9s WITHOUT [PolyTransf_default_PolyElement] *)
 
 Ltac tac_degrade H_grade :=
   intuition idtac;
@@ -2693,11 +2661,10 @@ Ltac tac_degrade H_grade :=
 
 * Solution morphisms
 
-  BLA
+  As common, the polymorphism cut-constructor [PolyCoMod] is not part of the solution terminology .
 
 ** Solution morphisms without polymorphism
 
-  BLA
 #+BEGIN_SRC coq :exports both :results silent # # **)
 Module Sol.
 Section Section1.
@@ -2728,14 +2695,11 @@ Inductive morCoMod : forall Yoneda00_E Yoneda01_E,
     forall Yoneda10_ff (ff : 'CoMod( E ~> ViewingFunctor F V_ @ Yoneda10_ff )),
       'CoMod( E ~> ViewedFunctor (ViewingFunctor F V_) @ Yoneda10_UnitViewedFunctor Yoneda10_ff )
 
-(** PolyElemant(s) because internalize/poly the element , or PolyElement or injection/section *)              
-| PolyElement : (* memo that cannot yet grammatically distinguish whether any f: Yoneda00_View G H is come from some ( _ :>Generator) , therefore solution is this extra constructor PolyElement ; also therefore such can cancel PolyTransf instead of evaluate as for PolyElement , also shall separate grammatical for touching this many/family/cover-arrows at once ?  *)
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
+| PolyElement : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
            (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G),
     forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (V_ G f) )),
       'CoMod( View H ~> ViewingFunctor F V_ @ Yoneda10_PolyElement Yoneda01_F v) 
 
-(** PolyTransf because internalize the indexing (F) , or CoLimitator or Copairing *)
 | PolyTransf : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
                       (V_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
                       (V_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (V_ G f))
@@ -2745,18 +2709,18 @@ Inductive morCoMod : forall Yoneda00_E Yoneda01_E,
     forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
                forall (H : obGenerator), 'Generator( H ~> G | (V_ G f) ) ->
             {Yoneda10 : forall H' : obGenerator, Yoneda00_View H H' -> Yoneda00_E H' |
-              Yoneda10_natural (Yoneda01_View H) Yoneda01_E Yoneda10} )
-    (Yoneda10_ee_natural :
+              Yoneda10_natural (Yoneda01_View H) Yoneda01_E Yoneda10} ),
+      forall (Yoneda10_ee_natural :
        forall (G : obGenerator) (f : Yoneda00_F G),
          Yoneda10_natural (Yoneda01_Viewing (V_ G f)) Yoneda01_E
                           (fun (H : obGenerator) (v : 'Generator( H ~> G | (V_ G f) )) =>
-                             polyelement_to_element (Yoneda10_ee_ G f H v)))
-    (Yoneda10_ee_morphism :
+                             polyelement_to_element (Yoneda10_ee_ G f H v))),
+      forall (Yoneda10_ee_morphism : 
        forall (G G' : obGenerator) (g : 'Generator( G' ~> G )) (f : Yoneda00_F G),
          forall (H : obGenerator) (v' : 'Generator( H ~> G' | (V_ G' (g o>Generator_[sval Yoneda01_F] f)) )),
            polyelement_to_element (Yoneda10_ee_ G f H (fst (sval (sval (V_transp G G' g f) H v')))) =
-           polyelement_to_element (Yoneda10_ee_ G' (g o>Generator_[sval Yoneda01_F] f) H v'))
-    (Yoneda10_ee_real :
+           polyelement_to_element (Yoneda10_ee_ G' (g o>Generator_[sval Yoneda01_F] f) H v')),
+      forall (Yoneda10_ee_real : 
        forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v v' : 'Generator( H ~> G | (V_ G f) )),
          ((v :>Generator) = (v' :>Generator)) ->
          polyelement_to_element (Yoneda10_ee_ G f H v)
@@ -2775,18 +2739,18 @@ Inductive morCoMod : forall Yoneda00_E Yoneda01_E,
                forall (H : obGenerator), 'Generator( H ~> G | (V_ G f) ) ->
             {Yoneda10 : forall H' : obGenerator, Yoneda00_View H H' -> (Yoneda00_ViewedFunctor Yoneda01_E) H' |
               Yoneda10_natural (Yoneda01_View H) (Yoneda01_ViewedFunctor Yoneda01_E) Yoneda10} ),
-      forall (Yoneda10_ee_natural :
+    forall (Yoneda10_ee_natural :
        forall (G : obGenerator) (f : Yoneda00_F G),
          Yoneda10_natural (Yoneda01_Viewing (V_ G f)) (Yoneda01_ViewedFunctor Yoneda01_E)
                           (fun (H : obGenerator) (v : 'Generator( H ~> G | (V_ G f) )) =>
                              polyelement_to_element (Yoneda10_ee_ G f H v))),
-      forall (Yoneda10_ee_morphism :
+    forall (Yoneda10_ee_morphism :
        forall (G G' : obGenerator) (g : 'Generator( G' ~> G )) (f : Yoneda00_F G),
          forall (H : obGenerator) (v' : 'Generator( H ~> G' | (V_ G' (g o>Generator_[sval Yoneda01_F] f)) )),
            polyelement_to_element (Yoneda10_ee_ G f H (fst (sval (sval (V_transp G G' g f) H v')))) =
            polyelement_to_element (Yoneda10_ee_ G' (g o>Generator_[sval Yoneda01_F] f) H v')),
       forall (Yoneda10_ee_real :
-       forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v v' : 'Generator( H ~> G | (V_ G f) )),
+                forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v v' : 'Generator( H ~> G | (V_ G f) )),
          ((v :>Generator) = (v' :>Generator)) ->
          polyelement_to_element (Yoneda10_ee_ G f H v)
          = polyelement_to_element (Yoneda10_ee_ G f H v') ),
@@ -2878,12 +2842,11 @@ Defined.
 
 ** Destruction of morphisms with inner-instantiation of object-indexes
 
-  BLA
+  As common , the polymorphism/cut-elimination resolution will require the destruction of some morphism which is constrained by the structure of its domain/codomain objects .
+
+  Memo that in this ongoing COQ program for colimits , oneself starts to general-destruct the postfix-parameter [f'] of the composition [(f_ o>CoMod f')] and then to constrained-destruct (filter the admissible inputs) the prefix-argument [f_] . This may be more sensible ...
+
 #+BEGIN_SRC coq :exports both :results silent # # **)
-
-
-(*MEMO: after destructing which function , now filter admissible inputs ... 
-  similar as in f(x)  primo destruct f then filter admissible x *)
 Module Destruct_codomView.
 
 Inductive morCoMod_codomView
@@ -3030,14 +2993,17 @@ Proof.
 Defined. 
 
 End Destruct_codomViewedFunctor.
-
 End Sol.
 (** # #
 #+END_SRC
 
 * Polymorphism/cut-elimination by computational/total/asymptotic/reduction/(multi-step) resolution
 
-  BLA
+  As common , this resolution is not programmed by morphisms-structural recursion but instead is programmed by grade-structural recursion .
+
+  In contrast , this resolution also computes the sense-decoding datatype-index/argument of the resolved morphism , this datatype-index/argument is inferred as metavariable from the actual resolved morphism via the [eexists] tactic . The technical progress of this resolution does require the earlier lemma [convCoMod_sense] , which will only be used during the polymorphism/cut-elimination resolution [solveCoMod] to show/transfer the logical-properties of some real polymorph-cocones ( [Yoneda10_ee_natural] , [Yoneda10_ee_morphism] , [Yoneda10_ee_real] ) and to show/transfer the polymorphism of some viewings-for-default-colimiting ( [viewingDefault'_transp] ) .
+
+  This COQ program and deduction is mostly-automated ; but memo that COQ lacks inductive-recursive presentations and memo that here the automation-tactics use only logical eauto-resolution because COQ lacks some more-efficient heterogeneous-rewriting tactics , because the conversion-relation do convert across two morphisms whose sense-decoding indexes are not syntactically/grammatically-the-same .
 
 #+BEGIN_SRC coq :exports both :results silent # # **)
 Module Resolve.
@@ -3184,7 +3150,7 @@ case : len => [ | len ].
   unshelve eexists. eexists.
   refine ( @Sol.PolyTransf_default _ _ F _ V_data V_transp _ _ _ Yoneda10_eeSol_ _ _ _ eeSol_ viewingDefault'_ _ ) . 
 
-  (**memo: convCoMod_sense is really necessary here for Yoneda10_eeSol_natural Yoneda10_eeSol_morphism Yoneda10_eeSol_real  **)
+  (**memo: convCoMod_sense is really necessary here for Yoneda10_eeSol_natural Yoneda10_eeSol_morphism Yoneda10_eeSol_real  viewingDefault'_transpSol **)
   (* Yoneda10_eeSol_natural *)
   { clear -Yoneda10_ee_natural eeSol_transp;
     abstract( move : (fun G f H v => convCoMod_sense (eeSol_transp G f H v)) => eeSol_transp_eq;
