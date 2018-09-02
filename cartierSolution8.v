@@ -6,13 +6,13 @@ Proph
 https://gitee.com/OOO1337777/cartier/blob/master/cartierSolution8.v
 https://gitlab.com/1337777/cartier/blob/master/cartierSolution8.v.pdf
 
-solves half of some question of Cartier which is how to program grammatical polymorph « modos » / modified-colimit-into-viewed-functor ( "sheafification" , "forcing" ) ...
+solves half of some question of CARTIER which is how to program grammatical polymorph « modos » / modified-colimits-into-viewed-functors ( "sheafification" , "forcing" ) ...
 
-ERRATA :: this also solves cartierSolution7.v where the default-colimiting was "not-very-clear" (lacking) .
+ERRATA :: this also solves cartierSolution7.v where the default-colimiting was "confused" .
 
 SHORT ::
 
-  The ends is to start with some given viewing-data on some generator-morphology and then to modify the default-colimiting which says that « each functor is the sum/colimit of its elements ; which is that the (outer) indexings/cocones of the elements of some target functor over all the elements of some source functor correspond with the (inner) transformations from this source functor into this target functor » . In other words : any outer indexing ( X ; (s : S X) |- T X ) corresponds with some inner transformation ( S ~> T ) .  But where are those modified-colimits ? Oneself could get them as metafunctors over this generator-morphology , as long as oneself grammatically-distinguishes whatever-is-interesting . 
+  The ends is to start with some given viewing-data on some generator-morphology and then to modify the default-colimiting which says that « each functor is the sum/colimit of its elements ; which is that the (outer) indexings/cocones of the elements of some target functor over all the elements of some source functor correspond with the (inner) transformations from this source functor into this target functor » . In other words : any outer indexing ( X ; (s : S X) |- T X ) corresponds with some inner transformation (   |- (S ~> T) ) . But where are those modified-colimits ? Oneself could get them as metafunctors over this generator-morphology , as long as oneself grammatically-distinguishes whatever-is-interesting . 
 
   The modified-colimiting presents this « copairing » even when any such indexing ( « real polymorph-cocones » ) is over only some viewing-elements of this source « viewing-functor » ( "local epimorphism" ) , as long as the corresponding transformation is into the (tautologically extended) « viewed-functor » ( "sheafification") of this target functor . Memo that when the target functor is already viewed-functor ( "sheaf" ) then this modified-colimiting becomes the default-colimiting ; in other words it is valid to move from-to :
 
@@ -26,18 +26,19 @@ SHORT ::
                                        inner cocone (e_ f v))) |- (e_ f v w : E) 
 #+END_EXAMPLE
 
-  « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics . It shows the interdependence of computational-logic along geometry : sensible "soundness" lemma , cut-elimination , confluence lemma , sense-completeness lemma ( whose combinatorics mimick Dosen "links" ) , maximality lemma ... ; generated-functors ( "Diaconescu lemma " ) ; essential geometric morphisms ( "Cauchy completion" ) , regular free-completion , exact completion ...
+  « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics . It shows the interdependence of computational-logic along geometry : sensible "soundness" lemma , cut-elimination , confluence lemma , sense-completeness lemma ( in presheaves whose combinatorics mimick "links"/"proof-net" ) , maximality lemma , asymptotics of randomness , DOSEN book ... ; generated-functors ( "Diaconescu lemma" ) , equalizer completion ,  image ( "regular" ) completion , essential geometric-morphisms ( "Cauchy completion" ) , BORCEUX book 1-2-3 ...
 
-  For instant first impression , the conversion-relation constructor which says that the polyelement (injection) morphism cancels the polytransf (copairing) morphism , is written as :
+  For instant first impression , the conversion-relation constructor which says that the polyelement (injection) morphism laxly-cancels the polytransf (copairing) morphism , is written as :
 
 #+BEGIN_EXAMPLE
-| PolyTransf_PolyElement : (* ... *) forall G f H v,
+| PolyTransf_PolyElement : (* ... *)
+ forall G f H (v : 'Generator( H ~> G | (V_ G f) )),
  ( (ee_(G)(f)(H)(v)) o>CoMod 'UnitViewedFunctor )
    <~~ ( ( 'PolyElement F v
            : 'CoMod( View H ~> ViewingFunctor F V_ @ _ ) )
-           o>CoMod [[ ee_ @ F, V_data , V_transp, Yoneda10_ee_natural,
-                      Yoneda10_ee_morphism, Yoneda10_ee_real ]]
-         : 'CoMod( View H ~> ViewedFunctor (ViewingFunctor E U_) @ _ ) )
+         o>CoMod ( [[ ee_ @ F, V_data , V_transp, Yoneda10_ee_natural,
+                            Yoneda10_ee_morphism, Yoneda10_ee_real ]]
+                   : 'CoMod( _ ~> ViewedFunctor (ViewingFunctor E U_) @ _ ) ) )
 #+END_EXAMPLE
 
 KEYWORDS :: 1337777.OOO ; COQ ; MODOS
@@ -74,31 +75,31 @@ OUTLINE ::
 
 -----
 
-HINT :: free high-school engineering ; re-program the generated-functor-along-reindexing cartierSolution7.v as some modified-colimitS ( "Diaconescu lemma" ) : 
+HINT :: secondary-school engineering : redo the generated-functor-along-reindexing cartierSolution7.v as some modified-colimitS ( "Diaconescu lemma" ) : 
 #+BEGIN_EXAMPLE
-| PolyTransfGenerated : ( forall (I : obIndexer), forall (G : obGenerator) 
- (R : obReIndexer) (r : 'Generator( G ~> Generating0 R ))
+| PolyTransfGenerated_ : ( forall (I : obIndexer), forall (G : obGenerator) 
+ (R : obReIndexer) (gr : 'Generator( G ~> Generating0 R ))
  (R_viewing : obViewingReIndexer R) 
- (i : 'Indexer( ReIndexing0 R |- ViewedIndex I )),
+ (ri : 'Indexer( ReIndexing0 R |- ViewedIndex I )),
  forall R' (v : 'ReIndexer( R' |- R | R_viewing )),
-  'CoMod( View_Generating0 R' ~> E_ (ViewedIndex I) @ Yoneda10_ee_ r i v ) ) ->
-'CoMod_indexed( Generated ~> ViewedFunctor_indexed E_ @ _ )
+  'CoMod( View_Generating0 R' ~> E_ (ViewedIndex I) @ Yoneda10_ee_ gr ri v ) ) ->
+'CoMod_indexed( Generated_ ~> ViewedFunctor_indexed E_ @ _ )
 #+END_EXAMPLE
 
 -----
 
-MEMO :: 1337777.OOO ends to COQ computer-engineer the teaching of polymorph mathematics to billions of high-school students ; « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics ...
+MEMO :: 1337777.OOO ends to discover-engineer-and-teach 计算鸡-COQ polymorph mathematics to billions of secondary-school persons ( https://v.youku.com/v_show/id_XMzgwNzY2MTYxNg ) ; « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics contra « NOISEA » (forced-fool-and-theft/lie/falsification) ...
 
 -----
 
-BUY MOM RECURSIVE T-SQUARE :: paypal.me/1337777 1337777.OOO@gmail.com ; 微信支付 2796386464@qq.com ; eth 0x54810dcb93b37DBE874694407f78959Fa222D920 ; amazon amazon.com/hz/wishlist/ls/28SN02HR4EB8W ; irc #OOO1337777
+BUY MOM RECURSIVE T-SQUARE :: paypal.me/1337777 1337777.OOO@gmail.com ; 微信支付 2796386464@qq.com ; eth 0x54810dcb93b37DBE874694407f78959Fa222D920 ; irc #OOO1337777
 
 -----
 
 
 * Indexer metalogic , viewing data
 
-  The ends is to start with some given viewing-data on some generator-morphology and then to modify the default-colimiting which says that « each functor is the sum/colimit of its elements ; which is that the (outer) indexings/cocones of the elements of some target functor over all the elements of some source functor correspond with the (inner) transformations from this source functor into this target functor » . In other words : any outer indexing ( X ; (s : S X) |- T X ) corresponds with some inner transformation ( S ~> T ) .  But where are those modified-colimits ? Oneself could get them as metafunctors over this generator-morphology , as long as oneself grammatically-distinguishes whatever-is-interesting . 
+  The ends is to start with some given viewing-data on some generator-morphology and then to modify the default-colimiting which says that « each functor is the sum/colimit of its elements ; which is that the (outer) indexings/cocones of the elements of some target functor over all the elements of some source functor correspond with the (inner) transformations from this source functor into this target functor » . In other words : any outer indexing ( X ; (s : S X) |- T X ) corresponds with some inner transformation (   |- (S ~> T) ) . But where are those modified-colimits ? Oneself could get them as metafunctors over this generator-morphology , as long as oneself grammatically-distinguishes whatever-is-interesting . 
 
   The modified-colimiting presents this « copairing » even when any such indexing ( « real polymorph-cocones » ) is over only some viewing-elements of this source « viewing-functor » ( "local epimorphism" ) , as long as the corresponding transformation is into the (tautologically extended) « viewed-functor » ( "sheafification") of this target functor . Memo that when the target functor is already viewed-functor ( "sheaf" ) then this modified-colimiting becomes the default-colimiting ; in other words it is valid to move from-to :
 
@@ -112,7 +113,7 @@ BUY MOM RECURSIVE T-SQUARE :: paypal.me/1337777 1337777.OOO@gmail.com ; 微信�
                                        inner cocone (e_ f v))) |- (e_ f v w : E) 
 #+END_EXAMPLE
 
-  « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics . It shows the interdependence of computational-logic along geometry : sensible "soundness" lemma , cut-elimination , confluence lemma , sense-completeness lemma ( whose combinatorics mimick Dosen "links" ) , maximality lemma ... ; generated-functors ( "Diaconescu lemma " ) ; essential geometric morphisms ( "Cauchy completion" ) , regular free-completion , exact completion ...
+  « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics . It shows the interdependence of computational-logic along geometry : sensible "soundness" lemma , cut-elimination , confluence lemma , sense-completeness lemma ( in presheaves whose combinatorics mimick "links"/"proof-net" ) , maximality lemma , asymptotics of randomness , DOSEN book ... ; generated-functors ( "Diaconescu lemma" ) , equalizer completion ,  image ( "regular" ) completion , essential geometric-morphisms ( "Cauchy completion" ) , BORCEUX book 1-2-3 ...
 
 ** Indexer metalogic
 
@@ -586,8 +587,7 @@ Notation "[< V ; ff >]" := (existT (fun V0 : obViewing _ => _ ) V ff)
 
 Section Senses_obCoMod.
 
-Definition viewingFunctor
-           (Yoneda00_F : obGenerator -> Type)
+Definition viewingFunctor (Yoneda00_F : obGenerator -> Type)
     (Yoneda01_F : {Yoneda01
                : forall G G' : obGenerator, 'Generator( G' ~> G ) -> Yoneda00_F G -> Yoneda00_F G' |
                Yoneda01_functor Yoneda01})
@@ -792,8 +792,7 @@ Proof.
 Defined.
 
 Lemma Yoneda10_View1
-(G H : obGenerator)
-(g : 'Generator( H ~> G )) :
+(G H : obGenerator) (g : 'Generator( H ~> G )) :
  {Yoneda10 : forall G0 : obGenerator, Yoneda00_View H G0 -> Yoneda00_View G G0 |
   Yoneda10_natural (Yoneda01_View H) (Yoneda01_View G) Yoneda10}.
 Proof.
@@ -888,9 +887,6 @@ Proof.
               | abstract (intros; move; simpl; intros;
                           rewrite -(proj2_sig Yoneda10_ff)
                           -(proj1 (proj2_sig Yoneda01_F)); reflexivity) ]).
-    (*  intersecViewingP (unitViewingP unitGenerator) g == unitViewing unitGenerator
-        F (v' o> g) (ff f)   =show   F v' (ff (E (g) (f)))  (..=ffnat F v' (F (g) (ff f)) Ffunc=... )
-     *)
 Defined.
   
 
@@ -1772,7 +1768,7 @@ Notation "[[[ ee_ @ F , V_ , viewingDefault'_ ]]]" :=
 
 * Grammatical conversions of morphisms , which infer the same sense-decoding
 
-  As common , the grammatical conversions are classified into : the total/(multi-step) conversions , and the congruences (recursive) conversions , and the constant (non-recursive) conversions which are used in the polymorphism/cut-elimination lemma , and the constant conversions which are only for the wanted sense of modified-colimit-into-viewed-functor , and the constant conversions which are only for the confluence lemma (TODO:) , and the constant conversions which are derivable by using the finished cut-elimination lemma . ( Memo that the section/injection [PolyElement] transformation has constructor-ed functors at both the codomain ( [ViewingFunctor] ) and the codomain ( [View] ) , therefore the confluence lemma will not ( ? ) lack any additional conversion ... )
+  As common , the grammatical conversions are classified into : the total/(multi-step) conversions , and the congruences (recursive) conversions , and the constant (non-recursive) conversions which are used in the polymorphism/cut-elimination lemma , and the constant conversions which are only for the wanted sense of modified-colimits-into-viewed-functors , and the constant conversions which are only for the confluence lemma (TODO:) , and the constant conversions which are derivable by using the finished cut-elimination lemma . ( Memo that the section/injection [PolyElement] transformation has constructor-ed functors at both the codomain ( [ViewingFunctor] ) and the codomain ( [View] ) , therefore the confluence lemma will not ( ? ) lack any additional conversion ... )
 
   In contrast , because of the embedded sense-decoding extra-indexes/arguments in the datatype-families [morCoMod] of the morphisms , the conversion-relation shall convert across two morphisms whose sense-decoding datatype-indexes/arguments are not syntactically/grammatically-the-same . But oneself does show that , by logical-deduction [convCoMod_sense] , these two sense-decodings are indeed propositionally equal ( « sensible lemma » , "soundness lemma" ) .
 
@@ -1836,24 +1832,18 @@ Proof.
 Qed.
 
 Lemma Yoneda10_PolyTransf_morphism_natural
-Yoneda00_F 
-(V_ : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-Yoneda00_E 
-Yoneda01_E 
-(Yoneda10_ee_ :
-forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator),
+Yoneda00_F  (V_ : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+Yoneda00_E  Yoneda01_E 
+(Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator),
 'Generator( H ~> G | (V_ G f) ) ->
 {Yoneda10 : forall H' : obGenerator, Yoneda00_View H H' -> Yoneda00_E H' |
 Yoneda10_natural (Yoneda01_View H) Yoneda01_E Yoneda10})
-(Yoneda10_ee_natural :
-forall (G : obGenerator) (f : Yoneda00_F G),
+(Yoneda10_ee_natural : forall (G : obGenerator) (f : Yoneda00_F G),
 Yoneda10_natural (Yoneda01_Viewing (V_ G f)) Yoneda01_E
   (fun (H : obGenerator) (v : 'Generator( H ~> G | (V_ G f) )) =>
    polyelement_to_element (Yoneda10_ee_ G f H v)))
-Yoneda00_E' 
-Yoneda01_E' 
-(Yoneda10_e'e' :
-{Yoneda10 : forall G : obGenerator, Yoneda00_E G -> Yoneda00_E' G |
+Yoneda00_E'  Yoneda01_E' 
+(Yoneda10_e'e' : {Yoneda10 : forall G : obGenerator, Yoneda00_E G -> Yoneda00_E' G |
 Yoneda10_natural Yoneda01_E Yoneda01_E' Yoneda10}) :
  forall (G : obGenerator) (f : Yoneda00_F G),
   Yoneda10_natural (Yoneda01_Viewing (V_ G f)) 
@@ -1868,27 +1858,21 @@ Proof.
 Qed.
 
 Lemma Yoneda10_PolyTransf_morphism_morphism
-Yoneda00_F
-Yoneda01_F 
+Yoneda00_F Yoneda01_F 
 (V_ : forall G : obGenerator, Yoneda00_F G -> obViewing G)
 (V_transp : viewingFunctor Yoneda01_F V_)
-Yoneda00_E 
-Yoneda01_E 
-(Yoneda10_ee_ :
-forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator),
+Yoneda00_E  Yoneda01_E 
+(Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator),
 'Generator( H ~> G | (V_ G f) ) ->
 {Yoneda10 : forall H' : obGenerator, Yoneda00_View H H' -> Yoneda00_E H' |
 Yoneda10_natural (Yoneda01_View H) Yoneda01_E Yoneda10})
-(Yoneda10_ee_morphism :
-forall (G G' : obGenerator) (g : 'Generator( G' ~> G )) 
+(Yoneda10_ee_morphism : forall (G G' : obGenerator) (g : 'Generator( G' ~> G )) 
   (f : Yoneda00_F G) (H : obGenerator)
   (v' : 'Generator( H ~> G' | (V_ G' (g o>Generator_[sval Yoneda01_F] f)) )),
 polyelement_to_element (Yoneda10_ee_ G f H (sval (sval (V_transp G G' g f) H v')).1) =
 polyelement_to_element (Yoneda10_ee_ G' (g o>Generator_[sval Yoneda01_F] f) H v'))
-Yoneda00_E' 
-Yoneda01_E' 
-( Yoneda10_e'e' :
-{Yoneda10 : forall G : obGenerator, Yoneda00_E G -> Yoneda00_E' G |
+Yoneda00_E'  Yoneda01_E' 
+( Yoneda10_e'e' : {Yoneda10 : forall G : obGenerator, Yoneda00_E G -> Yoneda00_E' G |
 Yoneda10_natural Yoneda01_E Yoneda01_E' Yoneda10} ) :
 forall (G G' : obGenerator) (g : 'Generator( G' ~> G )) 
     (f : Yoneda00_F G) (H : obGenerator)
@@ -1903,15 +1887,12 @@ Proof.
 Qed.
 
 Lemma Yoneda10_PolyTransf_morphism_real
-      Yoneda00_F
-      (Yoneda01_F : {Yoneda01
+ Yoneda00_F (Yoneda01_F : {Yoneda01
                : forall G G' : obGenerator, 'Generator( G' ~> G ) -> Yoneda00_F G -> Yoneda00_F G' |
                Yoneda01_functor Yoneda01})
 (V_ : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-Yoneda00_E 
-Yoneda01_E 
-(Yoneda10_ee_ :
-forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator),
+Yoneda00_E  Yoneda01_E 
+(Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator),
 'Generator( H ~> G | (V_ G f) ) ->
 {Yoneda10 : forall H' : obGenerator, Yoneda00_View H H' -> Yoneda00_E H' |
 Yoneda10_natural (Yoneda01_View H) Yoneda01_E Yoneda10})
@@ -1921,10 +1902,8 @@ forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator)
 v :>Generator = v' :>Generator ->
 polyelement_to_element (Yoneda10_ee_ G f H v) =
 polyelement_to_element (Yoneda10_ee_ G f H v'))
-Yoneda00_E'
-Yoneda01_E' 
-(Yoneda10_e'e' :
-{Yoneda10 : forall G : obGenerator, Yoneda00_E G -> Yoneda00_E' G |
+Yoneda00_E' Yoneda01_E' 
+(Yoneda10_e'e' : {Yoneda10 : forall G : obGenerator, Yoneda00_E G -> Yoneda00_E' G |
 Yoneda10_natural Yoneda01_E Yoneda01_E' Yoneda10}) :
 forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator)
     (v v' : 'Generator( H ~> G | (V_ G f) )),
@@ -2195,7 +2174,7 @@ Inductive convCoMod : forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yone
                            Yoneda10_ee_morphism, Yoneda10_ee_real , viewingDefault'_transp ]]] )
 
 (** ----- the constant conversions which are only for the wanted sense of
-modified-colimit-into-viewed-functor grammar ----- **)
+modified-colimits-into-viewed-functors grammar ----- **)
 
 | PolyTransf'PolyElement :
     forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
@@ -2451,9 +2430,9 @@ ee_ f (w o> v) (y o> x)  = ( y o> x ) o> ( w o> v ) o> f    =  y o> (x o> (w o> 
     intros; move; simpl; intros; rewrite (proj1 (proj2_sig Yoneda01_F));
       rewrite -polyGenerator_unitGenerator; reflexivity.
 
-(** ----- the constant symmetrized-conversions which are symmetrized-derivable
-  by using the finished cut-elimination lemma ----- **)
-  (**  - (* PolyCoMod_morphism *) intros. move. intros f.
+(** ----- the constant conversions which are derivable by using the finished cut-elimination lemma ----- **)
+
+    (**  - (* PolyCoMod_morphism *) intros. move. intros f.
     reflexivity (* associativity of function composition *). **)
 Time Qed. (* /!\ TIME QED 201s *)
 (** # #

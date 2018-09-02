@@ -10,6 +10,8 @@ solves half of some question of Cartier which is how to program grammatical poly
 
 SHORT ::
 
+  ERRATA : the (modified) colimits half is erased here and will be presented only later after cartierSolution8.v ... « generated modified colimits » ( « modos » ) .
+
   The ends is to do start with some given generating-functor from some given reindexer-graph into some given generator-graph and then to generate some other extended functor from some given extended indexer-graph into some extension of the given generator-graph ; but where are those outputs of the generated-functor at the indexes ? Oneself could get them as metafunctors over this generator-graph , as long as oneself grammatically-distinguishes whatever-is-interesting .
 
   Memo that the sense of this generated-functor ( « colimits » ) really-is the colimit(-simultaneously) of multiple diagrams , instead of the multiple colimits of each diagram ( "pointwise" ) (I.3.7.2) ... Moreover memo that here the generator-graph is some non-quantified outer/global parameter , instead of some innerly-quantified local argument which is carried around by all the grammatical constructors , in some « polygeneration » (functorial) form , as for some presentation of grammatical right-adjunction  (I.3.7.6) ...  Elsewhere memo that the generated-functor is similar as some existential-quantification functor ( left adjoint to some preimage functor of the generating-functor ) , therefore oneself may now think of adding logical-connectives to form some external-logic of modos and to attempt polymorph (relative-)quantifier-elimination ...
@@ -39,6 +41,8 @@ KEYWORDS :: 1337777.OOO ; COQ ; cut-elimination ; polymorph generated-functor-al
 OUTLINE ::
 
   * Indexer metalogic , generating-views data
+    + Indexer metalogic
+    + Generating-views data
 
   * Grammatical presentation of objects
     + Sense-decodings of the objects
@@ -76,7 +80,7 @@ BUY MOM RECURSIVE T-SQUARE :: paypal.me/1337777 1337777.OOO@gmail.com ; 微信�
 
 * Indexer metalogic , generating-views data
 
-  The ends is to do start with some given generating-functor from some given reindexer-graph into some given generator-graph and then to generate some other extended functor from some given extended indexer-graph into some extension of the given generator-graph ; but where are those outputs of the generated-functor at the indexes ? Oneself could get them as metafunctors over this generator-graph , as long as oneself grammatically-distinguishes whatever-is-interesting .
+  The ends is to start with some given generating-functor from some given reindexer-graph into some given generator-graph and then to generate some other extended functor from some given extended indexer-graph into some extension of the given generator-graph ; but where are those outputs of the generated-functor at the indexes ? Oneself could get them as metafunctors over this generator-graph , as long as oneself grammatically-distinguishes whatever-is-interesting .
 
   Memo that the sense of this generated-functor ( « colimits » ) really-is the colimit(-simultaneously) of multiple diagrams , instead of the multiple colimits of each diagram ( "pointwise" ) ... This is because , in this ongoing COQ program , the input object [(I : obIndexer)] is always innerly-quantified ( inner/local argument instead of outer/global parameter ) . Therefore , if oneself wants to change this into some outer-quantification , then oneself will get , for multiple outer-parameters [(I : obIndexer)] , the grammatical colimit of the diagram (over the graph of the reindexer elements of [I] along the reindexing-functor) determined by [I] (I.3.7.2) .
 
@@ -289,13 +293,13 @@ Notation "<< R ; i ; g >>" := (existT _ (existT _ R i) g)
                                 (at level 0, format "<<  R  ;  i  ;  g  >>").
 
 Section Senses_obCoMod.
-  
-Lemma Yoneda00_View : forall (B : obGenerator), (obGenerator -> Type).
-Proof. intros B. refine (fun A => 'Generator( A ~> B ) ). Defined.
 
-Lemma Yoneda01_View : forall (B : obGenerator),
+Lemma Yoneda00_View_Generating0 : forall (R : obReIndexer), (obGenerator -> Type).
+Proof. intros R. refine (fun A => 'Generator( A ~> Generating0 R ) ). Defined.
+
+Lemma Yoneda01_View_Generating0 : forall (R : obReIndexer),
     {Yoneda01 : ( forall A A' : obGenerator,
-          'Generator( A' ~> A ) -> (Yoneda00_View B) A -> (Yoneda00_View B) A' ) |
+          'Generator( A' ~> A ) -> (Yoneda00_View_Generating0 R) A -> (Yoneda00_View_Generating0 R) A' ) |
      Yoneda01_functor Yoneda01} .
 Proof.
   intros. exists (fun A A' a x => a o>Generator x).
@@ -366,7 +370,7 @@ Inductive obCoMod : forall Yoneda00 : obGenerator -> Type,
     (@obCoMod_indexed Yoneda00_F_ Yoneda01_F_ Yoneda01_F_Poly) ->
     forall I : obIndexer, @obCoMod (Yoneda00_F_(I)) (Yoneda01_F_(I))
 
-| View : forall G : obGenerator, @obCoMod (Yoneda00_View G) (Yoneda01_View G)
+| View_Generating0 : forall R : obReIndexer, @obCoMod (Yoneda00_View_Generating0 R) (Yoneda01_View_Generating0 R)
 
 with obCoMod_indexed (**memo: non-recursive **) :
        forall Yoneda00_ : obIndexer -> obGenerator -> Type,
@@ -421,45 +425,29 @@ Proof.
   abstract (intros; move; intros; reflexivity).
 Defined.
 
-Lemma Yoneda10_PolyElement :
-  forall Yoneda00_F Yoneda01_F (B : obGenerator) (f : Yoneda00_F B),
-    {Yoneda10 : ( forall A : obGenerator, Yoneda00_View B A -> Yoneda00_F A ) |
-     Yoneda10_natural (Yoneda01_View B) Yoneda01_F Yoneda10} .
+Lemma Yoneda10_View_Generating1 : forall ( R R' : obReIndexer)
+(r : 'ReIndexer( R' |- R )),
+{Yoneda10
+  : forall G : obGenerator,
+    Yoneda00_View_Generating0 R' G -> Yoneda00_View_Generating0 R G |
+  Yoneda10_natural (Yoneda01_View_Generating0 R')
+    (Yoneda01_View_Generating0 R) Yoneda10} .
 Proof.
-  intros. exists (fun A b => proj1_sig Yoneda01_F _ _  b f) .
-  abstract (intros; move; intros; apply: (proj1 (proj2_sig Yoneda01_F))).
-Defined.
-
-Lemma Yoneda10_PolyTransf :
-  forall Yoneda00_F Yoneda01_F Yoneda00_G  Yoneda01_G
-    (transf : {transf : ( forall A : obGenerator, Yoneda00_F A -> Yoneda00_G A ) |
-               Yoneda10_natural Yoneda01_F Yoneda01_G transf })
-    (A : obGenerator)
-    (Yoneda10_ff : {Yoneda10 : forall A0 : obGenerator,
-                       'Generator( A0 ~> A ) -> Yoneda00_F A0 |
-                    Yoneda10_natural (Yoneda01_View A) Yoneda01_F Yoneda10 }),  
-    {Yoneda10 : ( forall A0 : obGenerator, 'Generator( A0 ~> A ) -> Yoneda00_G A0 ) |
-     Yoneda10_natural (Yoneda01_View A) Yoneda01_G Yoneda10 } .
-Proof.
-  intros. exists (fun A' => (proj1_sig transf) A' \o (proj1_sig Yoneda10_ff) A' ).
-  abstract (intros; move; intros; simpl in *;
-            rewrite (proj2_sig transf) (proj2_sig Yoneda10_ff); reflexivity).
+  intros. unshelve eexists. intros G.
+  refine ( _@ G o>Generator (Generating1 r) ) .
+  abstract (intros; move; simpl; intros; exact: polyGenerator_morphism).
 Defined.
 
 Lemma Yoneda10_CoUnitGenerated :
   forall (I : obIndexer), forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-      forall Yoneda00_F Yoneda01_F,
-      forall Yoneda10_rr : {Yoneda10 : forall G : obGenerator,
-                          Yoneda00_F G -> Yoneda00_View (Generating0 R) G |
-            Yoneda10_natural Yoneda01_F (Yoneda01_View (Generating0 R)) Yoneda10},
-        { Yoneda10 : forall G : obGenerator, Yoneda00_F G -> Yoneda00_Generated (I) G |
-          Yoneda10_natural Yoneda01_F (Yoneda01_Generated I) Yoneda10}.
+        { Yoneda10 : forall G : obGenerator, Yoneda00_View_Generating0 R G -> Yoneda00_Generated (I) G |
+          Yoneda10_natural (Yoneda01_View_Generating0 R) (Yoneda01_Generated I) Yoneda10}.
 Proof.
   intros. unshelve eexists.
   refine (fun G ff => sval (Yoneda01_Generated_PolyIndexer i) G
                         (existT _ (existT _ R (@unitIndexer (ReIndexing0 R)))
-                                ((proj1_sig Yoneda10_rr) G ff))).
-  abstract (intros; move; intros; rewrite -(proj2_sig Yoneda10_rr); reflexivity).
+                                ( (* (proj1_sig Yoneda10_rr) G *) ff))).
+  abstract (intros; move; intros; reflexivity).
 Defined.
 
 Lemma Yoneda10_Reflector :
@@ -468,7 +456,7 @@ Lemma Yoneda10_Reflector :
     (Yoneda10_ff_ : forall (I : obIndexer),
         forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
           {Yoneda10_ff_i : _ |
- Yoneda10_natural (Yoneda01_View (Generating0 R)) (Yoneda01_F_(I)) Yoneda10_ff_i}),
+ Yoneda10_natural (Yoneda01_View_Generating0 R) (Yoneda01_F_(I)) Yoneda10_ff_i}),
   forall (I : obIndexer),
     {Yoneda10 : forall G : obGenerator, Yoneda00_Generated I G -> Yoneda00_F_ I G |
      Yoneda10_natural (Yoneda01_Generated I) (Yoneda01_F_ I) Yoneda10} .
@@ -503,8 +491,8 @@ Variables (Yoneda00_F_ : obIndexer -> _)
           (Yoneda10_ff_ : forall (I : obIndexer),
               forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
                 {Yoneda10_ff_i : forall G : obGenerator,
-                    Yoneda00_View (Generating0 R) G -> Yoneda00_F_(I) G |
- Yoneda10_natural (Yoneda01_View (Generating0 R)) (Yoneda01_F_(I)) Yoneda10_ff_i}).
+                    Yoneda00_View_Generating0 R G -> Yoneda00_F_(I) G |
+ Yoneda10_natural (Yoneda01_View_Generating0 R) (Yoneda01_F_(I)) Yoneda10_ff_i}).
 
 Definition Yoneda10_morphismReIndexer_morphismIndexer :=
   forall (I : obIndexer),
@@ -515,7 +503,18 @@ Definition Yoneda10_morphismReIndexer_morphismIndexer :=
     ( sval (Yoneda10_ff_  ((ReIndexing1 sr o>Indexer ri) o>Indexer ij)) G )
     =1 (sval (Yoneda01_F_Poly ij) G \o
               (sval (Yoneda10_ff_ ri) G \o
- sval (Yoneda10_PolyElement (Yoneda01_View (Generating0 R)) (Generating1 sr)) G)).
+ sval (Yoneda10_View_Generating1 sr) G)).
+
+(**Definition Yoneda10_morphismReIndexer_morphismIndexer :=
+  forall (I : obIndexer),
+  forall (R : obReIndexer) (ri : 'Indexer( ReIndexing0 R |- I )),
+  forall (S : obReIndexer) (sr : 'ReIndexer( S |- R )),
+  forall (J : obIndexer) (ij : 'Indexer( I |- J )),
+  forall (G : obGenerator),
+    ( sval (Yoneda10_ff_  ((ReIndexing1 sr o>Indexer ri) o>Indexer ij)) G )
+    =1 (sval (Yoneda01_F_Poly ij) G \o
+              (sval (Yoneda10_ff_ ri) G \o
+ sval (Yoneda10_PolyElement (Yoneda01_View (Generating0 R)) (Generating1 sr)) G)). **)
 
 Definition Yoneda10_morphismIndexerOnly
   := (  forall (I : obIndexer),
@@ -534,7 +533,7 @@ Proof.
   move => /(_  I R ri _ (unitReIndexer) J ij G) in H.
   rewrite -ReIndexing_unitReIndexer in H.
   rewrite -polyIndexer_unitIndexer in H.
-  rewrite -Generating_unitReIndexer in H. 
+  rewrite /= -Generating_unitReIndexer in H. 
   move => /(_ x) in H. rewrite /= -unitGenerator_polyGenerator in H.
   exact: H.
 Qed.
@@ -566,8 +565,8 @@ Lemma Yoneda10_Reflector_naturalIndexer_ALT :
     (Yoneda10_ff_ : forall (I : obIndexer),
         forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
           {Yoneda10_ff_i : forall G : obGenerator,
-              Yoneda00_View (Generating0 R) G -> Yoneda00_F_(I) G |
- Yoneda10_natural (Yoneda01_View (Generating0 R)) (Yoneda01_F_(I)) Yoneda10_ff_i}),
+              Yoneda00_View_Generating0 R G -> Yoneda00_F_(I) G |
+ Yoneda10_natural (Yoneda01_View_Generating0 R) (Yoneda01_F_(I)) Yoneda10_ff_i}),
   forall (Yoneda10_ff_morphismReIndexer_morphismIndexer :
        Yoneda10_morphismReIndexer_morphismIndexer Yoneda01_F_Poly Yoneda10_ff_),
     Yoneda10_naturalIndexer Yoneda01_Generated_PolyIndexer Yoneda01_F_Poly
@@ -584,6 +583,8 @@ End Senses_morCoMod.
 #+END_SRC
 
 ** Grammar of the morphisms , which carry the sense-decodings
+
+  ERRATA : the (modified) colimits half is erased here and will be presented only later after cartierSolution8.v ... « generated modified colimits » ( « modos » ) .
 
   As common , the [PolyElement] constructor inputs some element of any functor and changes its format and outputs some generator-morphisms-(functorial-)action ( "Yoneda" ) . Also the [PolyTransf] constructor inputs some (sense) transformation of elements across two metafunctors and changes its format and outputs some (grammatical) transformation of generator-morphisms-(functorial-)actions ( "Yoneda" ) . Memo that both cut-constructors [PolyCoMod] and [PolyTransf] shall be erased/eliminated .
 
@@ -625,28 +626,17 @@ Inductive morCoMod : forall Yoneda00_E Yoneda01_E,
             forall Yoneda10_ff_ , 'CoMod( F'' ~> F' @ Yoneda10_ff_ ) ->
               'CoMod( F'' ~> F @ Yoneda10_PolyCoMod Yoneda10_ff_ Yoneda10_ff' )
 
-| PolyTransf : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-                 Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yoneda01_E)
-         (transf : {transf : ( forall G : obGenerator, Yoneda00_F G -> Yoneda00_E G ) |
-                    Yoneda10_natural Yoneda01_F Yoneda01_E transf}) 
-         (G : obGenerator) Yoneda10_ff ,
-    'CoMod( View G ~> F @ Yoneda10_ff ) ->
-    'CoMod( View G ~> E @ Yoneda10_PolyTransf transf Yoneda10_ff )
-
 (** ----solution morphisms---- **)
 
 | UnitCoMod : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F),
     'CoMod( F ~> F @ Yoneda10_UnitCoMod Yoneda01_F )
 
-| PolyElement : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-                  (G : obGenerator) (f : Yoneda00_F G),
-    'CoMod( View G ~> F @ Yoneda10_PolyElement Yoneda01_F f )
+| View_Generating1 : forall (R R' : obReIndexer) (r : 'ReIndexer( R' |- R )),
+     'CoMod( View_Generating0 R' ~> View_Generating0 R @ Yoneda10_View_Generating1 r )
 
 | CoUnitGenerated : forall (I : obIndexer),
     forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F) Yoneda10_rr,
-      'CoMod( F ~> View (Generating0 R) @ Yoneda10_rr ) ->
-     'CoMod( F ~> AtIndexOb Generated(I) @ Yoneda10_CoUnitGenerated i Yoneda10_rr )
+     'CoMod( View_Generating0 R ~> AtIndexOb Generated(I) @ Yoneda10_CoUnitGenerated i )
 
 
 where "''CoMod' ( F' ~> F @ Yoneda10 )" :=
@@ -681,11 +671,11 @@ with morCoMod_indexed (**memo: non-recursive **)
       (Yoneda10_ff_ : forall (I : obIndexer),
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
             {Yoneda10_ff_i : forall G : obGenerator,
-                Yoneda00_View (Generating0 R) G -> Yoneda00_F_(I) G |
-  Yoneda10_natural (Yoneda01_View (Generating0 R)) (Yoneda01_F_(I)) Yoneda10_ff_i})
+                Yoneda00_View_Generating0 R G -> Yoneda00_F_(I) G |
+  Yoneda10_natural (Yoneda01_View_Generating0 R) (Yoneda01_F_(I)) Yoneda10_ff_i})
       (ff_ : forall (I : obIndexer),
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-     'CoMod( View (Generating0 R) ~> AtIndexOb F_(I) @ (Yoneda10_ff_(I)(R)(i)) ))
+     'CoMod( View_Generating0 R ~> AtIndexOb F_(I) @ (Yoneda10_ff_(I)(R)(i)) ))
       (**memo: Yoneda01_F_Poly_functorIndexer and Yoneda10_ff_morphismReIndexerOnly not used in to show convCoMod_sense **)
       (Yoneda01_F_Poly_functorIndexer : Yoneda10_functorIndexer Yoneda01_F_Poly)
       (Yoneda10_ff_morphismReIndexer_morphismIndexer :
@@ -706,22 +696,16 @@ Notation "''AtIndexMor' ff_ I" := (@AtIndexMor _ _ _ _ _ _ _ _ _ ff_ I)
 Notation "ff_ o>CoMod ff'" := (@PolyCoMod _ _ _ _ _ _ _ ff' _ _ _ _ ff_)
                (at level 40 , ff' at next level , left associativity) : poly_scope.
 
-Notation "ff o>Transf_ transf @ G" := (@PolyTransf _ _ _ _ _ G transf _ _ ff)
- (at level 3, transf at next level, G at level 0, left associativity) : poly_scope.
-
-Notation "ff o>Transf_ transf" := (@PolyTransf _ _ _ _ _ _ transf _ _ ff)
-                                   (at level 3, transf at next level) : poly_scope.
-
 Notation "@ ''UnitCoMod' F" := (@UnitCoMod _ _ F)
                                  (at level 10, only parsing) : poly_scope.
 
 Notation "''UnitCoMod'" := (@UnitCoMod _ _ _) (at level 0) : poly_scope.
 
-Notation "''PolyElement' F f" := (@PolyElement _ _ F _ f)
-                      (at level 10, F at next level, f at next level) : poly_scope.
+Notation "''View_Generating1' r" := (@View_Generating1 _ _ r)
+                                    (at level 10, r at next level) : poly_scope.
 
-Notation "rr o>CoMod 'CoUnitGenerated @ i" := (@CoUnitGenerated _ _ i _ _ _ _ rr)
-                  (at level 4, i at next level, right associativity) : poly_scope.
+Notation "'CoUnitGenerated @ i" := (@CoUnitGenerated _ _ i)
+                  (at level 10, i at next level) : poly_scope.
 
 Notation "''MorCoMod_indexed' ff_" := (@MorCoMod_indexed _ _ _ _ _ _ _ _ _ ff_)
                                     (at level 10, ff_ at next level) : poly_scope.
@@ -742,9 +726,9 @@ Combined Scheme morCoMod_morCoMod_indexed_mutind from
          morCoMod_morCoMod_indexed_ind, morCoMod_indexed_morCoMod_ind.
 Scheme  morCoMod_morCoMod_indexed_rect := Induction for morCoMod Sort Type
  with  morCoMod_indexed_morCoMod_rect := Induction for morCoMod_indexed Sort Type.
-Definition morCoMod_morCoMod_indexed_mutrect P P0 a b c d e f g h := 
-  pair (@morCoMod_morCoMod_indexed_rect P P0 a b c d e f g h)
-       (@morCoMod_indexed_morCoMod_rect P P0 a b c d e f g h ).
+Definition morCoMod_morCoMod_indexed_mutrect P P0 a b c d e f g := 
+  pair (@morCoMod_morCoMod_indexed_rect P P0 a b c d e f g)
+       (@morCoMod_indexed_morCoMod_rect P P0 a b c d e f g).
 (** # #
 #+END_SRC
 
@@ -779,15 +763,12 @@ Inductive morCoMod : forall Yoneda00_E Yoneda01_E,
 | UnitCoMod : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F),
     'CoMod( F ~> F @ Yoneda10_UnitCoMod Yoneda01_F )
 
-| PolyElement : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-                   (G : obGenerator) (f : Yoneda00_F G),
-    'CoMod( View G ~> F @ Yoneda10_PolyElement Yoneda01_F f )
+| View_Generating1 : forall (R R' : obReIndexer) (r : 'ReIndexer( R' |- R )),
+     'CoMod( View_Generating0 R' ~> View_Generating0 R @ Yoneda10_View_Generating1 r )
 
 | CoUnitGenerated : forall (I : obIndexer),
     forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F) Yoneda10_rr,
-      'CoMod( F ~> View (Generating0 R) @ Yoneda10_rr ) ->
-     'CoMod( F ~> AtIndexOb Generated(I) @ Yoneda10_CoUnitGenerated i Yoneda10_rr )
+     'CoMod( View_Generating0 R ~> AtIndexOb Generated(I) @ Yoneda10_CoUnitGenerated i )
 
 where "''CoMod' ( F' ~> F @ Yoneda10 )" :=
         (@morCoMod _ _ F' _ _ F Yoneda10) : sol_scope
@@ -817,11 +798,11 @@ with morCoMod_indexed
       (Yoneda10_ff_ : forall (I : obIndexer),
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
             {Yoneda10_ff_i : forall G : obGenerator,
-                Yoneda00_View (Generating0 R) G -> Yoneda00_F_(I) G |
-  Yoneda10_natural (Yoneda01_View (Generating0 R)) (Yoneda01_F_(I)) Yoneda10_ff_i})
+                Yoneda00_View_Generating0 R G -> Yoneda00_F_(I) G |
+  Yoneda10_natural (Yoneda01_View_Generating0 R) (Yoneda01_F_(I)) Yoneda10_ff_i})
       (ff_ : forall (I : obIndexer),
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-      'CoMod( View (Generating0 R) ~> AtIndexOb F_(I) @ (Yoneda10_ff_ _ _ (i)) ))
+      'CoMod( View_Generating0 R ~> AtIndexOb F_(I) @ (Yoneda10_ff_ _ _ (i)) ))
       (Yoneda01_F_Poly_functorIndexer : Yoneda10_functorIndexer Yoneda01_F_Poly)
       (Yoneda10_ff_morphismReIndexer_morphismIndexer :
          Yoneda10_morphismReIndexer_morphismIndexer Yoneda01_F_Poly Yoneda10_ff_),
@@ -856,11 +837,11 @@ Notation "@ ''UnitCoMod' F" := (@UnitCoMod _ _ F)
 
 Notation "''UnitCoMod'" := (@UnitCoMod _ _ _) (at level 0) : sol_scope.
 
-Notation "''PolyElement' F f" := (@PolyElement _ _ F _ f)
-                       (at level 10, F at next level, f at next level) : sol_scope.
+Notation "''View_Generating1' r" := (@View_Generating1 _ _ r)
+                                    (at level 10, r at next level) : sol_scope.
 
-Notation "rr o>CoMod 'CoUnitGenerated @ i" := (@CoUnitGenerated _ _ i _ _ _ _ rr)
-                    (at level 4, i at next level, right associativity) : sol_scope.
+Notation "'CoUnitGenerated @ i" := (@CoUnitGenerated _ _ i)
+                  (at level 10, i at next level) : sol_scope.
 
 Notation "''MorCoMod_indexed' ff_" := (@MorCoMod_indexed _ _ _ _ _ _ _ _ _ ff_)
                                       (at level 10, ff_ at next level) : sol_scope.
@@ -884,8 +865,8 @@ Combined Scheme morCoMod_morCoMod_indexed_mutind from
 Scheme morCoMod_morCoMod_indexed_rect := Induction for morCoMod Sort Type
   with  morCoMod_indexed_morCoMod_rect := Induction for morCoMod_indexed Sort Type.
 Definition morCoMod_morCoMod_indexed_mutrect P P0 a b c d e f := 
-  pair (@morCoMod_morCoMod_indexed_rect P P0 a b c d e f )
-       (@morCoMod_indexed_morCoMod_rect P P0 a b c d e f ).
+  pair (@morCoMod_morCoMod_indexed_rect P P0 a b c d e f)
+       (@morCoMod_indexed_morCoMod_rect P P0 a b c d e f).
 
 Definition toPolyMor_mut :
   (forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yoneda01_E)
@@ -904,10 +885,10 @@ Proof.
     exact: ('AtIndexMor IHff_ I)%poly.
   - (* UnitCoMod *) intros ? ? F .
     exact: ( @'UnitCoMod F ) %poly.
-  - (* PolyElement *) intros ? ? F ? f .
-    exact: ( 'PolyElement F f ) %poly.
-  - (* CoUnitGenerated *) intros ? ? ? ? ? ? ? rr IHrr.
-    exact: ( IHrr o>CoMod 'CoUnitGenerated @ i )%poly.
+  - (* View_Generating1 *) intros ? ? r.
+    exact: ( 'View_Generating1 r)%poly.
+  - (* CoUnitGenerated *) intros ? ? i.
+    exact: ( 'CoUnitGenerated @ i )%poly.
   - (* MorCoMod_indexed *) intros ? ? ? ? ? ? ? ? ? ff_ IHff_ .
     exact: ( 'MorCoMod_indexed (fun I : obIndexer => IHff_(I)) )%poly.
   - (* Reflector *) intros ? ? ? F_ ? ff_ IHff_ Yoneda01_F_Poly_functorIndexer
@@ -938,17 +919,14 @@ Lemma toPolyMor_mut_UnitCoMod :
     toPolyMor (@'UnitCoMod F)%sol = (@'UnitCoMod F)%poly.
 Proof. reflexivity. Qed.
 
-Lemma toPolyMor_mut_PolyElement :
-  forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F) (G : obGenerator)
-         (f : Yoneda00_F G),
-    toPolyMor ( 'PolyElement F f )%sol = ( 'PolyElement F f ) %poly.
+Lemma toPolyMor_mut_View_Generating1 :
+ forall (R R' : obReIndexer) (r : 'ReIndexer( R' |- R )),
+   toPolyMor ('View_Generating1 @ r)%sol = ('View_Generating1 @ r)%poly.
 Proof. reflexivity. Qed.
 
 Lemma toPolyMor_mut_CoUnitGenerated :
- forall (I : obIndexer) (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I ))
-        Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-        Yoneda10_rr (rr: 'CoMod( F ~> View (Generating0 R) @ Yoneda10_rr )%sol),
-   toPolyMor (rr o>CoMod 'CoUnitGenerated @ i)%sol = ((toPolyMor rr) o>CoMod 'CoUnitGenerated @ i)%poly.
+ forall (I : obIndexer) (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
+   toPolyMor ('CoUnitGenerated @ i)%sol = ('CoUnitGenerated @ i)%poly.
 Proof. reflexivity. Qed.
 
 Lemma toPolyMor_mut_MorCoMod_indexed :
@@ -967,7 +945,7 @@ Lemma toPolyMor_mut_Reflector :
     (F_ : @obCoMod_indexed Yoneda00_F_ Yoneda01_F_ Yoneda01_F_Poly)
     Yoneda10_ff_ (ff_ : (forall (I : obIndexer)
                            (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-       'CoMod( View (Generating0 R) ~> AtIndexOb F_ I @ Yoneda10_ff_ I R i )%sol))
+       'CoMod( View_Generating0 R ~> AtIndexOb F_ I @ Yoneda10_ff_ I R i )%sol))
         (Yoneda01_F_Poly_functorIndexer : Yoneda10_functorIndexer Yoneda01_F_Poly)
         (Yoneda10_ff_morphismReIndexer_morphismIndexer :
         Yoneda10_morphismReIndexer_morphismIndexer Yoneda01_F_Poly Yoneda10_ff_),
@@ -980,7 +958,7 @@ Lemma toPolyMor_mut_Reflector :
 Proof. reflexivity. Qed.
 
 Definition toPolyMor_mut_rewrite :=
-  (toPolyMor_mut_AtIndexMor, toPolyMor_mut_UnitCoMod, toPolyMor_mut_PolyElement,
+  (toPolyMor_mut_AtIndexMor, toPolyMor_mut_UnitCoMod, toPolyMor_mut_View_Generating1,
    toPolyMor_mut_CoUnitGenerated, toPolyMor_mut_MorCoMod_indexed,
    toPolyMor_mut_Reflector).
 (** # #
@@ -995,36 +973,35 @@ Definition toPolyMor_mut_rewrite :=
   Moreover some contrast is during the polymorphism/cut-elimination resolution . In the earlier COQ programs for limits , it was better to start by general-destructing the prefix-argument [f_] of the composition [(f_ o>CoMod f')] and then to constrained-destruct the postfix-parameter [f'] such to use the general-polymorphism of the projection (unit of adjunction) and the instantiated-polymorphism of the pairing ; the alternative would use the instantiated-polymorphism of the projection and general-polymorphism of the pairing . In this ongoing COQ program for colimits , it is better to start by general-destructing the postfix-parameter [f'] of the composition [(f_ o>CoMod f')] and then to constrained-destruct the prefix-argument [f_] such to use the general-polymorphism of the counit ( section/injection ) and the instantiated-polymorphism of the reflector ( copairing ) ; the alternative would be the same but with more case-analyses .
 
 #+BEGIN_SRC coq :exports both :results silent # # **)
-Module Destruct_codomView.
+Module Destruct_codomViewGenerating.
 
-Inductive morCoMod_codomView
+Inductive morCoMod_codomViewGenerating
 : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F ),
-    forall (G : obGenerator), forall Yoneda10_ff,
-        'CoMod( F ~> (View G) @ Yoneda10_ff ) %sol -> Type :=
+    forall (R : obReIndexer), forall Yoneda10_ff,
+        'CoMod( F ~> (View_Generating0 R) @ Yoneda10_ff ) %sol -> Type :=
 
-| UnitCoMod :  forall B : obGenerator, 
-    morCoMod_codomView ( ( @'UnitCoMod (View B) )%sol )
+| UnitCoMod :  forall R : obReIndexer, 
+    morCoMod_codomViewGenerating ( ( @'UnitCoMod (View_Generating0 R) )%sol )
 
-| PolyElement : forall (G G' : obGenerator) (f : Yoneda00_View G G'),
-    morCoMod_codomView ( ( 'PolyElement (View G) f )%sol ) .
-
-Lemma morCoMod_codomViewP
+| View_Generating1 : forall (R R' : obReIndexer) (r : 'ReIndexer( R' |- R )),
+     morCoMod_codomViewGenerating ( ( 'View_Generating1 r ) %sol ).
+ 
+Lemma morCoMod_codomViewGeneratingP
   : forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F),
     forall Yoneda00_G Yoneda01_G (G : @obCoMod Yoneda00_G Yoneda01_G),
     forall Yoneda10_gg (gg : 'CoMod( F ~> G @ Yoneda10_gg ) %sol ),
       ltac:( destruct G; [ refine (unit : Type) | ];
-               refine (morCoMod_codomView gg) ).
+               refine (morCoMod_codomViewGenerating gg) ).
 Proof.
   intros. case: _ _ F _ _ G Yoneda10_gg / gg.
   - intros; exact: tt.
   - destruct F; [intros; exact: tt | ].
     constructor 1.
-  - destruct F; [intros; exact: tt | ].
-    constructor 2.
+  - constructor 2.
   - intros; exact: tt.
 Defined.
 
-End Destruct_codomView.
+End Destruct_codomViewGenerating.
 
 Module Destruct_codomAtIndexObGenerated.
 
@@ -1036,14 +1013,9 @@ Inductive morCoMod_codomAtIndexObGenerated
 | UnitCoMod : forall (I : obIndexer),
       morCoMod_codomAtIndexObGenerated ( @'UnitCoMod (AtIndexOb Generated I) )%sol
 
-| PolyElement : forall (I : obIndexer) (G : obGenerator) (f : Yoneda00_Generated I G),
-    morCoMod_codomAtIndexObGenerated (PolyElement (AtIndexOb Generated I) f )%sol
-
 | CoUnitGenerated : forall (I : obIndexer),
     forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F) Yoneda10_rr
-      (rr : 'CoMod( F ~> View (Generating0 R) @ Yoneda10_rr ) %sol),
-        morCoMod_codomAtIndexObGenerated ( rr o>CoMod 'CoUnitGenerated @ i )%sol
+        morCoMod_codomAtIndexObGenerated ( 'CoUnitGenerated @ i )%sol
 
 | MorCoMod_indexed :
     forall Yoneda00_E_ Yoneda01_E_ Yoneda01_E_Poly
@@ -1059,7 +1031,7 @@ Inductive morCoMod_codomAtIndexObGenerated
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )), _ )
       (ff_ : forall (I : obIndexer),
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-            'CoMod( View (Generating0 R) ~> AtIndexOb Generated(I)
+            'CoMod( View_Generating0 R ~> AtIndexOb Generated(I)
                          @ (Yoneda10_ff_ _ _ (i)) ) %sol)
       (Yoneda01_Generated_PolyIndexer_functorIndexer :
          Yoneda10_functorIndexer Yoneda01_Generated_PolyIndexer)
@@ -1083,16 +1055,14 @@ Proof.
   - intros ? ? ? E_ ? ? ? F_ ? ff_ J.
     destruct ff_ .
     + destruct F_; [ intros; exact: tt | ].
-      constructor 4.
+      constructor 3.
     + destruct F_; [ intros; exact: tt | ].
-      constructor 5.
+      constructor 4.
   - destruct F as [? ? ? F_ I | ]; [ | intros; exact: tt ].
     destruct F_; [ intros; exact: tt | ];
       constructor 1.
-  - destruct F as [? ? ? F_ I | ]; [ | intros; exact: tt ].
-    destruct F_; [ intros; exact: tt | ];
-      constructor 2.
-  - constructor 3.
+  - intros; exact: tt.
+  - constructor 2.
 Defined.
 
 End Destruct_codomAtIndexObGenerated.
@@ -1136,12 +1106,12 @@ Defined.
 Definition Yoneda10_ViewGenerating_PolyReIndexer_form :
   forall (R S : obReIndexer) (sr : 'ReIndexer( S |- R )),
     {Yoneda10 : forall G : obGenerator,
-        Yoneda00_View (Generating0 S) G -> Yoneda00_View (Generating0 R) G |
-     Yoneda10_natural (Yoneda01_View (Generating0 S))
-                      (Yoneda01_View (Generating0 R)) Yoneda10} .
+        Yoneda00_View_Generating0 S G -> Yoneda00_View_Generating0 R G |
+     Yoneda10_natural (Yoneda01_View_Generating0 S)
+                      (Yoneda01_View_Generating0 R) Yoneda10} .
 Proof.
   intros. unshelve eexists.
-  refine (fun G s => (sval (Yoneda01_View (Generating0 R))
+  refine (fun G s => (sval (Yoneda01_View_Generating0 R)
                         (Generating0 S) G s (Generating1 sr))).
   abstract (intros; move; intros; simpl; exact: polyGenerator_morphism).
 Defined.
@@ -1166,7 +1136,7 @@ Qed.
 Lemma Yoneda10_CoUnitGenerated_form :
   forall (I : obIndexer), forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
       { Yoneda10 : _ |
-        Yoneda10_natural (Yoneda01_View (Generating0 R))
+        Yoneda10_natural (Yoneda01_View_Generating0 R)
                          (Yoneda01_Generated (I)) Yoneda10}.
 Proof.
   intros. unshelve eexists.
@@ -1184,7 +1154,7 @@ Lemma Yoneda10_CoUnitGenerated_form_morphismReIndexer_morphismIndexer :
                   ((ReIndexing1 sr o>Indexer ri) o>Indexer ij)) G )
         =1 ( sval (Yoneda01_Generated_PolyIndexer ij) G \o
                   (sval (Yoneda10_CoUnitGenerated_form ri) G \o
-sval (Yoneda10_PolyElement (Yoneda01_View (Generating0 R)) (Generating1 sr)) G) ).
+sval (Yoneda10_View_Generating1 sr) G) ).
 Proof.
   intros. move. intros g. simpl.
   rewrite -[in LHS]polyIndexer_unitIndexer. 
@@ -1217,7 +1187,7 @@ Lemma Reflector_morphism_morphismReIndexer_morphismIndexer :
     (Yoneda10_ff_ : forall (I : obIndexer),
         forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
           {Yoneda10_ff_i : _ |
- Yoneda10_natural (Yoneda01_View (Generating0 R)) (Yoneda01_F_(I)) Yoneda10_ff_i})
+ Yoneda10_natural (Yoneda01_View_Generating0 R) (Yoneda01_F_(I)) Yoneda10_ff_i})
     (Yoneda01_F_Poly : forall I J : obIndexer, 'Indexer( I |- J ) -> _)
   (* (Yoneda01_F_Poly_functorIndexer : Yoneda10_functorIndexer Yoneda01_F_Poly) *)
     (Yoneda10_ff_morphismReIndexer_morphismIndexer :
@@ -1287,35 +1257,10 @@ Inductive convCoMod : forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yone
       Yoneda10_ff_0 (ff_0 : 'CoMod( F'' ~> F' @ Yoneda10_ff_0 ))
       Yoneda10_ff'0 (ff'0 : 'CoMod( F' ~> F @ Yoneda10_ff'0 )),
       ff_0 <~~ ff_ -> ff'0 <~~ ff' -> ( ff_0 o>CoMod ff'0 ) <~~ ( ff_ o>CoMod ff' )
-        
-| PolyTransf_cong :
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-      Yoneda00_G Yoneda01_G (G : @obCoMod Yoneda00_G Yoneda01_G)
-      (transf : {transf : forall A : obGenerator, Yoneda00_F A -> Yoneda00_G A |
-                 Yoneda10_natural Yoneda01_F Yoneda01_G transf}) 
-      (A : obGenerator)
-      Yoneda10_ff (ff : 'CoMod( View A ~> F @ Yoneda10_ff ))
-      Yoneda10_ff0 (ff0 : 'CoMod( View A ~> F @ Yoneda10_ff0 )),
-      ff0 <~~ ff -> ( ff0 o>Transf_ transf @ G ) <~~ ( ff o>Transf_ transf @ G )
-
-| CoUnitGenerated_cong :
-    forall (I : obIndexer), forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F) Yoneda10_rr
-      (rr : 'CoMod( F ~> View (Generating0 R) @ Yoneda10_rr )),
-    forall Yoneda10_rr0 (rr0 : 'CoMod( F ~> View (Generating0 R) @ Yoneda10_rr0 )),
-      rr0 <~~ rr ->
-      (rr0 o>CoMod 'CoUnitGenerated @ i) <~~ (rr o>CoMod 'CoUnitGenerated @ i)
 
 (** ----- the constant (non-recursive) conversions which are used during the
 PolyTransf polymorphism elimination ----- **)
 
-| PolyTransf_'PolyElement :
-    forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yoneda01_E)
-      Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-   transf (G : obGenerator) Yoneda10_ff (ff: 'CoMod( View G ~> E @ Yoneda10_ff )),
-   ( PolyElement F (proj1_sig transf G (sval Yoneda10_ff G (@unitGenerator G))) )
-     <~~ ( ff o>Transf_ transf @ F
-         : 'CoMod( View G ~> F @ _ ) )
 
 (** ----- the constant conversions which are used during the PolyCoMod
 polymorphism elimination ----- **)
@@ -1345,23 +1290,16 @@ polymorphism elimination ----- **)
       Yoneda10_gg (gg : 'CoMod( F ~> G @ Yoneda10_gg )),
       gg <~~ ( ('UnitCoMod) o>CoMod gg )
 
-| PolyCoMod_PolyElement :
-    forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yoneda01_E)
-      Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-      Yoneda10_ff (ff : 'CoMod( E ~> F @ Yoneda10_ff )),
-    forall (G : obGenerator) (e : Yoneda00_E G),
-      (PolyElement F (sval Yoneda10_ff G e))
-        <~~ ((PolyElement E e) o>CoMod ff
-           : 'CoMod( View G ~> F @ _ ) )
+| View_Generating1_morphism : forall (R R' : obReIndexer) (r : 'ReIndexer( R' |- R )),
+    forall (R'' : obReIndexer) (r' : 'ReIndexer( R'' |- R' )),
+      ( 'View_Generating1 ( r' o>ReIndexer r ) )
+        <~~ ( ( 'View_Generating1 r' ) o>CoMod ( 'View_Generating1 r ) )
 
 | CoUnitGenerated_morphism :
     forall (I : obIndexer), forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-      forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F) Yoneda10_rr
-        (rr : 'CoMod( F ~> View (Generating0 R) @ Yoneda10_rr )),
-      forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yoneda01_E) Yoneda10_ff
-        (ff : 'CoMod( E ~> F @ Yoneda10_ff )),
-        ( (ff o>CoMod rr) o>CoMod 'CoUnitGenerated @ i )
-          <~~ ( ff o>CoMod (rr o>CoMod 'CoUnitGenerated @ i) )
+        forall (R' : obReIndexer) (r : 'ReIndexer( R' |- R )),
+        ( 'CoUnitGenerated @ ( (ReIndexing1 r) o>Indexer i ) )
+          <~~ ( ('View_Generating1 r) o>CoMod ( 'CoUnitGenerated @ i ) )
 
 | Reflector_morphism :
     forall (Yoneda00_F_ : obIndexer -> _ )
@@ -1371,7 +1309,7 @@ polymorphism elimination ----- **)
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )), _ )
       (ff_ : forall (I : obIndexer),
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-      'CoMod( View (Generating0 R) ~> AtIndexOb F_(I) @ Yoneda10_ff_(I)(R)(i) ))
+      'CoMod( View_Generating0 R ~> AtIndexOb F_(I) @ Yoneda10_ff_(I)(R)(i) ))
       (Yoneda01_F_Poly_functorIndexer : Yoneda10_functorIndexer Yoneda01_F_Poly)
       (Yoneda10_ff_morphismReIndexer_morphismIndexer :
          Yoneda10_morphismReIndexer_morphismIndexer Yoneda01_F_Poly Yoneda10_ff_),
@@ -1400,36 +1338,23 @@ polymorphism elimination ----- **)
  (Yoneda10_ff_ : forall I : obIndexer,
      forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )), _ )
  (ff_ : forall I : obIndexer, forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-       'CoMod( View (Generating0 R) ~> AtIndexOb F_(I) @ Yoneda10_ff_(I)(R)(i) ))
+       'CoMod( View_Generating0 R ~> AtIndexOb F_(I) @ Yoneda10_ff_(I)(R)(i) ))
  (Yoneda01_F_Poly_functorIndexer : Yoneda10_functorIndexer Yoneda01_F_Poly)
  (Yoneda10_ff_morphismReIndexer_morphismIndexer :
     Yoneda10_morphismReIndexer_morphismIndexer Yoneda01_F_Poly Yoneda10_ff_),
  forall I : obIndexer, forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-     forall Yoneda00_E Yoneda01_E (E : @obCoMod Yoneda00_E Yoneda01_E) Yoneda10_rr
-       (rr : 'CoMod( E ~> View (Generating0 R) @ Yoneda10_rr )),
-       ( rr o>CoMod ff_(I)(R)(i) )
-         <~~ ( (rr o>CoMod 'CoUnitGenerated @ i)
+       ( ff_(I)(R)(i) )
+         <~~ ( ( ( 'CoUnitGenerated @ i )
                o>CoMod AtIndexMor [[ ff_ @ Yoneda01_F_Poly_functorIndexer ,
-                            Yoneda10_ff_morphismReIndexer_morphismIndexer ]]_(I)
-               : 'CoMod( E ~> AtIndexOb F_(I) @ Yoneda10_PolyCoMod
-                           (Yoneda10_CoUnitGenerated i Yoneda10_rr)
-                           (Yoneda10_Reflector Yoneda10_ff_ I) ) )
+                            Yoneda10_ff_morphismReIndexer_morphismIndexer ]]_(I) )
+               : 'CoMod( View_Generating0 R ~> AtIndexOb F_ I @ Yoneda10_PolyCoMod
+                                                  (Yoneda10_CoUnitGenerated i)
+                                                  (Yoneda10_Reflector
+                                                  Yoneda10_ff_ I) )  )
 
 (** ----- the constant conversions which are only for the wanted sense of
 generated-functor-along-reindexing grammar ----- **)
 
-| UnitCoModView_'PolyElement : forall (G : obGenerator),
-    (PolyElement (View G) ((@unitGenerator G) : 'Generator( G ~> G)))
-      <~~ (@'UnitCoMod (View G)
-           : 'CoMod( View G ~> View G @ _ ) ) 
-
-| CoUnitGenerated'PolyElement :
-    forall (I : obIndexer) (R : obReIndexer) (i : 'Indexer( (ReIndexing0 R) |- I )),
-    forall (G : obGenerator) (f : Yoneda00_View (Generating0 R) G),
-      (PolyElement (AtIndexOb Generated(I))
-                   (sval (Yoneda10_CoUnitGenerated_form i) G f))
-        <~~ ( (PolyElement (View (Generating0 R )) f) o>CoMod 'CoUnitGenerated @ i
-              : 'CoMod( View G ~> AtIndexOb Generated(I) @ _ ) )
 
 (**MEMO: Yoneda10_CoUnitGenerated_form_morphismReIndexer_morphismIndexer is
  already present and will be masqued , such to get some more-general constructor **)
@@ -1438,7 +1363,7 @@ generated-functor-along-reindexing grammar ----- **)
       (@'UnitCoMod (AtIndexOb Generated(I)))
         <~~ ( AtIndexMor [[ (fun (I : obIndexer)
                  (R : obReIndexer) (ri : 'Indexer( ReIndexing0 R |- I ))
-          => (@'UnitCoMod (View (Generating0 R))) o>CoMod 'CoUnitGenerated @ ri)
+          => (@'UnitCoMod (View_Generating0 R)) o>CoMod 'CoUnitGenerated @ ri)
                             @ Yoneda01_Generated_PolyIndexer_functorIndexer , 
          Yoneda10_CoUnitGenerated_form_morphismReIndexer_morphismIndexer ]]_(I)
             : 'CoMod( AtIndexOb Generated(I) ~> AtIndexOb Generated(I) @ _ ) )
@@ -1463,80 +1388,6 @@ using the finished cut-elimination lemma ----- TODO: COMMENT ALL THIS SECTION
         Yoneda10_ff__ (ff__ : 'CoMod( F''' ~> F'' @ Yoneda10_ff__ )),
         ((ff__ o>CoMod ff_) o>CoMod ff')
           <~~ (ff__ o>CoMod (ff_ o>CoMod ff'))  **)
-          
-(**MEMO: this is some lemma for the more-general [View_'PolyElement] below **)
-| ViewView_'PolyElement :
- forall (H G : obGenerator) Yoneda01_ff (ff : 'CoMod( View G ~> View H @ Yoneda01_ff)),
-   (PolyElement (View H)
-                (sval Yoneda01_ff G (@unitGenerator G) : 'Generator( G ~> H)))
-     <~~ ( ff : 'CoMod( View G ~> View H @ _ ) )
-
-| PolyTransf_morphism :
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-      Yoneda00_G Yoneda01_G (G : @obCoMod Yoneda00_G Yoneda01_G)    
-      (transf : {transf : forall A : obGenerator, Yoneda00_F A -> Yoneda00_G A |
-                 Yoneda10_natural Yoneda01_F Yoneda01_G transf}) 
-      (A : obGenerator)
-      Yoneda10_ff (ff : 'CoMod( View A ~> F @ Yoneda10_ff )),
-    forall A' Yoneda10_aa (aa : 'CoMod( View A' ~> View A @ Yoneda10_aa )),
-      ( (aa o>CoMod ff) o>Transf_ transf @ G )
-        <~~ ( aa o>CoMod (ff o>Transf_ transf @ G) )
-
-| PolyTransf_morphismPolyTransf :
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-      Yoneda00_G Yoneda01_G (G : @obCoMod Yoneda00_G Yoneda01_G)
-      (transf : {transf : ( forall A : obGenerator, Yoneda00_F A -> Yoneda00_G A ) |
-                 Yoneda10_natural Yoneda01_F Yoneda01_G transf}) 
-      (A : obGenerator) Yoneda10_ff
-      (ff : 'CoMod( View A ~> F @ Yoneda10_ff ))
-      Yoneda00_H Yoneda01_H (H : @obCoMod Yoneda00_H Yoneda01_H)
-      (transf' : {transf : ( forall A : obGenerator, Yoneda00_G A -> Yoneda00_H A ) |
-                  Yoneda10_natural Yoneda01_G Yoneda01_H transf}),
-      (ff o>Transf_ (PolyTransf_morphismPolyTransf_transf transf transf') @ H)
-        <~~ ((ff o>Transf_ transf @ G) o>Transf_ transf' @ H)
-
-| View_'PolyElement :
-    forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-      (G : obGenerator) Yoneda01_ff (ff : 'CoMod( View G ~> F @ Yoneda01_ff)),
-      (PolyElement F (sval Yoneda01_ff G (@unitGenerator G) : Yoneda00_F G))
-        <~~ (ff : 'CoMod( View G ~> F @ _ ))
-
-| CoUnitGenerated_morphismReIndexer_morphismIndexer :
-  forall (I : obIndexer) (R : obReIndexer) (ri : 'Indexer( (ReIndexing0 R) |- I )),
-  forall (S : obReIndexer) (sr : 'ReIndexer( S |- R )),
-  forall (J : obIndexer) (ij : 'Indexer( I |- J )),
-  forall (G : obGenerator) Yoneda10_ff
-    (ff : 'CoMod( View G ~> View (Generating0 S) @ Yoneda10_ff)),
-    ( ff o>CoMod 'CoUnitGenerated
-                 @ ((ReIndexing1 sr o>Indexer ri) o>Indexer ij) )
-    <~~ ( ( ( ff o>CoMod (PolyElement (View (Generating0 R)) (Generating1 sr)) )
-            o>CoMod 'CoUnitGenerated @ ri )
-          o>Transf_ (Yoneda01_Generated_PolyIndexer ij)
-        : 'CoMod( View G ~> AtIndexOb Generated(J) @ _ ) )
-
-| Reflector_naturalIndexer :
-    forall (Yoneda00_F_ : obIndexer -> _ )
-      (Yoneda01_F_ : forall I : obIndexer, _) Yoneda01_F_Poly
-      (F_ : @obCoMod_indexed Yoneda00_F_ Yoneda01_F_ Yoneda01_F_Poly)
-      (Yoneda10_ff_ : forall (I : obIndexer),
-          forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )), _ )
-      (ff_ : forall (I : obIndexer),
-          forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-     'CoMod( View (Generating0 R) ~> AtIndexOb F_(I) @ (Yoneda10_ff_(I)(R)(i)) ))
-      (Yoneda01_F_Poly_functorIndexer : Yoneda10_functorIndexer Yoneda01_F_Poly)
-      (Yoneda10_ff_morphismReIndexer_morphismIndexer :
-         Yoneda10_morphismReIndexer_morphismIndexer Yoneda01_F_Poly Yoneda10_ff_),
-    forall (I J : obIndexer) (j : 'Indexer( I |- J )),
-    forall (G : obGenerator) Yoneda10_ii
-      (ii : 'CoMod( View G ~> AtIndexOb Generated(I) @ Yoneda10_ii )),
-      ( ( ii o>CoMod AtIndexMor [[ ff_ @ Yoneda01_F_Poly_functorIndexer ,
-                   Yoneda10_ff_morphismReIndexer_morphismIndexer ]]_(I) )
-          o>Transf_ (Yoneda01_F_Poly _ _ j) @ (AtIndexOb F_(J)) )
-        <~~ ( ( ii o>Transf_
-                   (Yoneda01_Generated_PolyIndexer j) @ (AtIndexOb Generated(J)) )
-              o>CoMod AtIndexMor [[ ff_ @ Yoneda01_F_Poly_functorIndexer ,
-                   Yoneda10_ff_morphismReIndexer_morphismIndexer ]]_(J)
-            : 'CoMod( View G ~> AtIndexOb F_(J) @ _ ) )
 
 where "gg0 <~~ gg" := (@convCoMod _ _ _ _ _ _ _ gg _ gg0)
 
@@ -1572,7 +1423,7 @@ with convCoMod_indexed (**memo: non-recursive **) :
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )), _ )
       (ff_ : forall (I : obIndexer),
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-      'CoMod( View (Generating0 R) ~> AtIndexOb F_(I) @ (Yoneda10_ff_(I)(R)(i)) ))
+      'CoMod( View_Generating0 R ~> AtIndexOb F_(I) @ (Yoneda10_ff_(I)(R)(i)) ))
       (Yoneda01_F_Poly_functorIndexer : Yoneda10_functorIndexer Yoneda01_F_Poly)
       (Yoneda10_ff_morphismReIndexer_morphismIndexer :
          Yoneda10_morphismReIndexer_morphismIndexer Yoneda01_F_Poly Yoneda10_ff_),
@@ -1580,7 +1431,7 @@ with convCoMod_indexed (**memo: non-recursive **) :
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )), _ )
       (ff0_ : forall (I : obIndexer),
           forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-    'CoMod( View (Generating0 R) ~> AtIndexOb F_(I) @ (Yoneda10_ff0_(I)(R)(i)) ))
+    'CoMod( View_Generating0 R ~> AtIndexOb F_(I) @ (Yoneda10_ff0_(I)(R)(i)) ))
       (Yoneda10_ff0_morphismReIndexer_morphismIndexer :
          Yoneda10_morphismReIndexer_morphismIndexer Yoneda01_F_Poly Yoneda10_ff0_),
       ( forall (I : obIndexer)
@@ -1604,107 +1455,6 @@ Scheme convCoMod_convCoMod_indexed_ind :=
 Combined Scheme convCoMod_convCoMod_indexed_mutind from
          convCoMod_convCoMod_indexed_ind, convCoMod_indexed_convCoMod_ind.
 
-Section SomeInstances.
-
-(** this lemma formulation is only for some PolyElement input .. no generalization
-, which would be derivable by using the finished cut-elimination lemma **)
-Lemma CoUnitGenerated_morphismReIndexer_morphismIndexer_PolyElement_ALT :
-  forall (I : obIndexer) (R : obReIndexer) (ri : 'Indexer( (ReIndexing0 R) |- I )),
-  forall (S : obReIndexer) (sr : 'ReIndexer( S |- R )),
-  forall (J : obIndexer) (ij : 'Indexer( I |- J )),
-  forall (G : obGenerator) (f : Yoneda00_View (Generating0 S) G),
-    ( PolyElement (AtIndexOb Generated(J))
-                  (sval (Yoneda01_Generated_PolyIndexer ij) G
-                        (sval (Yoneda10_CoUnitGenerated_form ri) G
-                   (sval (Yoneda10_ViewGenerating_PolyReIndexer_form sr) G f))) )
-      <~~ ( (PolyElement (View (Generating0 S)) f)
-            o>CoMod 'CoUnitGenerated
-                    @ ((ReIndexing1 sr o>Indexer ri) o>Indexer ij)
-          : 'CoMod( View G ~> AtIndexOb Generated(J) @ _ ) ) .
-Proof.
-  intros. eapply convCoMod_Trans; first by exact: CoUnitGenerated'PolyElement.
-  rewrite Yoneda10_CoUnitGenerated_form_morphismReIndexer_morphismIndexer.
-  exact: convCoMod_Refl.
-Qed.
-
-Hypothesis Hyp_convCoMod_Sym :
-  forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F),
-  forall Yoneda00_G Yoneda01_G (G : @obCoMod Yoneda00_G Yoneda01_G),
-  forall Yoneda10_gg (gg : 'CoMod( F ~> G @ Yoneda10_gg ) ),
-  forall Yoneda10_gg0 (gg0 : 'CoMod( F ~> G @ Yoneda10_gg0 ) ),
-    ( gg0 <~~ gg ) -> ( gg <~~ gg0 ).
-
-(** memo: the more-general (than [(PolyElement (View (Generating0 S)) f)] input)
-lemma which will be derivable by using the finished cut-elimination lemma **)
-Lemma CoUnitGenerated_morphismReIndexer_morphismIndexer_PolyElement :
-  forall (I : obIndexer) (R : obReIndexer) (ri : 'Indexer( (ReIndexing0 R) |- I )),
-  forall (S : obReIndexer) (sr : 'ReIndexer( S |- R )),
-  forall (J : obIndexer) (ij : 'Indexer( I |- J )),
-  forall (G : obGenerator) (f : Yoneda00_View (Generating0 S) G),
-    ( (PolyElement (View (Generating0 S)) f)
-        o>CoMod 'CoUnitGenerated
-                @ ((ReIndexing1 sr o>Indexer ri) o>Indexer ij) )
-      <~~ ( ( ( (PolyElement (View (Generating0 S)) f)
-                o>CoMod (PolyElement (View (Generating0 R)) (Generating1 sr)) )
-              o>CoMod 'CoUnitGenerated @ ri )
-            o>Transf_ (Yoneda01_Generated_PolyIndexer ij)
-          : 'CoMod( View G ~> AtIndexOb Generated(J) @ _ ) ) .
-Proof.
-  intros. eapply convCoMod_Trans.
-  - { eapply convCoMod_Trans;
-      first by eapply PolyTransf_cong, CoUnitGenerated_cong, PolyCoMod_PolyElement.
-      eapply convCoMod_Trans;
-        first by eapply PolyTransf_cong, CoUnitGenerated'PolyElement.
-      exact: PolyTransf_'PolyElement. }
-  - apply: Hyp_convCoMod_Sym.
-    { eapply convCoMod_Trans; first by exact: CoUnitGenerated'PolyElement.
-      rewrite Yoneda10_CoUnitGenerated_form_morphismReIndexer_morphismIndexer.
-      simpl. rewrite -polyGenerator_unitGenerator. exact: convCoMod_Refl. }
-Qed.
-
-(** memo: the more-general (than [(PolyElement (View (Generating0 S)) f)] input)
-lemma will be derivable by using the finished cut-elimination lemma **)
-Lemma Reflector_naturalIndexer_PolyElement :
-  forall (Yoneda00_F_ : obIndexer -> _)
-    (Yoneda01_F_ : forall I : obIndexer, _) Yoneda01_F_Poly
-    (F_ : @obCoMod_indexed Yoneda00_F_ Yoneda01_F_ Yoneda01_F_Poly)
-    (Yoneda10_ff_ : forall (I : obIndexer),
-        forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )), _ )
-    (ff_ : forall (I : obIndexer),
-        forall (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-      'CoMod( View (Generating0 R) ~> AtIndexOb F_(I) @ (Yoneda10_ff_ _ _ (i)) ))
-    (Yoneda01_F_Poly_functorIndexer : Yoneda10_functorIndexer Yoneda01_F_Poly)
-    (Yoneda10_ff_morphismReIndexer_morphismIndexer :
-       Yoneda10_morphismReIndexer_morphismIndexer Yoneda01_F_Poly Yoneda10_ff_),
-  forall (I J : obIndexer) (j : 'Indexer( I |- J )),
-  forall (G : obGenerator) (ii : Yoneda00_Generated(I) G),
-    ( ( (PolyElement (AtIndexOb Generated(I)) ii)
-          o>CoMod AtIndexMor [[ ff_ @ Yoneda01_F_Poly_functorIndexer ,
-                         Yoneda10_ff_morphismReIndexer_morphismIndexer ]]_ I )
-        o>Transf_ (Yoneda01_F_Poly _ _ j) @ (AtIndexOb F_(J)) )
-      <~~ ( ( (PolyElement (AtIndexOb Generated(I)) ii)
-        o>Transf_ (Yoneda01_Generated_PolyIndexer j) @ (AtIndexOb Generated(J)) )
-            o>CoMod AtIndexMor [[ ff_ @ Yoneda01_F_Poly_functorIndexer ,
-                           Yoneda10_ff_morphismReIndexer_morphismIndexer ]]_ J
-          : 'CoMod( View G ~> AtIndexOb F_(J) @ _ ) ).
-Proof.
-  intros. eapply convCoMod_Trans.
-  - { eapply convCoMod_Trans; first by eapply PolyCoMod_cong;
-      [exact: PolyTransf_'PolyElement | exact: convCoMod_Refl].
-      eapply convCoMod_Trans; first by exact: PolyCoMod_PolyElement.
-      simpl. rewrite
-      (Yoneda10_morphismReIndexer_morphismIndexer_to_Yoneda10_morphismIndexerOnly
-         Yoneda10_ff_morphismReIndexer_morphismIndexer). exact: convCoMod_Refl.
-    }
-  - apply: Hyp_convCoMod_Sym.
-    { eapply convCoMod_Trans;
-        first by eapply PolyTransf_cong, PolyCoMod_PolyElement.
-      simpl. rewrite -(proj2_sig (Yoneda10_ff_ _ _ _)).
-      exact: PolyTransf_'PolyElement.
-    }
-Qed.
-
-End SomeInstances.
 (** # #
 #+END_SRC
 
@@ -1746,17 +1496,9 @@ Proof.
   - (* PolyCoMod_cong *)  intros until 1. intros ff__eq .
     intros ? ff'_eq ? . move. intros f'.
     rewrite /Yoneda10_PolyCoMod /= . rewrite ff__eq ff'_eq. reflexivity.
-  - (* PolyTransf_cong *)  intros until 2. intros ff_eq . intros. move. intros a.
-    simpl. (* rewrite /Yoneda10_PolyTransf /= . *) rewrite ff_eq. reflexivity.
-  - (* CoUnitGenerated_cong *)  intros until 1. intros rr_eq .
-    intros. move. intros f.  simpl. rewrite rr_eq. reflexivity.
 
   (** ----- the constant (non-recursive) conversions which are used during the
   PolyTransf polymorphism elimination ----- **)
-  - (* PolyTransf_'PolyElement *) intros. move. intros g. simpl.
-    rewrite [RHS](proj2_sig transf). 
-    rewrite [in RHS](proj2_sig Yoneda10_ff). simpl.
-    rewrite -[in RHS]unitGenerator_polyGenerator. reflexivity.
   
   (** ----- the constant conversions which are used during the PolyCoMod
   polymorphism elimination ----- **)
@@ -1764,19 +1506,17 @@ Proof.
     intros. move. intros j. simpl. reflexivity.
   - (* PolyCoMod'UnitCoMod *) intros. move. intros f. simpl.  reflexivity.
   - (* PolyCoMod_UnitCoMod *) intros. move. intros f. simpl.  reflexivity.
-  - (* PolyCoMod_PolyElement *) intros. move. intros g. simpl.
-    symmetry. exact: (proj2_sig Yoneda10_ff).
-  - (* CoUnitGenerated_morphism *) intros. move. intros e. simpl. reflexivity.
+  - (* View_Generating1_morphism *) intros; move; simpl; intros.
+    rewrite [in RHS]Generating_morphism. symmetry. exact: polyGenerator_morphism.
+  - (* CoUnitGenerated_morphism *) intros. move. intros e. simpl.
+    rewrite -[in LHS]polyIndexer_unitIndexer. rewrite -[in RHS]polyIndexer_unitIndexer.
+    exact: Yoneda00_Generated_quotient.
   - (* Reflector_morphism *) intros. move. intros jj. simpl. reflexivity.
   - (* Reflector_CoUnitGenerated *) intros. move. intros e. simpl.
     rewrite -[in LHS]polyIndexer_unitIndexer . reflexivity.
 
   (** ----- the constant conversions which are only for the wanted sense of
   generated-functor-along-reindexing grammar ----- **)
-  - (* UnitCoModView_'PolyElement *)
-    intros. move. intros g. simpl. exact: unitGenerator_polyGenerator.
-  - (* CoUnitGenerated'PolyElement  *)
-    intros. move. intros g. simpl. reflexivity.
   - (* Reflector'CoUnitGenerated *)
     intros. move. intros i. simpl. rewrite -[in LHS]polyIndexer_unitIndexer.
     destruct i as [ [? ?] ?]; reflexivity.
@@ -1785,23 +1525,6 @@ Proof.
   by using the finished cut-elimination lemma ----- **)
   (**  - (* PolyCoMod_morphism *) intros. move. intros f.
     reflexivity (* associativity of function composition *). **)
-  - (* ViewView_'PolyElement *)
-    intros. move. intros g. simpl.
-    rewrite [g in LHS]unitGenerator_polyGenerator.
-    rewrite -[in LHS](proj2_sig Yoneda01_ff). simpl. reflexivity.
-  - (* PolyTransf_morphism *)  intros. move. intros g. reflexivity.
-  - (* PolyTransf_morphismPolyTransf *) intros. move. intros g. reflexivity.
-  - (* View_'PolyElement *)
-    intros. move. intros g. simpl. rewrite [g in LHS]unitGenerator_polyGenerator.
-    rewrite -[in LHS](proj2_sig Yoneda01_ff). simpl. reflexivity.
-  - (* CoUnitGenerated_morphismReIndexer_morphismIndexer *)
-    intros. move. intros g. simpl.
-    rewrite [RHS]Yoneda10_CoUnitGenerated_form_morphismReIndexer_morphismIndexer.
-    simpl. reflexivity.
-  - (* Reflector_naturalIndexer *)
-    intros. move. intros g. simpl. exact:
-   (Yoneda10_morphismReIndexer_morphismIndexer_to_Yoneda10_morphismIndexerOnly
-      Yoneda10_ff_morphismReIndexer_morphismIndexer).
 
   (**  ----- the congruences conversions for indexed morphisms -----  **)
   - (* MorCoMod_indexed_cong *) intros until 1. intros Heq. exact: Heq. 
@@ -1842,14 +1565,12 @@ Proof.
     exact: (S IHff_).
   - (* PolyCoMod *) intros ? ? F ? ? F' ? ff' IHff' ? ? F'' ? ff_ IHff_ .
     exact: ( 2 * (S (IHff' + IHff_)%coq_nat ) )%coq_nat .
-  - (* PolyTransf *) intros ? ?  F ? ? G transf A ? ff IHff .
-    exact: (S IHff).
   - (* UnitCoMod *) intros ? ? F .
     exact: (S ( (* gradeOb F = *) O )).
-  - (* PolyElement *) intros ? ? F ? f .
+  - (* View_Generating1 *) intros ? ? r.
     exact: (S ( O (* = grade? *) )).
-  - (* CoUnitGenerated *) intros ? ? ? ? ? ? ? rr IHrr.
-    exact: (S (S IHrr)).
+  - (* CoUnitGenerated *) intros ? ? i.
+    exact: (S (S O)).
   - (* MorCoMod_indexed *) intros ? ? ? ? ? ? ? ? ? ff_ IHff_ .
     exact: (S (max (IHff_ ObIndexer1) (IHff_ ObIndexer2) )).
   - (* Reflector *) intros ? ? ? F_ ? ff_ IHff_ ? ? .
@@ -1882,30 +1603,20 @@ Lemma grade_mut_PolyCoMod :
       Yoneda10_ff_ (ff_ : 'CoMod( F'' ~> F' @ Yoneda10_ff_ )),
   grade (ff_ o>CoMod ff') = ( 2 * (S (grade ff' + grade ff_)%coq_nat ) )%coq_nat.
 Proof. reflexivity. Qed.
-
-Lemma grade_mut_PolyTransf :
-  forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-    Yoneda00_G Yoneda01_G (G : @obCoMod Yoneda00_G Yoneda01_G) transf,
-    forall (A : obGenerator) Yoneda10_ff (ff : 'CoMod( View A ~> F @ Yoneda10_ff )),
-      grade (ff o>Transf_ transf @ G) = (S (grade ff) )%coq_nat .
-Proof. reflexivity. Qed.
     
 Lemma grade_mut_UnitCoMod :
   forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F),
     grade (@'UnitCoMod F) = (S (O) )%coq_nat .
 Proof. reflexivity. Qed.
 
-Lemma grade_mut_PolyElement :
-  forall Yoneda00_F Yoneda01_F (F: @obCoMod Yoneda00_F Yoneda01_F)
-         (G : obGenerator) (f : Yoneda00_F G),
-    grade (PolyElement F f) = (S (O) )%coq_nat .
+Lemma grade_mut_View_Generating1 :
+  forall (R R' : obReIndexer) (r : 'ReIndexer( R' |- R )),
+    grade ('View_Generating1 r) = (S O)%coq_nat .
 Proof. reflexivity. Qed.
    
 Lemma grade_mut_CoUnitGenerated :
  forall (I : obIndexer) (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
- forall Yoneda00_F Yoneda01_F (F : @obCoMod Yoneda00_F Yoneda01_F)
-        Yoneda10_rr (rr : 'CoMod( F ~> View (Generating0 R) @ Yoneda10_rr )),
-    grade (rr o>CoMod 'CoUnitGenerated @ i) = (S (S (grade rr) ))%coq_nat .
+    grade ( 'CoUnitGenerated @ i ) = (S (S O) )%coq_nat .
 Proof. reflexivity. Qed.
    
 Lemma grade_mut_MorCoMod_indexed :
@@ -1924,7 +1635,7 @@ Lemma grade_mut_Reflector :
     (F_ : @obCoMod_indexed Yoneda00_F_ Yoneda01_F_ Yoneda01_F_Poly) Yoneda10_ff_
     (ff_ : (forall (I : obIndexer)
               (R : obReIndexer) (i : 'Indexer( ReIndexing0 R |- I )),
-         'CoMod( View (Generating0 R) ~> AtIndexOb F_ I @ Yoneda10_ff_ I R i ))),
+         'CoMod( View_Generating0 R ~> AtIndexOb F_ I @ Yoneda10_ff_ I R i ))),
   forall (Yoneda01_F_Poly_functorIndexer : Yoneda10_functorIndexer Yoneda01_F_Poly)
     (Yoneda10_ff_morphismReIndexer_morphismIndexer :
        Yoneda10_morphismReIndexer_morphismIndexer Yoneda01_F_Poly Yoneda10_ff_),
@@ -1938,8 +1649,8 @@ Lemma grade_mut_Reflector :
 Proof. reflexivity. Qed.
 
 Definition grade_rewrite :=
-  (grade_mut_AtIndexMor, grade_mut_PolyCoMod, grade_mut_PolyTransf,
-   grade_mut_UnitCoMod, grade_mut_PolyElement, grade_mut_CoUnitGenerated,
+  (grade_mut_AtIndexMor, grade_mut_PolyCoMod,
+   grade_mut_UnitCoMod, grade_mut_View_Generating1, grade_mut_CoUnitGenerated,
    grade_mut_MorCoMod_indexed, grade_mut_Reflector).
 
 Ltac tac_indexed_all :=
@@ -2172,12 +1883,9 @@ case : len => [ | len ].
   | Yoneda00_F Yoneda01_F F Yoneda00_F' Yoneda01_F' F'
                Yoneda10_ff' ff' Yoneda00_F'' Yoneda01_F'' F''
                Yoneda10_ff_ ff_  (** ff_ o>CoMod ff' **)
-  | Yoneda00_E Yoneda01_E E Yoneda00_F Yoneda01_F F
-               transf A Yoneda10_ff ff (** ff o>Transf_ transf @ F **)
   | Yoneda00_F Yoneda01_F F (** @'UnitCoMod F **)
-  | Yoneda00_F Yoneda01_F F A f (** PolyElement F f **)
-  | I R i Yoneda00_F Yoneda01_F F Yoneda10_rr rr
-      (** rr o>CoMod 'CoUnitGenerated @ i **)
+  | R R' r (** 'View_Generating1 r **)
+  | I R i (** 'CoUnitGenerated @ i **)
   ] grade_ff .
 
   (** ff is AtIndexMor ff_ I **)
@@ -2194,30 +1902,17 @@ case : len => [ | len ].
   (** ff is ff_ o>CoMod ff' *)
   + all: cycle 1.
 
-  (** ff is ff o>Transf_ transf @ G **)
-  + unshelve eexists. eexists.
-    refine ( 'PolyElement F (proj1_sig transf _
-                                  (sval Yoneda10_ff _ (@unitGenerator _))) )%sol.
-    clear; abstract exact: PolyTransf_'PolyElement.
-
   (** gg is @'UnitCoMod F **)
   + unshelve eexists. eexists. refine (@'UnitCoMod F)%sol.
     clear; abstract exact: convCoMod_Refl.
 
-  (** gg is PolyYoneda00 F f **)
-  + unshelve eexists. eexists. refine ('PolyElement F f)%sol.
+  (** gg is 'View_Generating1 r **)
+  + unshelve eexists. eexists. refine ( 'View_Generating1 r)%sol.
     clear; abstract exact: convCoMod_Refl.
 
-  (** ff is rr o>CoMod 'CoUnitGenerated @ i **)
-  + have [:blurb] rrSol_prop :=
-      (proj2_sig (solveCoMod len _ _ _ _ _ _ _ rr blurb));
-        first by clear -grade_ff; abstract tac_degrade_mut grade_ff.
-    move: (projT1 (sval (solveCoMod len _ _ _ _ _ _ _ rr blurb)))
-            (projT2 (sval (solveCoMod len _ _ _ _ _ _ _ rr blurb))) rrSol_prop 
-    => Yoneda10_rrSol rrSol rrSol_prop .
-
-    unshelve eexists. eexists. refine ( rrSol o>CoMod 'CoUnitGenerated @ i )%sol.
-    move: rrSol_prop; clear; abstract tac_reduce.
+  (** ff is 'CoUnitGenerated @ i **)
+  + unshelve eexists. eexists. refine ( 'CoUnitGenerated @ i )%sol.
+    clear; abstract exact: convCoMod_Refl.
 
   (** ff is ff_ o>CoMod ff' *)
   + have [:blurb] ff'Sol_prop :=
@@ -2239,9 +1934,8 @@ case : len => [ | len ].
                       Yoneda00_F_ Yoneda01_F_ Yoneda01_F_Poly F_
                       Yoneda10_ff'Sol_ ff'Sol_ I (** AtIndexMor ff'Sol_ I **)
         | Yoneda00_F Yoneda01_F F (** @'UnitCoMod F **)
-        | Yoneda00_F Yoneda01_F F A f (** PolyElement F f **)
-        | I R i Yoneda00_F Yoneda01_F F Yoneda10_rr rrSol
-            (** rrSol o>CoMod 'CoUnitGenerated @ i **) ].
+        | R R' r (**  'View_Generating1 r **)
+        | I R i (** 'CoUnitGenerated @ i **) ].
 
     (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol) , 
         is (ff_Sol o>CoMod (AtIndexMor ff'Sol_ I) ) **)
@@ -2282,9 +1976,8 @@ case : len => [ | len ].
           => ff_Sol_codomAtIndexObGeneratedP.
           { destruct ff_Sol_codomAtIndexObGeneratedP as
                 [ J (** ( @'UnitCoMod (AtIndexOb Generated J) ) **)
-                | J G f (** (PolyElement (AtIndexOb Generated J) f ) **)
-                | J R j Yoneda00_F Yoneda01_F F Yoneda10_rrSol rrSol
-                (** rrSol o>CoMod 'CoUnitGenerated @ j **)
+                | J R j
+                (** 'CoUnitGenerated @ j **)
                 | Yoneda00_E_ Yoneda01_E_ Yoneda01_Poly E_
                               Yoneda10_ggSol_ ggSol_ J
                 (** AtIndeMor (MorCoMod_indexed ggSol_) **)
@@ -2305,38 +1998,12 @@ case : len => [ | len ].
         Yoneda10_ffSol_morphismReIndexer_morphismIndexer ]]_ J)%sol)); tac_reduce).
               
             (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , is 
-((PolyElement (AtIndexOb Generated J) f ) o>CoMod (AtIndexMor [[ ffSol_ ]]_ J) ) **)
-            - unshelve eexists. eexists.
-              refine ('PolyElement (AtIndexOb F_(J))
-               (sval (Yoneda10_ffSol_ _ _ (projT2 (projT1 f))) G (projT2 f)))%sol.
+( 'CoUnitGenerated @ j ) o>CoMod (AtIndexMor [[ ffSol_ ]]_ J) **)
+            - unshelve eexists. eexists. refine ( (ffSol_(J)(R)(j)) )%sol.
               move: ff_Sol_prop ff'Sol_prop; clear;
               abstract (rewrite ?Sol.toPolyMor_mut_rewrite; intros;
-               eapply convCoMod_Trans with
-               (uTrans := ('PolyElement (AtIndexOb Generated J) f)
-                            o>CoMod (Sol.toPolyMor ('AtIndexMor [[ ffSol_
-                            @ Yoneda01_F_Poly_functorIndexer,
-                    Yoneda10_ffSol_morphismReIndexer_morphismIndexer ]]_ J)%sol));
-               rewrite ?Sol.toPolyMor_mut_rewrite; by eauto).       
-
-            (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , is 
-(rrSol o>CoMod 'CoUnitGenerated @ j) o>CoMod (AtIndexMor [[ ffSol_ ]]_ J) **)
-            - have [:blurb] rrSol_o_ffSol_prop :=
-                (proj2_sig (solveCoMod len _ _ _ _ _ _ _
-           (Sol.toPolyMor rrSol o>CoMod Sol.toPolyMor (ffSol_(J)(R)(j))) blurb));
-                  first by clear -grade_ff ff_Sol_prop ff'Sol_prop;
-                  abstract(destruct (is_ObIndexer12_allP J);
-                   destruct (is_MorIndexer12_allP j); tac_degrade_mut grade_ff).
-              move: (projT1 (sval (solveCoMod len _ _ _ _ _ _ _
-           (Sol.toPolyMor rrSol o>CoMod Sol.toPolyMor (ffSol_(J)(R)(j))) blurb)))
-                      (projT2 (sval (solveCoMod len _ _ _ _ _ _ _
-            (Sol.toPolyMor rrSol o>CoMod Sol.toPolyMor (ffSol_(J)(R)(j))) blurb)))
-   rrSol_o_ffSol_prop => Yoneda10_rrSol_o_ffSol rrSol_o_ffSol rrSol_o_ffSol_prop.
-
-              unshelve eexists. eexists. refine ( rrSol_o_ffSol )%sol.
-              move: ff_Sol_prop ff'Sol_prop rrSol_o_ffSol_prop; clear;
-              abstract (rewrite ?Sol.toPolyMor_mut_rewrite; intros;
                         eapply convCoMod_Trans with
-                  (uTrans := ((Sol.toPolyMor rrSol) o>CoMod 'CoUnitGenerated @ j)
+                  (uTrans := ( 'CoUnitGenerated @ j )
    o>CoMod (Sol.toPolyMor ('AtIndexMor [[ ffSol_ @ Yoneda01_F_Poly_functorIndexer,
                   Yoneda10_ffSol_morphismReIndexer_morphismIndexer ]]_ J)%sol));
                         rewrite ?Sol.toPolyMor_mut_rewrite; by eauto).       
@@ -2389,7 +2056,7 @@ case : len => [ | len ].
                      Yoneda10_ffSol_morphismReIndexer_morphismIndexer ]]_ %sol))
                      (I0)) (blurb_ I0 R0 i0))))).
               have @ggSol_o_ffSol_ : forall I0 R0 i0,
-                  'CoMod( View (Generating0 R0) ~> AtIndexOb F_ I0
+                  'CoMod( View_Generating0 R0 ~> AtIndexOb F_ I0
                                @ Yoneda10_ggSol_o_ffSol_ I0 R0 i0 )%sol
                 := (fun I0 R0 (i0 : 'Indexer( ReIndexing0 R0 |- I0 )) =>
                       (projT2 (sval (solveCoMod len _ _ _ _ _ _ _
@@ -2461,44 +2128,44 @@ is (ff_Sol o>CoMod (@'UnitCoMod F)) **)
                                 (uTrans := ff_ o>CoMod ('UnitCoMod)); tac_reduce).
 
     (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is (ff_Sol o>CoMod (PolyElement F f)) **)
+is (ff_Sol o>CoMod ('View_Generating1 r)) **)
     * move:
-        (Sol.Destruct_codomView.morCoMod_codomViewP ff_Sol) => ff_Sol_codomViewP.
-      { destruct ff_Sol_codomViewP as
-            [ G (** @'UnitCoMod (View G) **)
-            | G G' g (** PolyElement (View G) g **) ].
+        (Sol.Destruct_codomViewGenerating.morCoMod_codomViewGeneratingP ff_Sol) => ff_Sol_codomViewGeneratingP.
+      { destruct ff_Sol_codomViewGeneratingP as
+            [ _R (** @'UnitCoMod (View_Generating0 _R) **)
+            | _R R' _r (** 'View_Generating1 _r **) ].
         
-        - unshelve eexists. eexists. refine ('PolyElement F f)%sol.
+        - unshelve eexists. eexists. refine ( 'View_Generating1 r )%sol.
           move: ff_Sol_prop ff'Sol_prop; clear;
           abstract (tac_simpl; intros; eapply convCoMod_Trans with
-                (uTrans := ('UnitCoMod) o>CoMod ('PolyElement F f)); tac_reduce).
+                (uTrans := ('UnitCoMod) o>CoMod ( 'View_Generating1 r )); tac_reduce).
           
         - unshelve eexists. eexists.
-          refine ('PolyElement F (proj1_sig Yoneda01_F G G' g f) )%sol.
+          refine ( 'View_Generating1 ( _r o>ReIndexer r ) )%sol.
           move: ff_Sol_prop ff'Sol_prop; clear;
           abstract (tac_simpl; intros; eapply convCoMod_Trans with
-   (uTrans := ('PolyElement (View G) g) o>CoMod ('PolyElement F f)); tac_reduce).
+   (uTrans := ('View_Generating1 _r) o>CoMod ('View_Generating1 r)); tac_reduce).
       } 
 
     (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is (ff_Sol o>CoMod (rrSol o>CoMod 'CoUnitGenerated @ i)) **)
-    * have [:blurb] ff_Sol_o_rrSol_prop :=
-        (proj2_sig (solveCoMod len _ _ _ _ _ _ _
-                   (Sol.toPolyMor ff_Sol o>CoMod Sol.toPolyMor rrSol) blurb));
-          first by clear -grade_ff ff_Sol_prop ff'Sol_prop;
-          abstract tac_degrade_mut grade_ff.
-      move: (projT1 (sval (solveCoMod len _ _ _ _ _ _ _
-                 (Sol.toPolyMor ff_Sol o>CoMod Sol.toPolyMor rrSol) blurb)))
-              (projT2 (sval (solveCoMod len _ _ _ _ _ _ _
-  (Sol.toPolyMor ff_Sol o>CoMod Sol.toPolyMor rrSol) blurb))) ff_Sol_o_rrSol_prop 
-      => Yoneda10_ff_Sol_o_rrSol ff_Sol_o_rrSol ff_Sol_o_rrSol_prop .
-
-      unshelve eexists. eexists.
-      refine ( ff_Sol_o_rrSol o>CoMod 'CoUnitGenerated @ i )%sol.
-      move: ff_Sol_prop ff'Sol_prop ff_Sol_o_rrSol_prop; clear;
-      abstract (tac_simpl; intros; eapply convCoMod_Trans with
-         (uTrans := (Sol.toPolyMor ff_Sol) o>CoMod
-            ((Sol.toPolyMor rrSol) o>CoMod 'CoUnitGenerated @ i)); tac_reduce).
+is (ff_Sol o>CoMod ( 'CoUnitGenerated @ i )) **)
+    * move:
+        (Sol.Destruct_codomViewGenerating.morCoMod_codomViewGeneratingP ff_Sol) => ff_Sol_codomViewGeneratingP.
+      { destruct ff_Sol_codomViewGeneratingP as
+            [ R (** @'UnitCoMod (View_Generating0 R) **)
+            | R R' r (** 'View_Generating1 r **) ].
+        
+        - unshelve eexists. eexists. refine ( 'CoUnitGenerated @ i )%sol.
+          move: ff_Sol_prop ff'Sol_prop; clear;
+          abstract (tac_simpl; intros; eapply convCoMod_Trans with
+                (uTrans := ('UnitCoMod) o>CoMod ( 'CoUnitGenerated @ i )); tac_reduce).
+          
+        - unshelve eexists. eexists.
+          refine ( 'CoUnitGenerated @ ( (ReIndexing1 r) o>Indexer i ) )%sol.
+          move: ff_Sol_prop ff'Sol_prop; clear;
+          abstract (tac_simpl; intros; eapply convCoMod_Trans with
+   (uTrans := ( 'View_Generating1 r ) o>CoMod ( 'CoUnitGenerated @ i )); tac_reduce).
+      } 
 }
 { (** solveCoMod_indexed **)
 clear solveCoMod_indexed. (**memo: non-recursive **)
@@ -2546,7 +2213,7 @@ case : len => [ | len ].
     have @Yoneda10_ffSol_ := (fun I R i =>
      projT1 (sval (solveCoMod len _ _ _ _ _ _ _ (ff_(I)(R)(i)) (blurb_ I R i)))).
     have @ffSol_ : (forall I R i,
-   'CoMod( View (Generating0 R) ~> AtIndexOb F_ I @ Yoneda10_ffSol_ I R i ) %sol)
+   'CoMod( View_Generating0 R ~> AtIndexOb F_ I @ Yoneda10_ffSol_ I R i ) %sol)
       := (fun I R i => projT2 (sval (solveCoMod len _ _ _ _ _ _ _
                                              (ff_(I)(R)(i)) (blurb_ I R i)))) .
     have {ffSol_prop}: (forall I R i,
