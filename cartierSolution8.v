@@ -92,7 +92,7 @@ MEMO :: 1337777.OOO ends to discover-engineer-and-teach 计算鸡-COQ polymorph 
 
 -----
 
-BUY MOM RECURSIVE T-SQUARE :: paypal.me/1337777 1337777.OOO@gmail.com ; 微信支付 2796386464@qq.com ; eth 0x54810dcb93b37DBE874694407f78959Fa222D920 ; irc #OOO1337777
+BUY MOM RECURSIVE T-SQUARE :: paypal.me/1337777 1337777.OOO@gmail.com ; 微信支付 2796386464@qq.com ; irc #OOO1337777
 
 -----
 
