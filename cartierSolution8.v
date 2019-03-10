@@ -14,7 +14,7 @@ SHORT ::
 
   The ends is to start with some given viewing-data on some generator-morphology and then to modify the default-colimiting which says that « each functor is the sum/colimit of its elements ; which is that the (outer) indexings/cocones of the elements of some target functor over all the elements of some source functor correspond with the (inner) transformations from this source functor into this target functor » . In other words : any outer indexing ( X ; (s : S X) |- T X ) corresponds with some inner transformation (   |- (S ~> T) ) . But where are those modified-colimits ? Oneself could get them as metafunctors over this generator-morphology , as long as oneself grammatically-distinguishes whatever-is-interesting . 
 
-  The modified-colimiting presents this « copairing » even when any such indexing ( « real polymorph-cocones » ) is over only some viewing-elements of this source « viewing-functor » ( "local epimorphism" ) ( which assumes some finiteness properties such as finite-compactness or finite-dimensionality or finite-generated  ) , as long as the corresponding transformation is into the (tautologically extended) « viewed-functor » ( "sheafification") of this target functor ; and does such coherently/continuously for the viewing-data/topology sense-decodings .
+  The modified-colimiting presents this « summing/colimiting/copairing » even when any such indexing ( « real polymorph-cocones » ) is over only some viewing-elements of this source « grammatical viewing-functor » ( "local epimorphism" ) ( which assumes some finiteness properties such as finite-compact or finite-dimensional or finite-generated  ) , as long as the corresponding transformation is into the (tautologically extended) « viewed-functor » ( "sheafification") of this target functor ; and does such coherently/continuously for the viewing-data/topology sense-decodings .
 
    Memo that when the target functor is already viewed-functor ( "sheaf" ) then this modified-colimiting becomes the default-colimiting ; in other words it is valid to move from-to :
 
@@ -30,20 +30,20 @@ SHORT ::
 
   « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics . It shows the interdependence of computational-logic along geometry : sensible "soundness" lemma , cut-elimination , confluence lemma , sense-completeness lemma ( in presheaves whose combinatorics mimick "links"/"proof-net" ) , maximality lemma , asymptotics of randomness , DOSEN book ... ; generated-functors ( "Diaconescu lemma" ) , equalizer completion ,  image ( "regular" ) completion , essential geometric-morphisms ( "Cauchy completion" ) , BORCEUX book 1-2-3 ...
 
-  For instant first impression , the conversion-relation constructor which says that the polyelement (injection) morphism laxly-cancels the polytransf (copairing) morphism , is written as :
+  For instant first impression , the conversion/computation-relation constructor which says that the polyelement (injection) morphism laxly-cancels the polytransf (summing/colimiting/copairing) morphism , is written as :
 
 #+BEGIN_EXAMPLE
 | PolyTransf_PolyElement : (* ... *)
- forall G f H (v : 'Generator( H ~> G | (V_ G f) )),
+ forall G f H (v : 'Generator( H ~> G | (Viewing_F G f) )),
  ( (ee_(G)(f)(H)(v)) o>CoMod 'UnitViewedFunctor )
-   <~~ ( ( 'PolyElement F v
-           : 'CoMod( View H ~> ViewingFunctor F V_ @ _ ) )
-         o>CoMod ( [[ ee_ @ F, V_data , V_transp, Yoneda10_ee_natural,
-                            Yoneda10_ee_morphism, Yoneda10_ee_real ]]
-                   : 'CoMod( _ ~> ViewedFunctor (ViewingFunctor E U_) @ _ ) ) )
+   <~~ ( ( ( 'PolyElement v @ isFiniteness_F )
+           : 'CoMod( View H ~> ViewingFunctor isFiniteness_F @ _ @~ _ ) )
+         o>CoMod ( [[ ee_ @ isFiniteness_F , Yoneda10_ee_natural ,
+                            Yoneda10_ee_morphism , Yoneda10_ee_real ]]
+                   : 'CoMod( _ ~> ViewedFunctor E @ _ @~ _ ) ) )
 #+END_EXAMPLE
 
-KEYWORDS :: 1337777.OOO ; COQ ; MODOS
+KEYWORDS :: OOO1337777 ; COQ ; MODOS
 
 OUTLINE ::
 
@@ -56,6 +56,7 @@ OUTLINE ::
 
   * Grammatical presentation of objects
     + Sense-decodings of the objects
+    + Finiteness of the viewing-elements of some viewing-functor
     + Grammar of the objects , which carry the sense-decodings
 
   * Grammatical presentation of morphisms
@@ -66,7 +67,6 @@ OUTLINE ::
   * Grammatical conversions of morphisms , which infer the same sense-decoding
     + Grammatical conversions of morphisms
     + Same sense-decoding for convertible morphisms
-    + Finiteness of the viewing-elements of some viewing-functor
     + Linear total/asymptotic grade and the degradation lemma
 
   * Solution morphisms
@@ -607,7 +607,7 @@ End innerViewing.
 
   Therefore oneself tautologically defines « viewed-functor » ( "sheaf" ) of some functor as all the cocones over any viewing into this functor . As is common , two cocones over viewings are the same [Yoneda00_ViewedFunctor_quotient] if they coincide on some smaller viewing .
 
-  TODO: ERRATA: The grammatical colimiting/sum/sigma/viewing-functor-object constructor [ViewingFunctor] shall assume some finiteness properties ( such as finite-compactness or finite-dimensionality or finite-generated ) onto the viewing-data/topology sense-decodings which they internalize . The required finiteness properties by the cut-elimination lemma are really only used for [ViewingFunctor] .
+  TODO: ERRATA: The grammatical colimiting/sum/sigma/viewing-functor-object constructor [ViewingFunctor] shall assume some finiteness properties ( such as finite-compact or finite-dimensional or finite-generated ) onto the viewing-data/topology sense-decodings which they internalize . The required finiteness properties by the cut-elimination lemma are really only used for [ViewingFunctor] .
 
 #+BEGIN_SRC coq :exports both :results silent # # **)
 Notation "''exists' x ..." := (exist _ x _)
@@ -829,8 +829,66 @@ Proof.
 Defined.
 End Viewing_ViewedFunctor.
 End Senses_viewingTopology.
-
 End Senses_obCoMod.
+(** # #
+#+END_SRC
+
+** Finiteness of the viewing-elements of some viewing-functor
+
+  The grammatical colimiting/sum/sigma/viewing-functor-objects [ViewingFunctor] assume some finiteness properties ( such as finite-compact or finite-dimensional or finite-generated ) onto the viewing-data/topology sense-decodings which they internalize . And these viewing-functor-objects are similar as generators ( representable-functors ) but to be used for functors which are already viewed-functors ( "sheaf" ) .
+
+  To facilitate the COQ automatic-arithmetic during the degradation lemma , here oneself shall assume that the cardinality is fixed-the-same ( here 2 ) for each of the viewing-functor which is grammatically internalized .
+
+#+BEGIN_SRC coq :exports both :results silent # # **)
+Module Finiteness.
+
+Parameter isFiniteness_ : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
+  (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
+  (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F), Prop.
+
+Parameter (G1 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+                 (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+       (isFiniteness_F : isFiniteness_ Viewing_data_F Viewing_transp_F),  obGenerator) .
+Parameter (f1 : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+   (isFiniteness_F : isFiniteness_ Viewing_data_F Viewing_transp_F),
+                   Yoneda00_F (G1 isFiniteness_F)).
+Parameter (H1 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+  (isFiniteness_F : isFiniteness_ Viewing_data_F Viewing_transp_F),  obGenerator).
+Parameter (v1 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+                 (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+(isFiniteness_F : isFiniteness_ Viewing_data_F Viewing_transp_F),                 
+              'Generator( (H1 isFiniteness_F) ~> (G1 isFiniteness_F) | (@Viewing_F (G1 isFiniteness_F ) (f1 isFiniteness_F )) )).
+
+Parameter (G2 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+                 (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+       (isFiniteness_F : isFiniteness_ Viewing_data_F Viewing_transp_F),  obGenerator) .
+Parameter (f2 : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+   (isFiniteness_F : isFiniteness_ Viewing_data_F Viewing_transp_F),
+                   Yoneda00_F (G2 isFiniteness_F)).
+Parameter (H2 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+  (isFiniteness_F : isFiniteness_ Viewing_data_F Viewing_transp_F),  obGenerator).
+Parameter (v2 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+                 (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+(isFiniteness_F : isFiniteness_ Viewing_data_F Viewing_transp_F),                 
+              'Generator( (H2 isFiniteness_F) ~> (G2 isFiniteness_F) | (@Viewing_F (G2 isFiniteness_F ) (f2 isFiniteness_F )) )).
+
+Section Section1.
+Variables (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
+          (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+(isFiniteness_F : isFiniteness_ Viewing_data_F Viewing_transp_F) .
+
+Inductive is_viewingFunctorElement12 : forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (@Viewing_F G f) )), Type :=
+| Is_viewingFunctorElement12_viewingFunctorElement1 : is_viewingFunctorElement12 (v1 isFiniteness_F)
+| Is_viewingFunctorElement12_viewingFunctorElement2 : is_viewingFunctorElement12 (v2 isFiniteness_F) .
+
+Axiom is_viewingFunctorElement12_allP :  forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (@Viewing_F G f) )), is_viewingFunctorElement12 v.
+End Section1. 
+End Finiteness.
 (** # #
 #+END_SRC
 
@@ -854,7 +912,7 @@ Inductive obCoMod : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yone
                      (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
                      (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
                      (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
-    (** forall (isFiniteness_F : Finiteness.isFiniteness_ Yoneda01_F), **)
+    forall (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     @obCoMod Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F
 
 | ViewedFunctor : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
@@ -2101,7 +2159,6 @@ End Senses_morCoMod.
   Lastly , memo that the viewings-data or polymorph-viewings-transport logical-conditions are carried only by the two constructors [PolyTransf] and [PolyTransf_default] , and are not carried by the other constructors .
 
 #+BEGIN_SRC coq :exports both :results silent # # **)
-
 Reserved Notation "''CoMod' (  F'  ~>  F  @  Yoneda10_ff  @~  viewingContinuous_ff  )" (at level 0).
 
 Inductive morCoMod : forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F
@@ -2145,15 +2202,17 @@ Inductive morCoMod : forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewi
 | PolyElement : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
                  (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                 (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (Viewing_F G f) )),
-      'CoMod( View H ~> ViewingFunctor Viewing_data_F Viewing_transp_F
+      'CoMod( View H ~> ViewingFunctor isFiniteness_F
                    @ Yoneda10_PolyElement Yoneda01_F v @~ viewingContinuous_PolyElement Viewing_transp_F v )
 
 | PolyTransf : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
                  (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                 (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
       forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
         (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
       forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
@@ -2180,12 +2239,13 @@ Inductive morCoMod : forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewi
       forall (ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
             forall (H : obGenerator) (v : 'Generator( H ~> G | (Viewing_F G f) )),
           'CoMod( View H ~> E @ Yoneda10_ee_ G f H v @~ viewingContinuous_ee_ G f H v ) ),
-      'CoMod( ViewingFunctor Viewing_data_F Viewing_transp_F ~> ViewedFunctor E @ Yoneda10_PolyTransf Viewing_data_F Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real @~ viewingContinuous_PolyTransf Viewing_data_F viewingContinuous_ee_  Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real )
+      'CoMod( ViewingFunctor isFiniteness_F ~> ViewedFunctor E @ Yoneda10_PolyTransf Viewing_data_F Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real @~ viewingContinuous_PolyTransf Viewing_data_F viewingContinuous_ee_  Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real )
 
 | PolyTransf_default : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
                  (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                 (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
       (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
     forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
@@ -2216,16 +2276,17 @@ Inductive morCoMod : forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewi
             := (projT1 (sval (polyelement_to_element (Yoneda10_ee_ G f H v)))) in 
         forall (viewingDefault'_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
           (viewingDefault'_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (viewingDefault'_ G f))
-          (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_),
+          (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_)
+          (viewingDefault'_isFiniteness : Finiteness.isFiniteness_ viewingDefault'_data viewingDefault'_transp),
         forall (viewingDefault'_poly_transp : forall G f, transpViewing (viewingDefault'_ G f) (viewingDefault_ projT1_sval_Yoneda10_ee_ f)),
-          'CoMod( ViewingFunctor viewingDefault'_data viewingDefault'_transp ~> ViewedFunctor E
+          'CoMod( ViewingFunctor viewingDefault'_isFiniteness ~> ViewedFunctor E
                                  @ (Yoneda10_PolyTransf_default Viewing_data_F Yoneda10_ee_natural Yoneda10_ee_morphism  Yoneda10_ee_real)
                                  @~ viewingContinuous_PolyTransf_default Viewing_data_F Viewing_transp_E viewingContinuous_ee_  Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real viewingDefault'_poly_transp)
 
 where "''CoMod' (  F'  ~>  F  @  Yoneda10_ff  @~  viewingContinuous_ff  )" :=
         (@morCoMod _ _ _ _ _ F' _ _ _ _ _ F Yoneda10_ff viewingContinuous_ff) : poly_scope. 
 
-(*      forall (Yoneda10_ee_morphism : 
+(*MEMO: OLD:      forall (Yoneda10_ee_morphism : 
        forall (G G' : obGenerator) (g : 'Generator( G' ~> G )) (f : Yoneda00_F G),
          forall (H : obGenerator) (v' : 'Generator( H ~> G' | (V_ G' (g o>Generator_[sval Yoneda01_F] f)) )),
            polyelement_to_element (Yoneda10_ee_ G f H (fst (sval (sval (V_transp G G' g f) H v')))) =
@@ -2251,24 +2312,24 @@ Notation "''ViewedFunctor1' ee" := (@ViewedFunctor1 _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 Notation "ff o>CoMod 'UnitViewedFunctor" := (@UnitViewedFunctor _ _ _ _ _ _ _ _ _ _ _ _ _ _ ff)
                   (at level 4, right associativity) : poly_scope.
 
-Notation "''PolyElement'  v  @  Viewing_data_F , Viewing_transp_F" :=
-  (@PolyElement _ _ _ Viewing_data_F Viewing_transp_F _ _ _ v) (at level 10, v, Viewing_data_F , Viewing_transp_F  at next level) : poly_scope.
+Notation "''PolyElement'  v  @  isFiniteness_F" :=
+  (@PolyElement _ _ _ _ _ isFiniteness_F _ _ _ v) (at level 10, v, isFiniteness_F at next level) : poly_scope.
 
-Notation "[[  ee_  @  Viewing_data_F  ,  Viewing_transp_F  ,  Yoneda10_ee_natural  ,  Yoneda10_ee_morphism  ,  Yoneda10_ee_real  ]]" :=
-  (@PolyTransf _ _ _ Viewing_data_F Viewing_transp_F _ _ _ _ _ _ _ _ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real ee_ )
-    (at level 4, ee_ , Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural, Yoneda10_ee_morphism, Yoneda10_ee_real at next level ) : poly_scope.
+Notation "[[  ee_  @  isFiniteness_F  ,  Yoneda10_ee_natural  ,  Yoneda10_ee_morphism  ,  Yoneda10_ee_real  ]]" :=
+  (@PolyTransf _ _ _ _ _ isFiniteness_F _ _ _ _ _ _ _ _ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real ee_ )
+    (at level 4, ee_ , isFiniteness_F , Yoneda10_ee_natural, Yoneda10_ee_morphism, Yoneda10_ee_real at next level ) : poly_scope.
 
-Notation "[[  ee_  @  Yoneda01_F  ,  Viewing_F  ]]" :=
-  (@PolyTransf _ Yoneda01_F Viewing_F _ _ _ _ _ _ _ _ _ _ _ _ _ ee_ )
-    (at level 4, ee_ , Yoneda01_F , Viewing_F  at next level ) : poly_scope.
+Notation "[[  ee_  @  isFiniteness_F  ]]" :=
+  (@PolyTransf _ _ _ _ _ isFiniteness_F _ _ _ _ _ _ _ _ _ _ _ ee_ )
+    (at level 4, ee_ , isFiniteness_F at next level ) : poly_scope.
 
-Notation "[[[  ee_  @  Viewing_data_F  ,  Viewing_transp_F , Yoneda10_ee_natural  ,  Yoneda10_ee_morphism  ,  Yoneda10_ee_real  ,  viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp ]]]" :=
-  (@PolyTransf_default _ _ _ Viewing_data_F Viewing_transp_F _ _ _ _ _ _ _ _ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real ee_ _ viewingDefault'_data viewingDefault'_transp viewingDefault'_poly_transp)
-    (at level 4, ee_ , Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ,  viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp at next level ) : poly_scope.
+Notation "[[[  ee_  @  isFiniteness_F , Yoneda10_ee_natural  ,  Yoneda10_ee_morphism  ,  Yoneda10_ee_real  ,  viewingDefault'_isFiniteness , viewingDefault'_poly_transp ]]]" :=
+  (@PolyTransf_default _ _ _ _ _ isFiniteness_F _ _ _ _ _ _ _ _ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real ee_ _ _ _ viewingDefault'_isFiniteness viewingDefault'_poly_transp)
+    (at level 4, ee_ , isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_isFiniteness , viewingDefault'_poly_transp at next level ) : poly_scope.
 
-Notation "[[[  ee_  @  Yoneda01_F , Viewing_F ]]]" :=
-  (@PolyTransf_default _ Yoneda01_F Viewing_F _ _ _ _ _ _ _ _ _ _ _ _ _ ee_ _ _ _ _)
-    (at level 4, ee_ , Yoneda01_F , Viewing_F  at next level ) : poly_scope.
+Notation "[[[  ee_  @  isFiniteness_F ,  viewingDefault'_isFiniteness ]]]" :=
+  (@PolyTransf_default _ _ _ _ _ isFiniteness_F _ _ _ _ _ _ _ _ _ _ _ ee_ _ _ _ viewingDefault'_isFiniteness _)
+    (at level 4, ee_ , isFiniteness_F , viewingDefault'_isFiniteness at next level ) : poly_scope.
 (** # #
 #+END_SRC
 
@@ -2488,14 +2549,17 @@ Inductive convCoMod : forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E View
 
 (** grammatical conversions shall be sense-complete , therefore : **)
 | PolyElement_cong :
-    forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+    forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+      (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (Viewing_F G f) )),
     forall (G0 : obGenerator) (f0 : Yoneda00_F G0) (v0 : 'Generator( H ~> G0 | (Viewing_F G0 f0) )),
 
       ( ( v0 :>Generator ) o>Generator_[sval Yoneda01_F] f0 ) = ( ( v :>Generator ) o>Generator_[sval Yoneda01_F] f )
-      -> ( 'PolyElement v0 @  Viewing_data_F , Viewing_transp_F ) <~~ ( 'PolyElement v @ Viewing_data_F , Viewing_transp_F )
+      -> ( 'PolyElement v0 @ isFiniteness_F ) <~~ ( 'PolyElement v @ isFiniteness_F )
 
-| PolyTransf_cong : forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+| PolyTransf_cong : forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F
+                      (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                      (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
       forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
         (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
     forall Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real
@@ -2509,10 +2573,12 @@ Inductive convCoMod : forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E View
       ( forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator)
           (v : 'Generator( H ~> G | (Viewing_F G f) )),
           ee0_(G)(f)(H)(v) <~~ ee_(G)(f)(H)(v) ) ->
-      [[ ee0_ @ Viewing_data_F , Viewing_transp_F, Yoneda10_ee0_natural , Yoneda10_ee0_morphism , Yoneda10_ee0_real ]]
-        <~~ [[ ee_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]]
+      [[ ee0_ @ isFiniteness_F , Yoneda10_ee0_natural , Yoneda10_ee0_morphism , Yoneda10_ee0_real ]]
+        <~~ [[ ee_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]]
 
-| PolyTransf_default_cong : forall  Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+| PolyTransf_default_cong : forall  Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F
+                               (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                               (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
       (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
     forall Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real
@@ -2523,7 +2589,8 @@ Inductive convCoMod : forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E View
           := (projT1 (sval (polyelement_to_element (Yoneda10_ee_ G f H v)))) in 
         forall (viewingDefault'_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
           (viewingDefault'_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (viewingDefault'_ G f))
-          (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_),
+          (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_)
+          (viewingDefault'_isFiniteness : Finiteness.isFiniteness_ viewingDefault'_data viewingDefault'_transp),
         forall (viewingDefault'_poly_transp : forall G f, transpViewing (viewingDefault'_ G f) (viewingDefault_ projT1_sval_Yoneda10_ee_ f)),
     forall Yoneda10_ee0_ viewingContinuous_ee0_
       Yoneda10_ee0_natural Yoneda10_ee0_morphism Yoneda10_ee0_real ,
@@ -2536,8 +2603,8 @@ Inductive convCoMod : forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E View
       ( forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator)
           (v : 'Generator( H ~> G | (Viewing_F G f) )),
           ee0_(G)(f)(H)(v) <~~ ee_(G)(f)(H)(v) ) ->
-      [[[ ee0_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee0_natural , Yoneda10_ee0_morphism , Yoneda10_ee0_real , viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp0 ]]]
-        <~~ [[[ ee_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp ]]]
+      [[[ ee0_ @ isFiniteness_F , Yoneda10_ee0_natural , Yoneda10_ee0_morphism , Yoneda10_ee0_real , viewingDefault'_isFiniteness , viewingDefault'_poly_transp0 ]]]
+        <~~ [[[ ee_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_isFiniteness , viewingDefault'_poly_transp ]]]
 
 (** ----- the constant conversions which are used during the polymorphism elimination ----- **)
 
@@ -2592,7 +2659,8 @@ Inductive convCoMod : forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E View
 
 (** a.k.a ViewedFunctor1_PolyTransf **)
 | PolyTransf_morphism :
-forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+    forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+      (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
       forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
         (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
       forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
@@ -2610,13 +2678,14 @@ forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewin
     forall Yoneda10_dd viewingContinuous_dd (dd : 'CoMod( E ~> D @ Yoneda10_dd @~ viewingContinuous_dd)),
 
         ( [[ ( fun G f H v => ee_ G f H v o>CoMod dd )
-               @ Viewing_data_F , Viewing_transp_F , Yoneda10_PolyTransf_morphism_natural Yoneda10_ee_natural Yoneda10_dd , Yoneda10_PolyTransf_morphism_morphism Yoneda10_ee_morphism  Yoneda10_dd ,  Yoneda10_PolyTransf_morphism_real Yoneda01_F Yoneda10_ee_real  Yoneda10_dd ]] )
-          <~~  ( [[ ee_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]]
+               @ isFiniteness_F , Yoneda10_PolyTransf_morphism_natural Yoneda10_ee_natural Yoneda10_dd , Yoneda10_PolyTransf_morphism_morphism Yoneda10_ee_morphism  Yoneda10_dd ,  Yoneda10_PolyTransf_morphism_real Yoneda01_F Yoneda10_ee_real  Yoneda10_dd ]] )
+          <~~  ( [[ ee_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]]
                    o>CoMod ( 'ViewedFunctor1 dd ) )
 
 (** a.k.a ViewedFunctor1_PolyTransf_default **)
 | PolyTransf_default_morphism :
-forall  Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+    forall  Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+       (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
       (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
     forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
@@ -2633,15 +2702,16 @@ forall  Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewi
           := (projT1 (sval (polyelement_to_element (Yoneda10_ee_ G f H v)))) in 
       forall (viewingDefault'_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
         (viewingDefault'_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (viewingDefault'_ G f))
-        (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_),
+        (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_)
+        (viewingDefault'_isFiniteness : Finiteness.isFiniteness_ viewingDefault'_data viewingDefault'_transp),
       forall (viewingDefault'_poly_transp : forall G f, transpViewing (viewingDefault'_ G f) (viewingDefault_ projT1_sval_Yoneda10_ee_ f)),
     forall Yoneda00_D Yoneda01_D Viewing_D Viewing_data_D Viewing_transp_D
       (D : @obCoMod Yoneda00_D Yoneda01_D Viewing_D Viewing_data_D Viewing_transp_D),
     forall Yoneda10_dd viewingContinuous_dd (dd : 'CoMod( E ~> D @ Yoneda10_dd @~ viewingContinuous_dd)),
 
       ( [[[ ( fun G f H v => ( ee_ G f H v ) o>CoMod ( 'ViewedFunctor1 dd ) )
-               @ Viewing_data_F , Viewing_transp_F , Yoneda10_PolyTransf_morphism_natural Yoneda10_ee_natural (Yoneda10_ViewedFunctor1 Yoneda10_dd) , Yoneda10_PolyTransf_morphism_morphism Yoneda10_ee_morphism  (Yoneda10_ViewedFunctor1 Yoneda10_dd) ,  Yoneda10_PolyTransf_morphism_real Yoneda01_F Yoneda10_ee_real  (Yoneda10_ViewedFunctor1 Yoneda10_dd) , viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp  ]]] )
-<~~ ( [[[ ee_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp ]]] o>CoMod ( 'ViewedFunctor1 dd ) )          
+               @ isFiniteness_F , Yoneda10_PolyTransf_morphism_natural Yoneda10_ee_natural (Yoneda10_ViewedFunctor1 Yoneda10_dd) , Yoneda10_PolyTransf_morphism_morphism Yoneda10_ee_morphism  (Yoneda10_ViewedFunctor1 Yoneda10_dd) ,  Yoneda10_PolyTransf_morphism_real Yoneda01_F Yoneda10_ee_real  (Yoneda10_ViewedFunctor1 Yoneda10_dd) , viewingDefault'_isFiniteness , viewingDefault'_poly_transp  ]]] )
+<~~ ( [[[ ee_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_isFiniteness , viewingDefault'_poly_transp ]]] o>CoMod ( 'ViewedFunctor1 dd ) )
 
 (** a.k.a UnitViewedFunctor_PolyCoMod **)
 | UnitViewedFunctor_morphismPre :
@@ -2658,14 +2728,16 @@ forall  Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewi
 
 (** a.k.a PolyElement_View1 **)
 | PolyElement_morphism :
-forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+    forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+      (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
 forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (Viewing_F G f) )),
     forall (H' : obGenerator) (h : 'Generator( H' ~> H )),
-      ( 'PolyElement ( h o>Generator v | (Viewing_F G f) ) @  Viewing_data_F , Viewing_transp_F ) 
-                   <~~ ( 'View1 h o>CoMod 'PolyElement v @ Viewing_data_F , Viewing_transp_F )
+      ( 'PolyElement ( h o>Generator v | (Viewing_F G f) ) @  isFiniteness_F ) 
+                   <~~ ( 'View1 h o>CoMod 'PolyElement v @ isFiniteness_F )
 
 | PolyTransf_PolyElement :
-forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+    forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+      (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
       forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
         (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
       forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
@@ -2680,14 +2752,15 @@ forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewin
           'CoMod( View H ~> E @ Yoneda10_ee_ G f H v @~ viewingContinuous_ee_ G f H v )),
     forall G f H v,
       ( (ee_(G)(f)(H)(v)) o>CoMod 'UnitViewedFunctor )
-        <~~ ( ( 'PolyElement v @  Viewing_data_F , Viewing_transp_F
-                : 'CoMod( View H ~> ViewingFunctor Viewing_data_F Viewing_transp_F @ _ @~ _ ) )
-                o>CoMod [[ ee_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural,
+        <~~ ( ( 'PolyElement v @  isFiniteness_F
+                : 'CoMod( View H ~> ViewingFunctor isFiniteness_F @ _ @~ _ ) )
+                o>CoMod [[ ee_ @ isFiniteness_F , Yoneda10_ee_natural,
                            Yoneda10_ee_morphism, Yoneda10_ee_real ]]
               : 'CoMod( View H ~> ViewedFunctor E @ _ @~ _ ) )
 
 | PolyTransf_default_PolyElement :
-forall  Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+    forall  Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+       (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
       (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
     forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
@@ -2704,25 +2777,27 @@ forall  Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewi
           := (projT1 (sval (polyelement_to_element (Yoneda10_ee_ G f H v)))) in 
         forall (viewingDefault'_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
           (viewingDefault'_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (viewingDefault'_ G f))
-          (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_),
+          (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_)
+          (viewingDefault'_isFiniteness : Finiteness.isFiniteness_ viewingDefault'_data viewingDefault'_transp),
         forall (viewingDefault'_poly_transp : forall G f, transpViewing (viewingDefault'_ G f) (viewingDefault_ projT1_sval_Yoneda10_ee_ f)),
     forall (G : obGenerator) (f : Yoneda00_F G) (H' : obGenerator)
            (wv : 'Generator( H' ~> G | (viewingDefault'_ G f) )),
       ( (ee_(G)(f)(H')(((projT2 (sval (viewingDefault'_poly_transp G f) H' wv)) :>Generator) o>Generator (projT2 (projT1 (sval (viewingDefault'_poly_transp G f) H' wv))) | (Viewing_F G f)))  )
-        <~~ ( 'PolyElement wv @ viewingDefault'_data , viewingDefault'_transp
-                o>CoMod [[[ ee_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural,
-                           Yoneda10_ee_morphism, Yoneda10_ee_real , viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp ]]] )
+        <~~ ( 'PolyElement wv @ viewingDefault'_isFiniteness
+                o>CoMod [[[ ee_ @ isFiniteness_F , Yoneda10_ee_natural,
+                           Yoneda10_ee_morphism, Yoneda10_ee_real , viewingDefault'_isFiniteness , viewingDefault'_poly_transp ]]] )
 
 (** ----- the constant conversions which are only for the wanted sense of
 modified-colimits-into-viewed-functors grammar ----- **)
 
 (* TODO: add conversion [PolyTransf_default'PolyElement] *)     
 | PolyTransf'PolyElement :
-forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+    forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+      (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
   (*todo: problem: how to recognize grammatically such many/family/cover of arrows in PolyElement ? *)
         ( 'UnitCoMod o>CoMod 'UnitViewedFunctor )
-          <~~  ( [[ (fun G (f : Yoneda00_F) H v => 'PolyElement v @ Viewing_data_F , Viewing_transp_F)
-                    @ Viewing_data_F , Viewing_transp_F , @Yoneda10_PolyElement_natural _ Yoneda01_F Viewing_F , Yoneda10_PolyElement_morphism Viewing_transp_F , @Yoneda10_PolyElement_real _ Yoneda01_F Viewing_F ]] )
+          <~~  ( [[ (fun G (f : Yoneda00_F) H v => 'PolyElement v @ isFiniteness_F)
+                    @ isFiniteness_F , @Yoneda10_PolyElement_natural _ Yoneda01_F Viewing_F , Yoneda10_PolyElement_morphism Viewing_transp_F , @Yoneda10_PolyElement_real _ Yoneda01_F Viewing_F ]] )
 
 (** ----- the constant conversions which are only for the confluence lemma (TODO:) ----- **)
 
@@ -2796,10 +2871,10 @@ Proof.
     | exact: identity_transpViewing | ].
     intros; move; simpl; intros; rewrite ff_eq; reflexivity.
   - (* PolyElement_cong  *)
-    intros until 1. intros ? ? ? ? ? ? ? ? vf_eq . intros; move; intros h. simpl.
+    intros until 1. intros ? ? ? ? ? ? ? vf_eq . intros; move; intros h. simpl.
     rewrite [X in _ = h o>Generator_ X ]vf_eq; reflexivity.
   - (* PolyTransf_cong *)
-    intros until 1. intros ee_eq . intros; move; intros f. simpl.
+    intros until 2. intros ee_eq . intros; move; intros f. simpl.
     unshelve eapply Yoneda00_ViewedFunctor_quotient
         with (W:=  (Viewing_F G f));
     [ exact: identity_transpViewing
@@ -2876,7 +2951,7 @@ Proof.
     rewrite -[in RHS](proj2_sig (Yoneda10_realize _)) [RHS]/=.
     rewrite [in RHS]polyGenerator_morphism. reflexivity.
   - (* PolyTransf_PolyElement *)
-    intros until 1; intros G f H v H0; move; intros h; simpl.
+    intros until 2; intros G f H v H0; move; intros h; simpl.
     rewrite (proj1 (proj2_sig Yoneda01_F)). (**TODO: MEMO: instead define and use [intersecViewing_polyGenerator_rev] ? *)
     unshelve eapply Yoneda00_ViewedFunctor_quotient
     with (W:= (intersecViewing (Viewing_F _  f) (h o>Generator (v :>Generator)) ));
@@ -2980,55 +3055,6 @@ Time Qed. (* /!\ TIME QED 201s *)
 (** # #
 #+END_SRC
 
-** Finiteness of the viewing-elements of some viewing-functor
-
-  To facilitate the COQ automatic-arithmetic during the degradation lemma , here oneself shall present the predicate [Inductive is_viewingFunctorElement12 : forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (@V_ G f) )), Type] such to force/assume [Axiom is_viewingFunctorElement12_allP] the finiteness of all the viewing-elements of each viewing-functor (of the grammar) . Memo that only the viewing-elements are touched/accessible via the grammar . Clearly this ongoing COQ program and deduction will still-proceed when those things are confined less than any (fixed) regular cardinal .
-
-#+BEGIN_SRC coq :exports both :results silent # # **)
-Module Finiteness.
-About convCoMod.
-Parameter (G1 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
-                      , obGenerator) .
-Parameter (f1 : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
-                  , Yoneda00_F (G1 Viewing_data_F Viewing_transp_F)).
-Parameter (H1 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
-                  , obGenerator).
-Parameter (v1 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F), 
-              'Generator( (H1 Viewing_data_F Viewing_transp_F ) ~> (G1 Viewing_data_F Viewing_transp_F ) | (@Viewing_F (G1 Viewing_data_F Viewing_transp_F ) (f1 Viewing_data_F Viewing_transp_F )) )).
-Parameter (G2 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
-                      , obGenerator) .
-Parameter (f2 : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
-                  , Yoneda00_F (G2 Viewing_data_F Viewing_transp_F)).
-Parameter (H2 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
-                  , obGenerator).
-Parameter (v2 : forall(Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F), 
-              'Generator( (H2 Viewing_data_F Viewing_transp_F ) ~> (G2 Viewing_data_F Viewing_transp_F ) | (@Viewing_F (G2 Viewing_data_F Viewing_transp_F ) (f2 Viewing_data_F Viewing_transp_F )) )).
-
-Section Section1.
-About convCoMod.
-Variables (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F) (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
-  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F f)) (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F) .
-
-Inductive is_viewingFunctorElement12 : forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (@Viewing_F G f) )), Type :=
-| Is_viewingFunctorElement12_viewingFunctorElement1 : is_viewingFunctorElement12 (v1 Viewing_data_F Viewing_transp_F)
-| Is_viewingFunctorElement12_viewingFunctorElement2 : is_viewingFunctorElement12 (v2 Viewing_data_F Viewing_transp_F) .
-
-Axiom is_viewingFunctorElement12_allP :  forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (@Viewing_F G f) )), is_viewingFunctorElement12 v.
-
-End Section1. 
-
-End Finiteness.
-(** # #
-#+END_SRC
-
 ** Linear total/asymptotic grade and the degradation lemma
 
   As is common , the grade of the composition constructor [PolyCoMod] is defined as the double of the (sucessor of the) sum of the grades of its arguments ; such doubling is such that for each of the polymorphism conversion-constructors , the enclosing/outer constructor in the contractum has less « effect » than itself in the redex . For example , this polymorphism conversion [(ConstructorX (atomA o> atomB))  <~~  ((ConstructorX atomA) o> atomB)] will produce the degradation [(1 + (2 + 2 + 2))  <  ((2 + 2) + 2 + 2)] . 
@@ -3064,18 +3090,17 @@ Proof.
     exact: (S (grade _ _ _ _ _ _ _ _ _ _ _ _ _ _  ff)).
   - (*  UnitViewedFunctor *) intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ff viewingContinuous_ff ff.
     exact: (S (grade _ _ _ _ _ _ _ _ _ _ _ _ _ _  ff)).
-  - (* PolyElement *) intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F G f H v.
+  - (* PolyElement *) intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F G f H v.
 
     exact: (S (S O)).
-  - (* PolyTransf *) intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism
-                            Yoneda10_ee_real ee_.
-
-    exact: (S (S (max (grade _ _ _ _ _ _ _ _ _ _ _ _ _ _  (@ee_ (Finiteness.G1 Viewing_data_F Viewing_transp_F ) (Finiteness.f1 Viewing_data_F Viewing_transp_F ) (Finiteness.H1 Viewing_data_F Viewing_transp_F ) (Finiteness.v1 Viewing_data_F Viewing_transp_F )))
-                      (grade _ _ _ _ _ _ _ _ _ _ _ _ _ _  (@ee_ (Finiteness.G2 Viewing_data_F Viewing_transp_F ) (Finiteness.f2 Viewing_data_F Viewing_transp_F ) (Finiteness.H2 Viewing_data_F Viewing_transp_F ) (Finiteness.v2 Viewing_data_F Viewing_transp_F ))) ))).
-  - (* PolyTransf_default *) intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism
-                                    Yoneda10_ee_real ee_ projT1_sval_Yoneda10_ee_ viewingDefault'_ viewingDefault'_data viewingDefault'_transp viewingDefault'_poly_transp.
-    exact: (S (S (max (grade _ _ _ _ _ _ _ _ _ _ _ _ _ _  (@ee_ (Finiteness.G1 Viewing_data_F Viewing_transp_F ) (Finiteness.f1 Viewing_data_F Viewing_transp_F ) (Finiteness.H1 Viewing_data_F Viewing_transp_F ) (Finiteness.v1 Viewing_data_F Viewing_transp_F )))
-                      (grade _ _ _ _ _ _ _ _ _ _ _ _ _ _  (@ee_ (Finiteness.G2 Viewing_data_F Viewing_transp_F ) (Finiteness.f2 Viewing_data_F Viewing_transp_F ) (Finiteness.H2 Viewing_data_F Viewing_transp_F ) (Finiteness.v2 Viewing_data_F Viewing_transp_F ))) ))).
+  - (* PolyTransf *) intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural
+                            Yoneda10_ee_morphism Yoneda10_ee_real ee_.
+    exact: (S (S (max (grade _ _ _ _ _ _ _ _ _ _ _ _ _ _  (@ee_ (Finiteness.G1 isFiniteness_F ) (Finiteness.f1 isFiniteness_F ) (Finiteness.H1 isFiniteness_F ) (Finiteness.v1 isFiniteness_F )))
+                      (grade _ _ _ _ _ _ _ _ _ _ _ _ _ _  (@ee_ (Finiteness.G2 isFiniteness_F ) (Finiteness.f2 isFiniteness_F ) (Finiteness.H2 isFiniteness_F ) (Finiteness.v2 isFiniteness_F ))) ))).
+  - (* PolyTransf_default *) intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural
+                                    Yoneda10_ee_morphism Yoneda10_ee_real ee_ projT1_sval_Yoneda10_ee_ viewingDefault'_ viewingDefault'_data viewingDefault'_transp viewingDefault'_isFiniteness viewingDefault'_poly_transp.
+    exact: (S (S (max (grade _ _ _ _ _ _ _ _ _ _ _ _ _ _  (@ee_ (Finiteness.G1 isFiniteness_F ) (Finiteness.f1 isFiniteness_F ) (Finiteness.H1 isFiniteness_F ) (Finiteness.v1 isFiniteness_F )))
+                      (grade _ _ _ _ _ _ _ _ _ _ _ _ _ _  (@ee_ (Finiteness.G2 isFiniteness_F ) (Finiteness.f2 isFiniteness_F ) (Finiteness.H2 isFiniteness_F ) (Finiteness.v2 isFiniteness_F ))) ))).
 Defined.
 
 Lemma grade_gt0 :
@@ -3088,30 +3113,6 @@ forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
 Proof.
   intros; case : ff; intros; simpl in *; abstract (Lia.lia).
 Qed.
-
-Ltac tac_indexed_all :=
-  repeat match goal with
-         | (* this match shall be above , for [PolyTransf_default_PolyElement] *)
-         [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-           Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F ,
-           wv : 'Generator( ?H' ~> ?G | (?viewingDefault'_ ?G ?f) )
-           |- context [(((projT2 (sval (?viewingDefault'_poly_transp ?G ?f) ?H' ?wv)) :>Generator) o>Generator (projT2 (projT1 (sval (?viewingDefault'_poly_transp ?G ?f) ?H' ?wv))) | (?Viewing_F ?G ?f))] ] =>
-         (move: (((projT2 (sval (viewingDefault'_poly_transp G f) H' wv)) :>Generator) o>Generator (projT2 (projT1 (sval (viewingDefault'_poly_transp G f) H' wv))) | (Viewing_F G f))); clear wv; intros tmp;
-         destruct (Finiteness.is_viewingFunctorElement12_allP Viewing_data_F Viewing_transp_F tmp)
-         | [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-             Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F ,
-             v : 'Generator( ?H ~> ?G | (?Viewing_F ?G ?f) )
-             |- context [max _ _] ] =>
-           destruct (Finiteness.is_viewingFunctorElement12_allP Viewing_data_F Viewing_transp_F v)
-         | [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-             Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F ,
-             Hgrade : (forall (G : obGenerator) (f : ?Yoneda00_F G) (H : obGenerator)
-                             (v : 'Generator( H ~> G | (?Viewing_F G f) )),
-                              ( _ <= _ )%nat) |- context [max _ _] ] =>
-           move: {Hgrade} (Hgrade (Finiteness.G1 Viewing_data_F Viewing_transp_F) (Finiteness.f1 Viewing_data_F Viewing_transp_F) (Finiteness.H1 Viewing_data_F Viewing_transp_F) (Finiteness.v1 Viewing_data_F Viewing_transp_F) )
-                          (Hgrade (Finiteness.G2 Viewing_data_F Viewing_transp_F) (Finiteness.f2 Viewing_data_F Viewing_transp_F) (Finiteness.H2 Viewing_data_F Viewing_transp_F) (Finiteness.v2 Viewing_data_F Viewing_transp_F) );
-           simpl
-         end.
 
 Ltac tac_grade_gt0 :=
   match goal with
@@ -3136,31 +3137,50 @@ Ltac tac_grade_gt0 :=
 
 Ltac tac_grade_gt0_indexing :=
 match goal with
-| [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-    Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F,
-        gg1 : (forall (G : obGenerator) (f : ?Yoneda00_F G) (H : obGenerator)
-             (v : 'Generator( H ~> G | (?Viewing_F G f) )), 'CoMod( _ ~> _ @ _ @~ _ )),
-          gg2 : (forall (G : obGenerator) (f : ?Yoneda00_F G) (H : obGenerator)
-                   (v : 'Generator( H ~> G | (?Viewing_F G f) )), 'CoMod( _ ~> _ @ _ @~ _ ))
+| [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F ,
+    gg1 : (forall (G : obGenerator) (f : ?Yoneda00_F G) (H : obGenerator)
+         (v : 'Generator( H ~> G | (?Viewing_F G f) )), 'CoMod( _ ~> _ @ _ @~ _ )),
+    gg2 : (forall (G : obGenerator) (f : ?Yoneda00_F G) (H : obGenerator)
+         (v : 'Generator( H ~> G | (?Viewing_F G f) )), 'CoMod( _ ~> _ @ _ @~ _ ))
     |- _ ] => move:
               (@grade_gt0 _ _ _ _ _ _ _ _ _ _ _ _ _ _
-                          (@gg1 (Finiteness.G1 Viewing_data_F Viewing_transp_F) (Finiteness.f1 Viewing_data_F Viewing_transp_F) (Finiteness.H1 Viewing_data_F Viewing_transp_F) (Finiteness.v1 Viewing_data_F Viewing_transp_F)))
+                          (@gg1 (Finiteness.G1 isFiniteness_F) (Finiteness.f1 isFiniteness_F) (Finiteness.H1 isFiniteness_F) (Finiteness.v1 isFiniteness_F)))
               (@grade_gt0 _ _ _ _ _ _ _ _ _ _ _ _ _ _
-                          (@gg1 (Finiteness.G2 Viewing_data_F Viewing_transp_F) (Finiteness.f2 Viewing_data_F Viewing_transp_F) (Finiteness.H2 Viewing_data_F Viewing_transp_F) (Finiteness.v2 Viewing_data_F Viewing_transp_F)))
+                          (@gg1 (Finiteness.G2 isFiniteness_F) (Finiteness.f2 isFiniteness_F) (Finiteness.H2 isFiniteness_F) (Finiteness.v2 isFiniteness_F)))
               (@grade_gt0 _ _ _ _ _ _ _ _ _ _ _ _ _ _
-                          (@gg2 (Finiteness.G1 Viewing_data_F Viewing_transp_F) (Finiteness.f1 Viewing_data_F Viewing_transp_F) (Finiteness.H1 Viewing_data_F Viewing_transp_F) (Finiteness.v1 Viewing_data_F Viewing_transp_F)))
+                          (@gg2 (Finiteness.G1 isFiniteness_F) (Finiteness.f1 isFiniteness_F) (Finiteness.H1 isFiniteness_F) (Finiteness.v1 isFiniteness_F)))
               (@grade_gt0 _ _ _ _ _ _ _ _ _ _ _ _ _ _
-                          (@gg2 (Finiteness.G2 Viewing_data_F Viewing_transp_F) (Finiteness.f2 Viewing_data_F Viewing_transp_F) (Finiteness.H2 Viewing_data_F Viewing_transp_F) (Finiteness.v2 Viewing_data_F Viewing_transp_F)))
-| [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-    Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F,
-        gg1 : (forall (G : obGenerator) (f : ?Yoneda00_F G) (H : obGenerator)
-             (v : 'Generator( H ~> G | (?Viewing_F G f) )), 'CoMod( _ ~> _ @ _ @~ _ ))
+                          (@gg2 (Finiteness.G2 isFiniteness_F) (Finiteness.f2 isFiniteness_F) (Finiteness.H2 isFiniteness_F) (Finiteness.v2 isFiniteness_F)))
+| [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F ,
+   gg1 : (forall (G : obGenerator) (f : ?Yoneda00_F G) (H : obGenerator)
+        (v : 'Generator( H ~> G | (?Viewing_F G f) )), 'CoMod( _ ~> _ @ _ @~ _ ))
    |- _ ] => move:
               (@grade_gt0 _ _ _ _ _ _ _ _ _ _ _ _ _ _
-                          (@gg1 (Finiteness.G1 Viewing_data_F Viewing_transp_F) (Finiteness.f1 Viewing_data_F Viewing_transp_F) (Finiteness.H1 Viewing_data_F Viewing_transp_F) (Finiteness.v1 Viewing_data_F Viewing_transp_F)))
+                          (@gg1 (Finiteness.G1 isFiniteness_F) (Finiteness.f1 isFiniteness_F) (Finiteness.H1 isFiniteness_F) (Finiteness.v1 isFiniteness_F)))
               (@grade_gt0 _ _ _ _ _ _ _ _ _ _ _ _ _ _
-                          (@gg1 (Finiteness.G2 Viewing_data_F Viewing_transp_F) (Finiteness.f2 Viewing_data_F Viewing_transp_F) (Finiteness.H2 Viewing_data_F Viewing_transp_F) (Finiteness.v2 Viewing_data_F Viewing_transp_F)))
+                          (@gg1 (Finiteness.G2 isFiniteness_F) (Finiteness.f2 isFiniteness_F) (Finiteness.H2 isFiniteness_F) (Finiteness.v2 isFiniteness_F)))
 end.
+
+Ltac tac_indexed_all :=
+  repeat match goal with
+         | (* this match shall be above , for [PolyTransf_default_PolyElement] *)
+         [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F ,
+           wv : 'Generator( ?H' ~> ?G | (?viewingDefault'_ ?G ?f) )
+           |- context [(((projT2 (sval (?viewingDefault'_poly_transp ?G ?f) ?H' ?wv)) :>Generator) o>Generator (projT2 (projT1 (sval (?viewingDefault'_poly_transp ?G ?f) ?H' ?wv))) | (?Viewing_F ?G ?f))] ] =>
+         (move: (((projT2 (sval (viewingDefault'_poly_transp G f) H' wv)) :>Generator) o>Generator (projT2 (projT1 (sval (viewingDefault'_poly_transp G f) H' wv))) | (Viewing_F G f))); clear wv; intros tmp;
+         destruct (Finiteness.is_viewingFunctorElement12_allP isFiniteness_F tmp)
+         | [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F ,
+             v : 'Generator( ?H ~> ?G | (?Viewing_F ?G ?f) )
+             |- context [max _ _] ] =>
+           destruct (Finiteness.is_viewingFunctorElement12_allP isFiniteness_F v)
+         | [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F ,
+             Hgrade : (forall (G : obGenerator) (f : ?Yoneda00_F G) (H : obGenerator)
+                             (v : 'Generator( H ~> G | (?Viewing_F G f) )),
+                              ( _ <= _ )%nat) |- context [max _ _] ] =>
+           move: {Hgrade} (Hgrade (Finiteness.G1 isFiniteness_F) (Finiteness.f1 isFiniteness_F) (Finiteness.H1 isFiniteness_F) (Finiteness.v1 isFiniteness_F) )
+                          (Hgrade (Finiteness.G2 isFiniteness_F) (Finiteness.f2 isFiniteness_F) (Finiteness.H2 isFiniteness_F) (Finiteness.v2 isFiniteness_F) );
+           simpl
+         end.
 
 Lemma degrade :
  forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
@@ -3181,13 +3201,12 @@ Ltac tac_degrade H_grade :=
   repeat match goal with
          | [ Hred : ( _ <~~ _ )%poly |- _ ] =>
            move : (degrade Hred) ; clear Hred
-         | [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-             Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F,
+         | [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F ,
              Hred : (forall (G : obGenerator) (f : ?Yoneda00_F G) (H : obGenerator)
                        (v : 'Generator( H ~> G | (?Viewing_F G f) )),
                         ( _ <~~ _ )%poly) |- _ ] =>
-           move: {Hred} (degrade (Hred (Finiteness.G1 Viewing_data_F Viewing_transp_F) (Finiteness.f1 Viewing_data_F Viewing_transp_F) (Finiteness.H1 Viewing_data_F Viewing_transp_F) (Finiteness.v1 Viewing_data_F Viewing_transp_F)))
-                        (degrade (Hred (Finiteness.G2 Viewing_data_F Viewing_transp_F) (Finiteness.f2 Viewing_data_F Viewing_transp_F) (Finiteness.H2 Viewing_data_F Viewing_transp_F) (Finiteness.v2 Viewing_data_F Viewing_transp_F)))
+           move: {Hred} (degrade (Hred (Finiteness.G1 isFiniteness_F) (Finiteness.f1 isFiniteness_F) (Finiteness.H1 isFiniteness_F) (Finiteness.v1 isFiniteness_F)))
+                        (degrade (Hred (Finiteness.G2 isFiniteness_F) (Finiteness.f2 isFiniteness_F) (Finiteness.H2 isFiniteness_F) (Finiteness.v2 isFiniteness_F)))
          end;
   move: H_grade; clear; simpl;
   intros; try tac_grade_gt0; try tac_grade_gt0_indexing;
@@ -3237,15 +3256,17 @@ Inductive morCoMod : forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewi
 | PolyElement : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
                  (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                 (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (Viewing_F G f) )),
-      'CoMod( View H ~> ViewingFunctor Viewing_data_F Viewing_transp_F
+      'CoMod( View H ~> ViewingFunctor isFiniteness_F
                    @ Yoneda10_PolyElement Yoneda01_F v @~ viewingContinuous_PolyElement Viewing_transp_F v )
 
 | PolyTransf : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
                  (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                 (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
       forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
         (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
       forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
@@ -3272,12 +3293,13 @@ Inductive morCoMod : forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewi
       forall (ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
             forall (H : obGenerator) (v : 'Generator( H ~> G | (Viewing_F G f) )),
           'CoMod( View H ~> E @ Yoneda10_ee_ G f H v @~ viewingContinuous_ee_ G f H v ) ),
-      'CoMod( ViewingFunctor Viewing_data_F Viewing_transp_F ~> ViewedFunctor E @ Yoneda10_PolyTransf Viewing_data_F Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real @~ viewingContinuous_PolyTransf Viewing_data_F viewingContinuous_ee_  Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real )
+      'CoMod( ViewingFunctor isFiniteness_F ~> ViewedFunctor E @ Yoneda10_PolyTransf Viewing_data_F Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real @~ viewingContinuous_PolyTransf Viewing_data_F viewingContinuous_ee_  Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real )
 
 | PolyTransf_default : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
                  (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                 (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
       (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
     forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
@@ -3308,9 +3330,10 @@ Inductive morCoMod : forall Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewi
             := (projT1 (sval (polyelement_to_element (Yoneda10_ee_ G f H v)))) in 
         forall (viewingDefault'_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
           (viewingDefault'_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (viewingDefault'_ G f))
-          (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_),
+          (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_)
+          (viewingDefault'_isFiniteness : Finiteness.isFiniteness_ viewingDefault'_data viewingDefault'_transp),
         forall (viewingDefault'_poly_transp : forall G f, transpViewing (viewingDefault'_ G f) (viewingDefault_ projT1_sval_Yoneda10_ee_ f)),
-          'CoMod( ViewingFunctor viewingDefault'_data viewingDefault'_transp ~> ViewedFunctor E
+          'CoMod( ViewingFunctor viewingDefault'_isFiniteness ~> ViewedFunctor E
                                  @ (Yoneda10_PolyTransf_default Viewing_data_F Yoneda10_ee_natural Yoneda10_ee_morphism  Yoneda10_ee_real)
                                  @~ viewingContinuous_PolyTransf_default Viewing_data_F Viewing_transp_E viewingContinuous_ee_  Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real viewingDefault'_poly_transp)
 
@@ -3342,25 +3365,24 @@ Notation "''ViewedFunctor1' ee" := (@ViewedFunctor1 _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 Notation "ff o>CoMod 'UnitViewedFunctor" := (@UnitViewedFunctor _ _ _ _ _ _ _ _ _ _ _ _ _ _ ff)
                   (at level 4, right associativity) : sol_scope.
 
-Notation "''PolyElement'  v  @  Viewing_data_F , Viewing_transp_F" :=
-  (@PolyElement _ _ _ Viewing_data_F Viewing_transp_F _ _ _ v) (at level 10, v, Viewing_data_F , Viewing_transp_F  at next level) : sol_scope.
+Notation "''PolyElement'  v  @  isFiniteness_F" :=
+  (@PolyElement _ _ _ _ _ isFiniteness_F _ _ _ v) (at level 10, v, isFiniteness_F at next level) : sol_scope.
 
-Notation "[[  ee_  @  Viewing_data_F  ,  Viewing_transp_F  ,  Yoneda10_ee_natural  ,  Yoneda10_ee_morphism  ,  Yoneda10_ee_real  ]]" :=
-  (@PolyTransf _ _ _ Viewing_data_F Viewing_transp_F _ _ _ _ _ _ _ _ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real ee_ )
-    (at level 4, ee_ , Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural, Yoneda10_ee_morphism, Yoneda10_ee_real at next level ) : sol_scope.
+Notation "[[  ee_  @  isFiniteness_F  ,  Yoneda10_ee_natural  ,  Yoneda10_ee_morphism  ,  Yoneda10_ee_real  ]]" :=
+  (@PolyTransf _ _ _ _ _ isFiniteness_F _ _ _ _ _ _ _ _ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real ee_ )
+    (at level 4, ee_ , isFiniteness_F , Yoneda10_ee_natural, Yoneda10_ee_morphism, Yoneda10_ee_real at next level ) : sol_scope.
 
-Notation "[[  ee_  @  Yoneda01_F  ,  Viewing_F  ]]" :=
-  (@PolyTransf _ Yoneda01_F Viewing_F _ _ _ _ _ _ _ _ _ _ _ _ _ ee_ )
-    (at level 4, ee_ , Yoneda01_F , Viewing_F  at next level ) : sol_scope.
+Notation "[[  ee_  @  isFiniteness_F  ]]" :=
+  (@PolyTransf _ _ _ _ _ isFiniteness_F _ _ _ _ _ _ _ _ _ _ _ ee_ )
+    (at level 4, ee_ , isFiniteness_F at next level ) : sol_scope.
 
-Notation "[[[  ee_  @  Viewing_data_F  ,  Viewing_transp_F , Yoneda10_ee_natural  ,  Yoneda10_ee_morphism  ,  Yoneda10_ee_real  ,  viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp ]]]" :=
-  (@PolyTransf_default _ _ _ Viewing_data_F Viewing_transp_F _ _ _ _ _ _ _ _ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real ee_ _ viewingDefault'_data viewingDefault'_transp viewingDefault'_poly_transp)
-    (at level 4, ee_ , Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ,  viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp at next level ) : sol_scope.
+Notation "[[[  ee_  @  isFiniteness_F , Yoneda10_ee_natural  ,  Yoneda10_ee_morphism  ,  Yoneda10_ee_real  ,  viewingDefault'_isFiniteness , viewingDefault'_poly_transp ]]]" :=
+  (@PolyTransf_default _ _ _ _ _ isFiniteness_F _ _ _ _ _ _ _ _ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real ee_ _ _ _ viewingDefault'_isFiniteness viewingDefault'_poly_transp)
+    (at level 4, ee_ , isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_isFiniteness , viewingDefault'_poly_transp at next level ) : sol_scope.
 
-Notation "[[[  ee_  @  Yoneda01_F , Viewing_F ]]]" :=
-  (@PolyTransf_default _ Yoneda01_F Viewing_F _ _ _ _ _ _ _ _ _ _ _ _ _ ee_ _ _ _ _)
-    (at level 4, ee_ , Yoneda01_F , Viewing_F  at next level ) : sol_scope.
-
+Notation "[[[  ee_  @  isFiniteness_F ,  viewingDefault'_isFiniteness ]]]" :=
+  (@PolyTransf_default _ _ _ _ _ isFiniteness_F _ _ _ _ _ _ _ _ _ _ _ ee_ _ _ _ viewingDefault'_isFiniteness _)
+    (at level 4, ee_ , isFiniteness_F , viewingDefault'_isFiniteness at next level ) : sol_scope.
 End Ex_Notations.
 
 Fixpoint toPolyMor
@@ -3377,13 +3399,13 @@ Proof.
     | ( 'View1 g )%sol => ( 'View1 g )%poly
     | ( 'ViewedFunctor1 ee )%sol => ( 'ViewedFunctor1 (toPolyMor _ _ _ _ _ _ _ _ _ _ _ _ _ _ ee) )%poly
     | ( ff o>CoMod 'UnitViewedFunctor )%sol => ( (toPolyMor _ _ _ _ _ _ _ _ _ _ _ _ _ _ ff) o>CoMod 'UnitViewedFunctor )%poly
-    | ( 'PolyElement v  @ Viewing_data_F , Viewing_transp_F)%sol => ( 'PolyElement v  @ Viewing_data_F , Viewing_transp_F )%poly
-    | ( [[ ee_ @ Viewing_data_F  ,  Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]]%sol )%sol =>
+    | ( 'PolyElement v  @ isFiniteness_F)%sol => ( 'PolyElement v  @ isFiniteness_F )%poly
+    | ( [[ ee_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]]%sol )%sol =>
       ( [[ ( fun G f H v => (toPolyMor _ _ _ _ _ _ _ _ _ _ _ _ _ _  (ee_ G f H v)) )
-             @  Viewing_data_F  ,  Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]] )%poly
-    | ( [[[ ee_ @ Viewing_data_F  ,  Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp ]]]%sol )%sol =>
+             @  isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]] )%poly
+    | ( [[[ ee_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_isFiniteness , viewingDefault'_poly_transp ]]]%sol )%sol =>
       ( [[[ ( fun G f H v => (toPolyMor _ _ _ _ _ _ _ _ _ _ _ _ _ _  (ee_ G f H v)) )
-             @ Viewing_data_F  ,  Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp ]]] )%poly
+             @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_isFiniteness , viewingDefault'_poly_transp ]]] )%poly
     end.
 Defined.
 (** # #
@@ -3429,7 +3451,6 @@ Proof.
   - intros; exact: tt.
   - intros; exact: tt.
 Defined.
-  
 End Destruct_codomView.
   
 Module Destruct_codomViewingFunctor.
@@ -3440,22 +3461,25 @@ Inductive morCoMod_codomViewingFunctor :
    forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
      (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
      (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-     (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+     (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+     (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
    forall Yoneda10_ff viewingContinuous_ff,
-       'CoMod( E ~> ViewingFunctor Viewing_data_F Viewing_transp_F @ Yoneda10_ff @~ viewingContinuous_ff ) %sol -> Type :=
+       'CoMod( E ~> ViewingFunctor isFiniteness_F @ Yoneda10_ff @~ viewingContinuous_ff ) %sol -> Type :=
 
 | UnitCoMod : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
      (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
      (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-     (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
-      morCoMod_codomViewingFunctor ( @'UnitCoMod (ViewingFunctor Viewing_data_F Viewing_transp_F) )%sol
+     (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+     (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
+      morCoMod_codomViewingFunctor ( @'UnitCoMod (ViewingFunctor isFiniteness_F) )%sol
 
 | PolyElement : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
                  (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                 (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     forall (G : obGenerator) (f : Yoneda00_F G) (H : obGenerator) (v : 'Generator( H ~> G | (Viewing_F G f) )),
-      morCoMod_codomViewingFunctor ('PolyElement v @ Viewing_data_F , Viewing_transp_F )%sol .
+      morCoMod_codomViewingFunctor ('PolyElement v @ isFiniteness_F )%sol .
 
 Lemma morCoMod_codomViewingFunctorP
   :  forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
@@ -3476,7 +3500,6 @@ Proof.
   - intros; exact: tt.
   - intros; exact: tt.
 Defined. 
-
 End Destruct_codomViewingFunctor.
 
 Module Destruct_codomViewedFunctor.
@@ -3509,7 +3532,8 @@ Inductive morCoMod_codomViewedFunctor :
 | PolyTransf : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
                  (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                 (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
       forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
         (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
       forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
@@ -3522,12 +3546,13 @@ Inductive morCoMod_codomViewedFunctor :
       forall (ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
             forall (H : obGenerator) (v : 'Generator( H ~> G | (Viewing_F G f) )),
           'CoMod( View H ~> E @ Yoneda10_ee_ G f H v @~ viewingContinuous_ee_ G f H v ) %sol ),
-      morCoMod_codomViewedFunctor ( [[ ee_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]] )%sol
+      morCoMod_codomViewedFunctor ( [[ ee_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]] )%sol
 
 | PolyTransf_default : forall (Yoneda00_F : obGenerator -> Type) (Yoneda01_F : Yoneda01_data Yoneda00_F)
                  (Viewing_F : forall G : obGenerator, Yoneda00_F G -> obViewing G)
                  (Viewing_data_F : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (Viewing_F G f))
-                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F),
+                 (Viewing_transp_F : viewingFunctor Yoneda01_F Viewing_F)
+                 (isFiniteness_F : Finiteness.isFiniteness_ Viewing_data_F Viewing_transp_F),
     forall Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E
       (E : @obCoMod Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E),
     forall (Yoneda10_ee_ : forall (G : obGenerator) (f : Yoneda00_F G),
@@ -3544,9 +3569,10 @@ Inductive morCoMod_codomViewedFunctor :
             := (projT1 (sval (polyelement_to_element (Yoneda10_ee_ G f H v)))) in 
         forall (viewingDefault'_ : forall (G : obGenerator) (f : Yoneda00_F G), obViewing G)
           (viewingDefault'_data : forall (G : obGenerator) (f : Yoneda00_F G), viewingData (viewingDefault'_ G f))
-          (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_),
+          (viewingDefault'_transp : viewingFunctor Yoneda01_F viewingDefault'_)
+          (viewingDefault'_isFiniteness : Finiteness.isFiniteness_ viewingDefault'_data viewingDefault'_transp),
         forall (viewingDefault'_poly_transp : forall G f, transpViewing (viewingDefault'_ G f) (viewingDefault_ projT1_sval_Yoneda10_ee_ f)),
-      morCoMod_codomViewedFunctor ( [[[ ee_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp ]]] )%sol
+      morCoMod_codomViewedFunctor ( [[[ ee_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_isFiniteness , viewingDefault'_poly_transp ]]] )%sol
 .
 
 Lemma morCoMod_codomViewedFunctorP
@@ -3568,7 +3594,6 @@ Proof.
   - econstructor 4.
   - econstructor 5.
 Defined. 
-
 End Destruct_codomViewedFunctor.
 End Sol.
 (** # #
@@ -3613,11 +3638,11 @@ case : len => [ | len ].
   | intros G H g grade_ff
   | intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ff viewingContinuous_ff ff grade_ff
   | intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ff viewingContinuous_ff ff grade_ff
-  | intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F G f H v grade_ff
-  | intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism
+  | intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F G f H v grade_ff
+  | intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism
          Yoneda10_ee_real ee_ grade_ff
-  | intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism
-         Yoneda10_ee_real ee_ projT1_sval_Yoneda10_ee_ viewingDefault'_ viewingDefault'_data viewingDefault'_transp viewingDefault'_poly_transp grade_ff ].
+  | intros Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism
+         Yoneda10_ee_real ee_ projT1_sval_Yoneda10_ee_ viewingDefault'_ viewingDefault'_data viewingDefault'_transp viewingDefault'_isFiniteness viewingDefault'_poly_transp grade_ff ].
 
 (** ff is ff_ o>CoMod ff' *)
 all: cycle 1.
@@ -3653,19 +3678,18 @@ all: cycle 1.
   unshelve eexists. do 2 eexists. refine ( ffSol o>CoMod 'UnitViewedFunctor )%sol.
   move: ffSol_transp; clear; abstract tac_reduce.
 
-(** ff is 'PolyElement v @ Viewing_data_F , Viewing_transp_F **)
-+ unshelve eexists. do 2 eexists. refine ( 'PolyElement v @ Viewing_data_F , Viewing_transp_F )%sol.
+(** ff is 'PolyElement v @ isFiniteness_F **)
++ unshelve eexists. do 2 eexists. refine ( 'PolyElement v @ isFiniteness_F )%sol.
   clear; abstract exact: convCoMod_Refl.
 
-(** [[  ee_  @  Yoneda01_F  ,  Viewing_F  ]] **)
+(** [[  ee_  @  isFiniteness_F  ]] **)
 + have [:blurb_] eeSol_transp G f H (v : 'Generator( H ~> G | (Viewing_F G f) )) :=
     (proj2_sig (solveCoMod len _ _ _ _ _ _ _ _ _ _ _ _ _ _ (ee_(G)(f)(H)(v)) (blurb_ G f H v)));
       first by clear -grade_ff;
       abstract((move => G f H v);
                match goal with
-               | [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-                Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F  |- _ ] =>
-                 destruct (Finiteness.is_viewingFunctorElement12_allP Viewing_data_F Viewing_transp_F  v)
+               | [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F |- _ ] =>
+                 destruct (Finiteness.is_viewingFunctorElement12_allP isFiniteness_F  v)
                end;
                tac_degrade grade_ff).
     
@@ -3681,7 +3705,7 @@ all: cycle 1.
   move: Yoneda10_eeSol_ viewingContinuous_eeSol_ eeSol_ => Yoneda10_eeSol viewingContinuous_eeSol_ eeSol_ eeSol_transp.
   clear solveCoMod.
   unshelve eexists. do 2 eexists.
-  refine ( [[  eeSol_  @  Viewing_data_F  ,  Viewing_transp_F  ,  _   ,  _  ,  _  ]] %sol ).
+  refine ( [[  eeSol_  @  isFiniteness_F  ,  _   ,  _  ,  _  ]] %sol ).
 
   (**memo: convCoMod_sense is really necessary here for Yoneda10_eeSol_natural Yoneda10_eeSol_morphism Yoneda10_eeSol_real  **)
   (* Yoneda10_eeSol_natural *)
@@ -3706,15 +3730,14 @@ all: cycle 1.
 
   simpl; move: eeSol_transp; clear; simpl; abstract tac_reduce.
   
-(** [[[  ee_  @  Yoneda01_F , Viewing_F ]]] **)
+(** [[[  ee_  @  isFiniteness_F ]]] **)
 + have [:blurb_] eeSol_transp G f H (v : 'Generator( H ~> G | (Viewing_F G f) )) :=
     (proj2_sig (solveCoMod len _ _ _ _ _ _ _ _ _ _ _ _ _ _ (ee_(G)(f)(H)(v)) (blurb_ G f H v)));
       first by clear -grade_ff;
       abstract((move => G f H v);
                match goal with
-               | [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-                Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F  |- _ ] =>
-                 destruct (Finiteness.is_viewingFunctorElement12_allP Viewing_data_F Viewing_transp_F  v)
+               | [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F  |- _ ] =>
+                 destruct (Finiteness.is_viewingFunctorElement12_allP isFiniteness_F  v)
                end;
                tac_degrade grade_ff).
     
@@ -3728,7 +3751,7 @@ all: cycle 1.
   move: Yoneda10_eeSol_ viewingContinuous_eeSol_ eeSol_ => Yoneda10_eeSol viewingContinuous_eeSol_ eeSol_ eeSol_transp.
   clear solveCoMod.
   unshelve eexists. do 2 eexists.
-  refine ( [[[  eeSol_  @  Viewing_data_F  ,  Viewing_transp_F , _  ,  _  ,  _  ,  viewingDefault'_data , viewingDefault'_transp , _ ]]] %sol ).
+  refine ( [[[  eeSol_  @  isFiniteness_F , _  ,  _  ,  _  ,  viewingDefault'_isFiniteness , _ ]]] %sol ).
 
   (**memo: convCoMod_sense is really necessary here for Yoneda10_eeSol_natural Yoneda10_eeSol_morphism Yoneda10_eeSol_real  viewingDefault'_transpSol **)
   (* Yoneda10_eeSol_natural *)
@@ -3782,11 +3805,11 @@ all: cycle 1.
       | G H g 
       | Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ff viewingContinuous_ff ff
       | Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ff viewingContinuous_ff ff
-      | Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F G f H v
-      | Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism
+      | Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F G f H v
+      | Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism
          Yoneda10_ee_real ee_
-      | Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism
-         Yoneda10_ee_real ee_ projT1_sval_Yoneda10_ee_ viewingDefault'_ viewingDefault'_data viewingDefault'_transp viewingDefault'_poly_transp ] .
+      | Yoneda00_F Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E Yoneda10_ee_ viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism
+         Yoneda10_ee_real ee_ projT1_sval_Yoneda10_ee_ viewingDefault'_ viewingDefault'_data viewingDefault'_transp viewingDefault'_isFiniteness viewingDefault'_poly_transp ] .
 
   (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
 is (ff_Sol o>CoMod (@'UnitCoMod F)) **)
@@ -3829,13 +3852,13 @@ is (ff_Sol o>CoMod ( 'ViewedFunctor1 ff )) **)
           | _Yoneda00_F _Yoneda01_F _Viewing_F _Viewing_data_F _Viewing_transp_F _F
                        Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E
                        _Yoneda10_ff _viewingContinuous_ff _ff
-          | _Yoneda00_F _Yoneda01_F _Viewing_F _Viewing_data_F _Viewing_transp_F
+          | _Yoneda00_F _Yoneda01_F _Viewing_F _Viewing_data_F _Viewing_transp_F isFiniteness_F
                        Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E
                        Yoneda10_ee_  viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real ee_
-          | _Yoneda00_F _Yoneda01_F _Viewing_F _Viewing_data_F _Viewing_transp_F
+          | _Yoneda00_F _Yoneda01_F _Viewing_F _Viewing_data_F _Viewing_transp_F isFiniteness_F
                        Yoneda00_E Yoneda01_E Viewing_E Viewing_data_E Viewing_transp_E E
                        Yoneda10_ee_  viewingContinuous_ee_ Yoneda10_ee_natural Yoneda10_ee_morphism Yoneda10_ee_real ee_
-                       projT1_sval_Yoneda10_ee_ viewingDefault'_  viewingDefault'_data  viewingDefault'_transp viewingDefault'_poly_transp
+                       projT1_sval_Yoneda10_ee_ viewingDefault'_  viewingDefault'_data  viewingDefault'_transp viewingDefault'_isFiniteness viewingDefault'_poly_transp
           ] .
 
       (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
@@ -3890,16 +3913,15 @@ is (( ff o>CoMod 'UnitViewedFunctor ) o>CoMod ('ViewedFunctor1 ff)) **)
                      ( 'ViewedFunctor1 (Sol.toPolyMor ff) )); tac_reduce).
           
       (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is (( [[ ee_ @ _Yoneda01_F , _Viewing_F ]] ) o>CoMod ('ViewedFunctor1 ff)) **)
+is (( [[ ee_ @ isFiniteness_F ]] ) o>CoMod ('ViewedFunctor1 ff)) **)
       - have [:blurb_] ee__o_ff_transp G f H  (v : 'Generator( H ~> G | (_Viewing_F G f) )) :=
           (proj2_sig (solveCoMod len _ _ _ _ _ _ _ _ _ _ _ _ _ _
                                  (Sol.toPolyMor (ee_(G)(f)(H)(v)) o>CoMod Sol.toPolyMor ff) (blurb_ G f H v)));
             first by clear -grade_ff ff_Sol_transp ff'Sol_transp;
             abstract((move => G f H v);
                      match goal with
-                     | [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-                         Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F  |- _ ] =>
-                       destruct (Finiteness.is_viewingFunctorElement12_allP Viewing_data_F Viewing_transp_F  v)
+                     | [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F |- _ ] =>
+                       destruct (Finiteness.is_viewingFunctorElement12_allP isFiniteness_F  v)
                      end;
                      tac_degrade grade_ff).
         have @Yoneda10_ee__o_ff_ := (fun G f H v =>
@@ -3915,7 +3937,7 @@ is (( [[ ee_ @ _Yoneda01_F , _Viewing_F ]] ) o>CoMod ('ViewedFunctor1 ff)) **)
         move: Yoneda10_ee__o_ff_ viewingContinuous_ee__o_ff_ ee__o_ff_ => Yoneda10_ee__o_ff_ viewingContinuous_ee__o_ff_ ee__o_ff_ ee__o_ff_transp.
         clear solveCoMod.
         unshelve eexists. do 2 eexists.
-        refine ( [[  ee__o_ff_  @  _Viewing_data_F , _Viewing_transp_F  ,  _  , _ , _  ]] %sol ).
+        refine ( [[  ee__o_ff_  @  isFiniteness_F  ,  _  , _ , _  ]] %sol ).
 
         (**memo: convCoMod_sense is really necessary here for Yoneda10_ee__o_ee_natural Yoneda10_ee__o_ee_morphism Yoneda10_ee__o_ee_real viewingDefault'_transpSol **)
         (* Yoneda10_ee__o_ee_natural *)
@@ -3945,7 +3967,7 @@ is (( [[ ee_ @ _Yoneda01_F , _Viewing_F ]] ) o>CoMod ('ViewedFunctor1 ff)) **)
           abstract( simpl; intros;
                     eapply convCoMod_Trans with
                     (uTrans := ( [[ fun G f H v => (Sol.toPolyMor (ee_(G)(f)(H)(v)))
-                                      @ _Viewing_data_F , _Viewing_transp_F , Yoneda10_ee_natural ,
+                                      @ isFiniteness_F , Yoneda10_ee_natural ,
                                                      Yoneda10_ee_morphism , Yoneda10_ee_real ]] )
                                  o>CoMod ( 'ViewedFunctor1 (Sol.toPolyMor ff) ));
                     first (by simpl; eauto); (* eapply convCoMod_Trans with *)
@@ -3959,9 +3981,8 @@ is (( [[[ ee_ @ _Yoneda01_F, _Viewing_F]]] ) o>CoMod ('ViewedFunctor1 ff)) **)
             first by clear -grade_ff ff_Sol_transp ff'Sol_transp;
             abstract((move => G f H v);
                      match goal with
-                     | [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-                         Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F  |- _ ] =>
-                       destruct (Finiteness.is_viewingFunctorElement12_allP Viewing_data_F Viewing_transp_F  v)
+                     | [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F  |- _ ] =>
+                       destruct (Finiteness.is_viewingFunctorElement12_allP isFiniteness_F  v)
                      end;
                      tac_degrade grade_ff).
         have @Yoneda10_ee__o_ff_ := (fun G f H v =>
@@ -3977,7 +3998,7 @@ is (( [[[ ee_ @ _Yoneda01_F, _Viewing_F]]] ) o>CoMod ('ViewedFunctor1 ff)) **)
         move: Yoneda10_ee__o_ff_ viewingContinuous_ee__o_ff_ ee__o_ff_ => Yoneda10_ee__o_ff_ viewingContinuous_ee__o_ff_ ee__o_ff_ ee__o_ff_transp.
         clear solveCoMod.
         unshelve eexists. do 2 eexists.
-        refine ( [[[  ee__o_ff_  @  _Viewing_data_F , _Viewing_transp_F  ,  _  , _ , _ , viewingDefault'_data , viewingDefault'_transp , _ ]]] %sol ).
+        refine ( [[[  ee__o_ff_  @  isFiniteness_F  ,  _  , _ , _ , viewingDefault'_isFiniteness , _ ]]] %sol ).
 
         (**memo: convCoMod_sense is really necessary here for Yoneda10_ee__o_ff_natural Yoneda10_ee__o_ff_morphism Yoneda10_ee__o_ff_real  **)
         (* Yoneda10_ee__o_ff_natural *)
@@ -4015,8 +4036,8 @@ is (( [[[ ee_ @ _Yoneda01_F, _Viewing_F]]] ) o>CoMod ('ViewedFunctor1 ff)) **)
           abstract( simpl; intros;
                     eapply convCoMod_Trans with
                     (uTrans := ( [[[ fun G f H v => (Sol.toPolyMor (ee_(G)(f)(H)(v)))
-                                      @ _Viewing_data_F , _Viewing_transp_F , Yoneda10_ee_natural ,
-                                                     Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_data , viewingDefault'_transp , viewingDefault'_poly_transp ]]] )
+                                      @ isFiniteness_F , Yoneda10_ee_natural ,
+                                                     Yoneda10_ee_morphism , Yoneda10_ee_real , viewingDefault'_isFiniteness , viewingDefault'_poly_transp ]]] )
                                  o>CoMod ( 'ViewedFunctor1 (Sol.toPolyMor ff) ));
                     first (by simpl; eauto); (* eapply convCoMod_Trans with *)
                     simpl; by eauto).
@@ -4045,53 +4066,52 @@ is (ff_Sol o>CoMod (ff o>CoMod 'UnitViewedFunctor)) **)
                               ( (Sol.toPolyMor ff) o>CoMod 'UnitViewedFunctor )); tac_reduce).
 
   (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is (ff_Sol o>CoMod ( 'PolyElement v @ Viewing_data_F, Viewing_transp_F )) **)
+is (ff_Sol o>CoMod ( 'PolyElement v @ isFiniteness_F )) **)
   * move:  (Sol.Destruct_codomView.morCoMod_codomViewP ff_Sol) => ff_Sol_codomViewP.
     { destruct ff_Sol_codomViewP as
           [ _G (** @'UnitCoMod (View _G) **)
           | _G H g (** 'View1 g **) ].
         
       (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is (ff_Sol o>CoMod ( 'PolyElement v @ Viewing_data_F, Viewing_transp_F )) , is (( @'UnitCoMod (View _G)) o>CoMod ( 'PolyElement v @ Viewing_data_F, Viewing_transp_F )) **)
-      - unshelve eexists. do 2 eexists. refine ( 'PolyElement v @ Viewing_data_F, Viewing_transp_F )%sol.
+is (ff_Sol o>CoMod ( 'PolyElement v @ isFiniteness_F )) , is (( @'UnitCoMod (View _G)) o>CoMod ( 'PolyElement v @ isFiniteness_F )) **)
+      - unshelve eexists. do 2 eexists. refine ( 'PolyElement v @ isFiniteness_F )%sol.
         move: ff_Sol_transp ff'Sol_transp; clear;
           abstract (simpl; intros; eapply convCoMod_Trans with
-                (uTrans := ('UnitCoMod) o>CoMod ( 'PolyElement v @ Viewing_data_F, Viewing_transp_F )); tac_reduce).
+                (uTrans := ('UnitCoMod) o>CoMod ( 'PolyElement v @ isFiniteness_F )); tac_reduce).
 
       (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is (ff_Sol o>CoMod ( 'PolyElement v @ Viewing_data_F, Viewing_transp_F )) , is (( 'View1 g ) o>CoMod ( 'PolyElement v @ Viewing_data_F, Viewing_transp_F )) **)
+is (ff_Sol o>CoMod ( 'PolyElement v @ isFiniteness_F )) , is (( 'View1 g ) o>CoMod ( 'PolyElement v @ isFiniteness_F )) **)
       - unshelve eexists. do 2 eexists.
-        refine ( 'PolyElement ( g o>Generator v | (Viewing_F G f) ) @ Viewing_data_F, Viewing_transp_F )%sol.
+        refine ( 'PolyElement ( g o>Generator v | (Viewing_F G f) ) @ isFiniteness_F )%sol.
         move: ff_Sol_transp ff'Sol_transp; clear;
           abstract (simpl; intros; eapply convCoMod_Trans with
-                                   (uTrans := ( 'View1 g ) o>CoMod ( 'PolyElement v @ Viewing_data_F, Viewing_transp_F )); tac_reduce).
+                                   (uTrans := ( 'View1 g ) o>CoMod ( 'PolyElement v @ isFiniteness_F )); tac_reduce).
     }
 
   (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is (ff_Sol o>CoMod ( [[ ee_ @ Yoneda01_F , Viewing_F ]] )) **)
+is (ff_Sol o>CoMod ( [[ ee_ @ isFiniteness_F ]] )) **)
   * move:  (Sol.Destruct_codomViewingFunctor.morCoMod_codomViewingFunctorP ff_Sol) => ff_Sol_codomViewingFunctorP.
     { destruct ff_Sol_codomViewingFunctorP as
-          [ Yoneda00_F  Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F
-          | Yoneda00_F  Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F G f H v
+          [ Yoneda00_F  Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F
+          | Yoneda00_F  Yoneda01_F Viewing_F Viewing_data_F Viewing_transp_F isFiniteness_F G f H v
           ] .
 
       (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is ((@'UnitCoMod (ViewingFunctor Viewing_data_F Viewing_transp_F)) o>CoMod ( [[ ee_ @ F , V_ ]] )) **)
-      - unshelve eexists. do 2 eexists. refine ( [[ ee_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]] )%sol.
+is ((@'UnitCoMod (ViewingFunctor isFiniteness_F)) o>CoMod ( [[ ee_ @ isFiniteness_F ]] )) **)
+      - unshelve eexists. do 2 eexists. refine ( [[ ee_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]] )%sol.
         move: ff_Sol_transp ff'Sol_transp; clear;
           abstract (simpl; intros; eapply convCoMod_Trans with
-                (uTrans := ('UnitCoMod) o>CoMod ([[ (fun G H f v => Sol.toPolyMor (ee_(G)(H)(f)(v))) @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]])); tac_reduce).
+                (uTrans := ('UnitCoMod) o>CoMod ([[ (fun G H f v => Sol.toPolyMor (ee_(G)(H)(f)(v))) @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real ]])); tac_reduce).
 
       (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is (('PolyElement v @ Viewing_data_F , Viewing_transp_F) o>CoMod ( [[ ee_ @ F , V_ ]] )) **)
+is (('PolyElement v @ isFiniteness_F) o>CoMod ( [[ ee_ @ isFiniteness_F ]] )) **)
       - have [:blurb] ee_v_transp :=
           (proj2_sig (solveCoMod len _ _ _ _ _ _ _ _ _ _ _ _ _ _
                                  (Sol.toPolyMor (ee_(G)(f)(H)(v))) blurb));
             first by clear -grade_ff ff_Sol_transp ff'Sol_transp;
             abstract(match goal with
-                     | [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-                         Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F  |- _ ] =>
-                       destruct (Finiteness.is_viewingFunctorElement12_allP Viewing_data_F Viewing_transp_F  v)
+                     | [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F  |- _ ] =>
+                       destruct (Finiteness.is_viewingFunctorElement12_allP isFiniteness_F  v)
                      end;
                      tac_degrade grade_ff).
         move: (projT1 (sval (solveCoMod len _ _ _ _ _ _ _ _ _ _ _ _ _ _
@@ -4106,37 +4126,36 @@ is (('PolyElement v @ Viewing_data_F , Viewing_transp_F) o>CoMod ( [[ ee_ @ F , 
         refine ( ee_v o>CoMod 'UnitViewedFunctor )%sol.
         move: ff_Sol_transp ff'Sol_transp ee_v_transp; clear;
           abstract (simpl; intros; eapply convCoMod_Trans with
-                        (uTrans := ( 'PolyElement v @ Viewing_data_F , Viewing_transp_F ) o>CoMod
-                           ( [[ (fun G H f v => Sol.toPolyMor (ee_(G)(H)(f)(v))) @ Viewing_data_F , Viewing_transp_F ,  Yoneda10_ee_natural , Yoneda10_ee_morphism  , Yoneda10_ee_real ]] )); tac_reduce).
+                        (uTrans := ( 'PolyElement v @ isFiniteness_F ) o>CoMod
+                           ( [[ (fun G H f v => Sol.toPolyMor (ee_(G)(H)(f)(v))) @ isFiniteness_F ,  Yoneda10_ee_natural , Yoneda10_ee_morphism  , Yoneda10_ee_real ]] )); tac_reduce).
     }
 
   (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is (ff_Sol o>CoMod ( [[[ ee_ @ Yoneda01_F, Viewing_F]]] )) **)
+is (ff_Sol o>CoMod ( [[[ ee_ @ isFiniteness_F , _isFiniteness_F]]] )) **)
   * move:  (Sol.Destruct_codomViewingFunctor.morCoMod_codomViewingFunctorP ff_Sol) => ff_Sol_codomViewingFunctorP.
     { destruct ff_Sol_codomViewingFunctorP as
-          [ Yoneda00_F  Yoneda01_F _Viewing_F _Viewing_data_F _Viewing_transp_F
-          | Yoneda00_F  Yoneda01_F _Viewing_F _Viewing_data_F _Viewing_transp_F G f H v
+          [ Yoneda00_F  Yoneda01_F _Viewing_F _Viewing_data_F _Viewing_transp_F _isFiniteness_F
+          | Yoneda00_F  Yoneda01_F _Viewing_F _Viewing_data_F _Viewing_transp_F _isFiniteness_F G f H v
           ] .
 
       (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is ((@'UnitCoMod (ViewingFunctor _Viewing_data_F _Viewing_transp_F)) o>CoMod ( [[[ ee_ @ Yoneda01_F, Viewing_F]]] )) **)
-      - unshelve eexists. do 2 eexists. refine ( [[[ ee_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , _Viewing_data_F , _Viewing_transp_F , viewingDefault'_poly_transp ]]] )%sol.
+is ((@'UnitCoMod (ViewingFunctor _isFiniteness_F)) o>CoMod ( [[[ ee_ @ isFiniteness_F , _isFiniteness_F]]] )) **)
+      - unshelve eexists. do 2 eexists. refine ( [[[ ee_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real , _isFiniteness_F , viewingDefault'_poly_transp ]]] )%sol.
         move: ff_Sol_transp ff'Sol_transp; clear;
           abstract (simpl; intros; eapply convCoMod_Trans with
-                (uTrans := ('UnitCoMod) o>CoMod ([[[ (fun G H f v => Sol.toPolyMor (ee_(G)(H)(f)(v))) @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real  , _Viewing_data_F , _Viewing_transp_F , viewingDefault'_poly_transp ]]])); tac_reduce).
+                (uTrans := ('UnitCoMod) o>CoMod ([[[ (fun G H f v => Sol.toPolyMor (ee_(G)(H)(f)(v))) @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism , Yoneda10_ee_real  , _isFiniteness_F , viewingDefault'_poly_transp ]]])); tac_reduce).
 
       (** gg is (ff_ o>CoMod ff') , to (ff_Sol o>CoMod ff'Sol)  , 
-is (('PolyElement F wv) o>CoMod ( [[[ ee_ @ Yoneda01_F, Viewing_F]]] )) **)
+is (('PolyElement F wv) o>CoMod ( [[[ ee_ @ isFiniteness_F , _isFiniteness_F]]] )) **)
       - set w'v' := (((projT2 (sval (viewingDefault'_poly_transp G f) H v)) :>Generator) o>Generator (projT2 (projT1 (sval (viewingDefault'_poly_transp G f) H v))) | (Viewing_F G f)).
         have [:blurb] ee_w'v'_transp :=
           (proj2_sig (solveCoMod len _ _ _ _ _ _ _ _ _ _ _ _ _ _
                                  (Sol.toPolyMor (ee_(G)(f)(H)(w'v'))) blurb));
             first by clear -grade_ff ff_Sol_transp ff'Sol_transp;
             abstract(match goal with
-                     | [ Viewing_data_F : (forall (G : obGenerator) (f : ?Yoneda00_F G), viewingData (?Viewing_F G f)) ,
-                         Viewing_transp_F : viewingFunctor ?Yoneda01_F ?Viewing_F  |- _ ] =>
+                     | [ isFiniteness_F : Finiteness.isFiniteness_ ?Viewing_data_F ?Viewing_transp_F  |- _ ] =>
                        move : w'v'; intros w'v';
-                       destruct (Finiteness.is_viewingFunctorElement12_allP Viewing_data_F Viewing_transp_F w'v')
+                       destruct (Finiteness.is_viewingFunctorElement12_allP isFiniteness_F w'v')
                      end;
                      tac_degrade grade_ff).
         move: (projT1 (sval (solveCoMod len _ _ _ _ _ _ _ _ _ _ _ _ _ _
@@ -4152,8 +4171,8 @@ is (('PolyElement F wv) o>CoMod ( [[[ ee_ @ Yoneda01_F, Viewing_F]]] )) **)
         move: ff_Sol_transp ff'Sol_transp ee_w'v'_transp; clear;
           abstract( simpl; set eeSol_ := (fun G0 f0 H0 v0 => Sol.toPolyMor (ee_(G0)(f0)(H0)(v0)));
         intros; eapply convCoMod_Trans with
-                (uTrans := ( 'PolyElement v @ _Viewing_data_F , _Viewing_transp_F ) o>CoMod
-                          ( [[[ eeSol_ @ Viewing_data_F , Viewing_transp_F , Yoneda10_ee_natural , Yoneda10_ee_morphism  , Yoneda10_ee_real , _Viewing_data_F , _Viewing_transp_F , viewingDefault'_poly_transp ]]] ));
+                (uTrans := ( 'PolyElement v @ _isFiniteness_F ) o>CoMod
+                          ( [[[ eeSol_ @ isFiniteness_F , Yoneda10_ee_natural , Yoneda10_ee_morphism  , Yoneda10_ee_real , _isFiniteness_F , viewingDefault'_poly_transp ]]] ));
         first (by simpl; eauto);
         eapply convCoMod_Trans with (uTrans := eeSol_ G f H w'v');
         first (by apply PolyTransf_default_PolyElement); eauto).
