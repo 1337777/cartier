@@ -1,10 +1,10 @@
-MEMO :: OOO1337777 ends to discover-engineer-and-teach 计算鸡-COQ polymorph mathematics to billions of secondary-school persons ( [[https://v.youku.com/v_show/id_XMzgwNzY2MTYxNg==.html]] [[https://www.bilibili.com/video/av45005443]] [[https://mixer.com/OOO1337777]] ) ; « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics contra « NOISEA » (forced-fool-and-theft/lie/falsification) ...
+MEMO :: OOO1337777 ends to learn-discover-engineer-and-teach 鸡算计-COQ polymorph mathematics to billions of secondary-school persons ( [[https://www.bilibili.com/video/av49126093]] ) ; « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics contra « NOISEA » (forced-fool-and-theft/lie/falsification) ...
 
 -----
 
 SHORT ::
 
-  OOO1337777 SOLUTION PROGRAMME [[https://gitlab.com/1337777]] originates from some random-moment dia-para-computalogical discovering-engineering-and-teaching of some convergence of the DOSEN PROGRAMME [[http://www.mi.sanu.ac.rs/~kosta]] along the COQ PROGRAMME [[https://coq.inria.fr]] .
+  OOO1337777 SOLUTION PROGRAMME [[https://gitlab.com/1337777]] originates from some random-moment dia-para-computalogical learning-discovering-engineering-and-teaching of some convergence of the DOSEN PROGRAMME [[http://www.mi.sanu.ac.rs/~kosta]] along the COQ PROGRAMME [[https://coq.inria.fr]] .
 
   And OOO1337777 did learn-discover-engineer-and-teach [[1337777.OOO//maclaneSolution.svg]] [[1337777.OOO//coherence2.v]] [[1337777.OOO//maclaneSolution2.thy]] [[google.com/#q=1337777.OOO/coherence2.v]] [[https://sympa.inria.fr/sympa/arc/coq-club/2016-01/msg00090.html]] [[https://web.archive.org/web/20160627011042/https://raw.githubusercontent.com/1337777/dosen/master/coherence2.v]] that the attempt to deduce associative coherence by Maclane is not the reality , because this famous pentagon is in fact some recursive square (reflective-functorial associativity-elimination cut-elimination resolution) . This associative coherence is the meta-terminology for the completeness-lemma of the (oriented-)semiassociative coherence [[1337777.OOO//coherence.v]] and this semiassociative coherence does lack some more-common Newman-style local confluence lemma .
 
@@ -34,7 +34,7 @@ SHORT ::
 
   Necessarily , OOO1337777 did learn-discover-engineer-and-teach [[1337777.OOO//ethereumSolution.sol]] information-technology to measure reviews/citations (¢entse currency) by using public programmatic proxy-authors « pprogxy » ( "ethereum blockchain cryptographic smart-contract" ) integrated along content-addressable personal-public replicated-storage ( "swarm dht" ) .
 
-  Necessarily , OOO1337777 did learn-discover-engineer-and-teach [[1337777.OOO//qoc_jisuanji.v]] [[1337777.OOO//gongji.ml4]] information-technology for multiple-market/language (中文话）textual COQ math programming .
+  Necessarily , OOO1337777 did learn-discover-engineer-and-teach [[https://space.bilibili.com/403144043]] [[https://mixer.com/OOO1337777]] [[1337777.OOO//qoc_jisuanji.v]] information-technology for multiple-market/language textual 鸡算计-COQ math programming .
 
   Necessarily , OOO1337777 did learn-discover-engineer-and-teach [[1337777.OOO//init.html]] [[1337777.OOO//init.pdf]] [[1337777.OOO//makegit.sh.org]] [[1337777.OOO//editableTree.urp]] information-technology based on the EMACS org-mode logiciel which enables the communication of timed-synchronized geolocated simultaneously-edited multi-authors format-able searchable textual COQ math programming .
 
@@ -42,7 +42,7 @@ SHORT ::
 
 -----
 
-KEYWORDS :: OOO1337777 ; COQ ; QOC ; MODOS
+KEYWORDS :: OOO1337777 ; COQ ; 鸡算计 ; MODOS
 
 -----
 
