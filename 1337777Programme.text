@@ -1,3 +1,20 @@
+MORE :: https://github.com/1337777/cartier/blob/master/1337777Programme.text 
+
+SHORT ::
+
+  Mathematicians , logic , and topology are interdependent , but how ? 
+
+  For the past half-century , mathematicians have failed to see the real computational logic which moves topology : some mysterious categorical-algebra reformulation indeed moves geometry ( "coverings over parameterizations" ) and homotopy ( "relaxations under relativizations" ) !
+
+  Firstly , in computational logic until now , mathematicians have stop short from generalizing the known techniques ( "cut-elimination" , "confluence" , "dependent-typed functional programming" ) from the computer machines towards any alternative formulations of categorical-algebra . For example , all these categorical-algebras : "adjunctions" , "comonads" , "products" , "extensions along functor" , "enriched categories" , "internal categories" , "2-fold categories" ( with sense in "model category" ) , "coherent presheaves" ( with sense in "topos" ) and "localizations" , "fibred category with local internal products" ... now have alternative reformulations as computational logics ( "polymorph mathematics" ) . 
+
+  Secondly , in geometry ( with sense in "topos" ) and homotopy ( with sense in "model category" ) until now , mathematicians have not moved past the old computational support ( coefficients ) , which occurs inside "additive categories" ( "sheaves of modules" , "modules over some group-ring" , "parametrized linear algebra" , "iterative relative cohomological algebra of derived functors"  ) . Even the latest "stacks" or "derivators" , which attempt to generalize from such "additive categories" as computational coefficients , have failed to notice this new computational logic formulation of categorical-algebra . 
+
+  But it is now learned-and-discovered that : geometry ( "coverings over parameterizations" ) and homotopy ( "relaxations under relativizations" ) is moved by this alternative formulation of categorical-algebra as computational logic ! And the engineering-and-teaching of these is being attempted via the COQ-computer and the GAP-computer .
+
+-----
+
+
 MEMO :: OOO1337777 ends to learn-discover-engineer-and-teach 鸡算计-COQ polymorph mathematics to billions of secondary-school persons ( [[https://www.bilibili.com/video/av49126093]] ) ; « MODOS » (modified-colimitS) is the alpha-omega of polymorph mathematics contra « NOISEA » (forced-fool-and-theft/lie/falsification) ...
 
 -----
