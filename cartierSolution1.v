@@ -3,7 +3,7 @@
 
 Proph
 
-https://github.com/1337777/cartier/blob/master/cartierSolution1.v
+https://gitlab.com/1337777/cartier/blob/master/cartierSolution1.v
 
 shows the general outline of the solutions to some question of CARTIER which is how to program « geometric homotopic parametrization modos » ... 
 

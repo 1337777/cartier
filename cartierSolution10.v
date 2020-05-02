@@ -46,7 +46,7 @@ E_ <-> E' <----- project ------- P ------- subst -------> F_
 
 KEYWORDS :: COQ ; computational logic ; geometry ; homotopy ; MODOS
 
-OUTLINE SHORT :: https://github.com/1337777/cartier/blob/master/cartierSolution1.v ( comonad and adjunction cut-eliminations in the style of the pairing-projections cancellation for the cartesian-product )
+OUTLINE SHORT :: https://gitlab.com/1337777/cartier/blob/master/cartierSolution1.v ( comonad and adjunction cut-eliminations in the style of the pairing-projections cancellation for the cartesian-product )
 
 OUTLINE ::
 
