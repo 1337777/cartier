@@ -1025,7 +1025,8 @@ unshelve eapply Sense00_ViewedOb_quotient; simpl;
   |
   ].
 congr ( _ o>Generator_ _). subst.
-erewrite <- (Sense1_ee_morphism _ _ _ _ _ _ _ eq_refl). simpl.
+etransitivity; first last.
+apply  Sense1_ee_morphism. reflexivity. simpl.
 rewrite (proj2_sig (Sense1_ee__ _ _)). reflexivity.
 Qed.
 
