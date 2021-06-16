@@ -10,6 +10,37 @@ shows the general outline of the solutions to some question of CARTIER which is
  « dependent constructive computational logic for algebraic-geometric dataobjects »
  (including homotopy types) ...
 
+Appendix: What is the minimal example of sheaf cohomology? Grammatically
+Short: Hold any Dosen-style cut-elimination confluence of arrow-terms (for some comonad, or pairing-product, or 2-category, or proof-net star-autonomous category,... ), and form the (petit) grammatical-globular site (double category) whose objects are the arrow-terms and where any (necessarily finite) covering family of morphisms is either any reduction-conversion linkage or all the (immediate proper, including unit-arrows in cuts) subterms of some redex arrow-term. Define any model (in Set) to be some grammatical sheaf (hence globular copresheaf) of (span of) sets over this site, where each covering family become limit cone (constructively, using compatible families). Now starting with some generative presheaf data, then sheafification-restricted-below-any-sieve of this presheaf can be inductively constructed by refinements of the sieves. Moreover, it may be assumed some generating cocontinuous adjunction of sites; the result is some dependent-constructive-computational-logic of geometric dataobjects (including homotopy-types): MODOS. Now globular homology of any copresheaf computes the composable occurrences of arrow-terms (cycles from 0 to 1). Also grammatical cohomology of the sheafification (graded by the nerve of its sieve argument) computes the global solutions of occurrences of all arrow-terms in the model which satisfy the confluence of reductions in the site. Contrast to the covariant sketch models of some coherent theory; but now any globular-covariant (contravariant finite-limit sketch) concrete model is some category with operations on arrows. The sense mimicks the usual Kripke-Joyal sense, as explicit definitions. The generic model contravariantly sends any object G to the covariant diagram of sets represented by the sheafified G over only the finitely-presentable (data) sheaf-models: G ↦ Hom(sheafified(Hom(–, G)), fpModelsSet(_)) … and further could be sliced over any (outer/fixed) dataobject.
+
+(1.) Morphisms: the shape of the point is now “A” instead of singleton, context extension is polymorph…
+for (B over Delta) and for variable (Theta), then
+Span(Theta ~> (Delta;B))  :<=>  Hom( (x: Gamma; a: A( h(x) )) ~> B( f(x) ) ) with some (f: Gamma -> Delta) and (h: Gamma -> Theta) and (A over Theta)
+
+ERRATA: (2.) Algebraic-geometric dataobjects: the elimination schema for the dataobjects gives the base of the construction for the sheafification; continued with the refinements/gluing schema below any sieve...
+
+| Constructing : asConstructor F U f
+______________________________________
+Hom( Restrict U VV ~> Restrict F VV ))
+
+| Destructing : (forall U (f : F U) (cons_f : asConstructor F U f), 
+			Hom( Restrict U VV ~> E ))
+___________________________________________________________________
+Hom( Restrict F VV ~> Sheafified E VV )
+
+| Refining : (forall W (v : Site( W ~> V | in sieve VV )), 
+			Hom( Restrict F WW_v ~> Sheafified E WW_v ))
+____________________________________________________________________
+Hom( Restrict F WW_VV ~> Sheafified E WW_VV )
+
+Lemma: cut-elimination holds. Corollary: grammatical sheaf cohomology exists.
+
+Applications: with 2-category sites, get some constructive homotopy types; with proof-net star-autonomous categories sites, get some constructive alternative to Urs Schreiber's geometry of quantum-fields physics.
+
+https://nicolasbourbaki365-demo.workschool365.com
+( https://github.com/1337777/cartier/blob/master/cartierSolution0.v )
+
+
 OUTLINE ::
 
 * Generating site, its cut-elimination and confluence
