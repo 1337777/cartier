@@ -14,6 +14,8 @@ Its significance would be similar as the significance of the development of hott
  the (possibly incompatible) glued-data along with 
  its differentials (incompatibilities) of the gluing.
 
+The computing example prototype is to quickly convey the idea, but far from the generality 
+ (where pullback-sieves are blended within the sum-sieve constructor).
 
 OUTLINE ::
 
