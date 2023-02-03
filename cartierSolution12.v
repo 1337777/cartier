@@ -1,13 +1,38 @@
 (** # #
 #+TITLE: cartierSolution12.v
 
-Proph
+TODO: these are unfinished prototypes for demo that it does work
 
-https://github.com/1337777/cartier/blob/master/cartierSolution12.v
+https://github.com/1337777/cartier/blob/master/cartierSolution12.v (head version; experiment file)
+https://github.com/1337777/cartier/blob/master/cartierSolution12.lp (lagging version; future primary file; must use LambdaPi for modulo structural coherence)
 
-Proof-assistants, sheaves and applications
+In one line: the problem of contextual composition (cut elimination) and monoidal units (J-rule elimination) is solved by alternative formulations of adjunctions.
 
-NOTE: ONE OF THESE FORMULATIONS WORKS BUT ALL WRONG ATTEMPTS ARE KEPT IN TRE FILE FOR NOW FOR FUTURE REFERENCE
+Context: There is now sufficient evidence (ref [6], [7]) that Kosta Dosen's ideas and techniques (ref [1], [2], [3], [4], [5]) could be implemented for proof-assistants, sheaves and applications; in particular cut-elimination, rewriting and confluence for various enriched, internal, indexed or double categories with adjunctions, monads, negation, quantifiers or additive biproducts; quantitative/quantum linear algebra semantics; presheaf/profunctor semantics; inductive-sheafification and sheaf semantics; sheaf cohomology and duality...
+
+[1] Dosen-Petric: Cut Elimination in Categories 1999; 
+[2] Proof-Theoretical Coherence 2004; 
+[3] Proof-Net Categories 2005; 
+[4] Coherence in Linear Predicate Logic 2007; 
+[5] Coherence for closed categories with biproducts 2022
+
+Proposal for prospective implementation:
+
+The problem of “formulations of adjunction”, the problem of “unit objects” and also the problem of “contextual composition/cut” can be understood as the same problem. The question arises when one attempts to write precisely the counit/eval transformation ϵ_X ∶ catA(F G X, X) where F : catB → catA is the left-adjoint. One could instead write ϵ_X ∶ catA(F ,1)(G X, X) where the profunctor object/datatype catA(F ,1) is used in lieu of the unit hom-profunctor catA; in other words: F is now some implicit context, and the contextual composition/cut (in contravariant action) of some g:catB(Y, G X) in the unit profunctor against ϵ_X should produce an element of the same datatype: ϵ_X∘g : catA(F,1)(Y,X)... Ultimately Dosen-Petric (ref [5]) would be extended in this setting where some dagger compact closed double category, of left-adjoint profunctors across Cauchy-complete categories, is both inner and outer dagger compact closed where the dagger operation on profunctors (as 1-cells) coincides with the negation operation on profunctors (as 0-cells), optionally with sheaf semantics and cohomology. The earlier Coq prototypes (ref [6] for example) show that the core difficulty is in the industrial labor and tooling, which requires a coordinated workshop of workers (not celebrities, lol).
+
+Recall that closed monoidal categories (with conjunction bifunctor ∧ with right adjoint implication functor →) are similar as programming with linear logic and types. Now to be able to express duality, finitely-dimensional/traced/compact closed categories are often used to require the function space (implication →) to be expressible in basis form. But along this attempt to express duality, two (equivalent) pathways of the world of substructural proof theory open up: one route is via Barr’s star-autonomous categories and another route is via Seely’s linearly distributive categories with negation.
+
+For star-autonomous categories, one adds a “dualizing unit” object ⊥ which forces the evaluation arrow A ⊢ (A → ⊥) → ⊥ into an isomorphism. For linearly distributive categories with negation, one adds a “monoidal unit” object ⊥ for another disjunction bifunctor ∨ whose negation A'∨- is right-adjoint to the conjunction A∧- where this adjunction is expressed via the help of some new associativity rule A∧(B∨C) ⊢ (A∧B)∨C called “dissociativity” or “linear distributivity” (used to commute the context A∧ - and the negated context -∨C); and it is this route chosen by Dosen-Petric to prove most of their Gentzen-formulations and cut-elimination lemmas (ref §4.2 of [3] for linear, ref §11.5 of [2] for cartesian, and ref §7.7 of [2] for an introductory example). In summary, those are two routes into some problem of “unit objects” in non-cartesian linear logic.
+
+Some oversight about the problem of “unit objects” is the belief that it should have any definitive once-for-all solution. Instead, this appears to be a collection of substructural problems for each domain-specific language. Really, even the initial key insight of Dosen-Petric, about the cut-elimination formulation in the domain-specific language of categorial adjunctions, can be understood as a problem of “unit profunctor” in the double category of profunctors and the (inner) cut elimination lemma becomes synonymous with elimination of the “J-rule”; and recall that such equality/path-induction J-rule would remain stuck in (non-domain-specific) directed (homotopy) type theory.
+
+Now the many “formulation of adjunctions” are for different purposes. Indeed the outer framework (closed monoidal category) hosting such inner domain-specific language (unit-counit formulation) could itself be in another new formulation of adjunctions (bijection of hom-sets) where the implication bifunctor  → is accumulated during computation via dinaturality (in contrast to the traditional Kelly-MacLane formulation).
+
+Finally the problem of “contextual composition/cut” also arises from the problem of the structural coherence of associativity or dissociativity or commutativity, which now enables gluing the codomain/domain of compositions such as A∧f ∶ A∧X → A∧(B∨C) then g∨C ∶ (A∧B)∨C → Y∨C, or such as η_A ∶ I → A'∧A then ϵ_A∘f∧A' ∶ A∧A' → I, and which would force the outer framework to explicitly handle compositions under contexts/polycategories modulo associativity (“Gentzen cuts”) or to handle trace functions on arrows loops modulo cyclicity (for compact closed categories)... In other words, the meta framework (such as Blanqui’s LambdaPi and surprisingly not Coq’s CoqMT at present) of the framework should ideally implement those strictification lemmas (ref §3.1 of [2]) to be able to compute modulo structural coherence.
+
+[6] Cut-elimination in the double category of profunctors with J-rule-eliminated adjunctions: https://github.com/1337777/cartier/blob/master/cartierSolution12.v ( /cartierSolution12.lp ; /maclaneSolution2.v MacLane’s pentagon is some recursive square! )
+
+[7] Pierre Cartier
 
 -----
 
@@ -20,55 +45,23 @@ From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat seq path fin
 Set Implicit Arguments. Unset Strict Implicit. Unset Printing Implicit Defensive.
 
 Parameter Cat : Set.
-Parameter Functor : Cat -> Cat -> Set.
-Parameter Object : Cat -> Set.
-Parameter Rel : Cat -> Cat -> Set.
-Parameter Transf : forall [C A B: Cat], Rel A B ->  Functor C A ->  Functor C B -> Set.
-Parameter Adjunc : forall [C D: Cat], Functor C D -> Functor D C -> Set.
 
-Inductive object: forall (C : Cat), Type :=
-| Gen_object : forall [C : Cat], Object C -> object C
-| App_object : forall [C D: Cat], object C -> functor C D ->  object D
-
-with functor: forall (C D : Cat), Type :=
-| Gen_functor : forall [C D : Cat], Functor C D -> functor C D
+Inductive functor: forall (C D : Cat), Type :=
 | Subst_functor : forall [C D E: Cat], functor C D -> functor D E ->   functor C E
 | Id_functor : forall C : Cat, functor C C
-| App_functor : forall [C D E: Cat], Functor C D -> functor D E ->   functor C E (* from sol *)
 
 with rel: forall (C D : Cat), Type :=
-| Gen_rel : forall [C D : Cat], Rel C D -> rel C D
-| Tensor_rel : forall [A B C : Cat], rel C B -> rel B A -> rel C A
-| (* OK version *) Tensor_antec_rel' : forall [A B C B' : Cat], rel C B -> functor B B' -> rel B' A -> rel C A
-| Tensor_rel' : forall [A B C B' : Cat], rel C B' -> functor B B' -> rel B' A -> rel C A
+| Tensor_antec_rel' : forall [A B C B' : Cat], rel C B -> functor B B' -> rel B' A -> rel C A
 | Id_rel :  forall [C C' D' : Cat], functor C' C -> functor D' C -> rel C' D'
-| Imply_antec_rel : forall  [A C B : Cat], rel A C -> rel B C -> rel B A
 | Imply_antec_rel' : forall  [A C B C' : Cat], rel A C -> rel B C' -> functor C C' -> rel B A
-| Imply_conse_rel : forall [C A B : Cat], rel C A -> rel C B -> rel A B
 | Subst_rel : forall [C D C' D': Cat], rel C D -> functor C' C -> functor D' D ->  rel C' D' .
 
 Inductive adjunc : forall [C D: Cat], functor C D -> functor D C -> Type := 
 
-| Gen_adjunc : forall [C D: Cat] (LeftAdjunc_functor : Functor C D) (RightAdjunc_functor : Functor D C), 
-  adjunc (Gen_functor LeftAdjunc_functor) (Gen_functor RightAdjunc_functor)
-
-with arrow: forall [A B: Cat], rel A B -> object A -> object B -> Type :=
-
-| App_arrow : forall [C A B: Cat], forall (R : rel A B) (F : functor C A) (G : functor C B),
-  forall (X : object C), transf R F G -> arrow R (App_object X F) (App_object X G)
-
 with transf:  forall [C A B: Cat], rel A B -> functor C A -> functor C B -> Type :=
 
-| Gen_transf : forall C A B: Cat, forall (F : Functor C A) (R: Rel A B) (G: Functor C B), 
-  Transf R F G -> forall D (X : functor D C), transf (Gen_rel R) (Subst_functor X (Gen_functor F)) (Subst_functor X (Gen_functor G))
-
-| Subst_transf : forall C A B: Cat, forall (R : rel A B) (F : functor C A) (G : functor C B),
+| Restr_transf (* admissible *): forall C A B: Cat, forall (R : rel A B) (F : functor C A) (G : functor C B),
   forall D (X : functor D C), transf R F G -> transf R (Subst_functor X F) (Subst_functor X G)
-
-| Id_antec_transf' : forall [E C: Cat] (F : functor C E),  transf  (Id_rel F (Id_functor _) ) (Id_functor _)  F
-
-| Id_conse_transf' : forall [E C: Cat] (F : functor C E),  transf (Id_rel (Id_functor _) F)  F (Id_functor _)
-
 
 | Id_antec_transf : forall E C: Cat, forall (F : functor C E), forall D (X : functor D C),
        transf  (Id_rel F (Id_functor _) ) X  (Subst_functor X F)
@@ -83,23 +76,13 @@ with transf:  forall [C A B: Cat], rel A B -> functor C A -> functor C B -> Type
       (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), forall A (X : functor A D), 
     transf  (Id_rel (LeftAdjunc_functor) (Id_functor D)) (Subst_functor X (RightAdjunc_functor)) X
 
-| UnitAdjunc_transf' : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-      (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), 
-    transf   (Id_rel (Id_functor _) (RightAdjunc_functor) ) (Id_functor C)  (LeftAdjunc_functor)
-
-| CoUnitAdjunc_transf' : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), 
-    transf  (Id_rel (LeftAdjunc_functor) (Id_functor D)) (RightAdjunc_functor) (Id_functor D)
-
 | App_transf : forall [C D C' D' A: Cat], forall [R : rel C D] [F : functor C C'] [S : rel C' D'] [G : functor D D'] [M : functor A C] [N : functor A D], 
     transf R M  N -> funcTransf R S F G -> transf S (Subst_functor M F) (Subst_functor N G)
 
-| App_conse_transf' : forall [C D D' A: Cat], forall [R : rel C D] [S : rel C D'] [G : functor A D'] [M : functor A C] [N : functor A D], 
-    transf R M  N -> funcTransf (Subst_rel R (Id_functor _) N) S (Id_functor C) G -> transf S M G
-    
 with funcTransf: forall [C D C' D': Cat], rel C D -> rel C' D' -> functor C C' -> functor D D' -> Type :=  
    
 
-| Subst_funcTransf : forall [C D C' D' C'' D'': Cat], forall [R : rel C D] [S : rel C' D'] [F : functor C C'] [G : functor D D']
+| Subst_funcTransf (* admissible *) : forall [C D C' D' C'' D'': Cat], forall [R : rel C D] [S : rel C' D'] [F : functor C C'] [G : functor D D']
   [T : rel C'' D''] [F' : functor C C''] [G' : functor D D''],
   funcTransf R S F G -> funcTransf (Subst_rel S F G) T F' G' -> funcTransf R T F' G'
 
@@ -111,62 +94,23 @@ with funcTransf: forall [C D C' D': Cat], rel C D -> rel C' D' -> functor C C' -
   forall  C'' D'' (F' : functor C' C''), forall T : rel C'' D'', forall (G' : functor D' D''),
    funcTransf S T F' G' -> funcTransf (Subst_rel S F G) T (Subst_functor F F') (Subst_functor G G')
 
-| Comp_antec_funcTransf : forall [C A B: Cat], forall [R: rel A B] [F : functor C A] [G: functor C B],
-    transf R F G -> funcTransf (Id_rel G (Id_functor B)) R F (Id_functor B)
-
 | Comp_antec_funcTransf' : forall C A B: Cat, forall (F : functor C A)  (R: rel A B)  (G: functor C B) ,
     transf R F G -> forall B' (K: functor B' B), funcTransf (Id_rel G K) R F K
-
-
-| Comp_conse_funcTransf : forall [C A B: Cat], forall [R: rel A B] [F : functor C A] [G: functor C B],
-    transf R F G -> funcTransf (Id_rel (Id_functor A) F) R (Id_functor A) G
 
 | Comp_conse_funcTransf' : forall C A B: Cat, forall (F : functor C A)  (R: rel A B)  (G: functor C B) ,
     transf R F G -> forall A' (K: functor A' A), funcTransf (Id_rel K F) R K G
 
-
-| CoYoneda_antec_funcTransf : forall (C D D' : Cat) (H : functor D D') (R : rel C D) 
-    (C' : Cat) (F : functor C C') (T : rel C' D'),
-    funcTransf R T F H ->
-    funcTransf (Tensor_rel R (Id_rel H (Id_functor D'))) T F (Id_functor D')
-
-| CoYoneda_antec_funcTransf' : forall (C D D' : Cat) (H : functor D D') (R : rel C D) 
+| CoYoneda_antec_funcTransf'' : forall (C D D' : Cat) (H : functor D D') (R : rel C D) 
     (C' : Cat) (F : functor C C') (T : rel C' D'),
     funcTransf R T F H ->
     forall (D0 : Cat) (K : functor D0 D'),
-    funcTransf (Tensor_rel R (Id_rel H K)) T F K
+    funcTransf (Tensor_antec_rel' R H (Id_rel (Id_functor D') K)) T F K
 
-| CoYoneda_antec_funcTransf''_okforcut : forall (C D : Cat) (R : rel C D)  E  (K : functor E D)
-    (C' E' : Cat) (S : rel C' E') (F : functor C' C) (G : functor E' E),
-    funcTransf S (Tensor_rel R (Id_rel (Id_functor D) K)) F G -> 
-     funcTransf S R F (Subst_functor G K)
-
-| TEST_ALT_CoYoneda_antec_appId_funcTransf' (* OK version to derive *): 
+| CoYoneda_antec_appId_funcTransf'' (* OK version to derive ?? *): 
 forall C D: Cat, forall D0 (H : functor D  D0), forall R : rel C D,
-forall  C' (F : functor C C') D' (G : functor D0 D') (T : rel C' D'), (* TODO: should G be Id_functor ? *)
-    funcTransf (Tensor_rel R (Id_rel H (Id_functor D0))) T F G -> 
-    funcTransf R T F (Subst_functor H G)
-
-| CoYoneda_conse_funcTransf : forall C D: Cat, forall C' (H : functor C C'), forall R : rel C D, (* todo: redo*)
-forall  D' (G : functor D D') (T : rel C' D'),
-  funcTransf R T H G ->
-  funcTransf (Tensor_rel (Id_rel (Id_functor _) H) R) T (Id_functor _) G
-
-| Imply_antec_lambda_funcTransf : forall C E D: Cat, forall R : rel C E, forall (R' : rel E D), forall  C' (F : functor C C'), forall S : rel C' D, 
-  funcTransf (Tensor_rel R R') S F (Id_functor _) -> 
-  funcTransf R (Imply_antec_rel R' S) F (Id_functor _)
-
-| Imply_antec_app_funcTransf : forall C E D: Cat, forall R : rel C E, forall (R' : rel E D), forall  C' (F : functor C C'), forall S : rel C' D, 
-  funcTransf R (Imply_antec_rel R' S) F (Id_functor _) ->
-  funcTransf (Tensor_rel R R') S F (Id_functor _) 
-
-| Imply_antec_app_funcTransf' : forall (C E D : Cat)  (R' : rel E D) 
-      (C' : Cat) (F : functor C C') (S : rel C' D)
-      E' (E'E : functor E' E) (P : rel C E')
-      D' (D'D : functor D' D)  (Q : rel E' D'),
-    funcTransf P   (Imply_antec_rel R' S) F   E'E ->
-    funcTransf Q    R'                    E'E D'D ->
-    funcTransf (Tensor_rel P Q) S F D'D
+forall  C' (F : functor C C') D' (G : functor D D') (T : rel C' D'), 
+    funcTransf (Tensor_antec_rel' R H (Id_rel (Id_functor _) H)) T F G -> 
+    funcTransf R T F G
 
 | Imply_antec_app_funcTransf'' : forall (C E D : Cat)  
       (C' : Cat) (F : functor C C') (S : rel C' D)
@@ -175,33 +119,6 @@ forall  D' (G : functor D D') (T : rel C' D'),
     funcTransf P (Imply_antec_rel' R S D'D) F E'E ->
     funcTransf (Tensor_antec_rel' P E'E R) S F D'D
 
-| Imply_antec_app_funcTransf'''_param (* old *) : forall (C E D : Cat)  
-(C' : Cat) (F : functor C C') (S : rel C' D)
-E' (E'E : functor E' E) (P : rel C E')
-D' (D'D : functor D' D) (R : rel E D') ,
-funcTransf P (Imply_antec_rel' R S D'D) F E'E ->
-forall D'' (D''D' : functor D'' D') (Q : rel E' D''),
-funcTransf Q  R E'E D''D' ->
-funcTransf (Tensor_rel P Q) S F (Subst_functor D''D' D'D)
-
-| Imply_antec_app_funcTransf'''_param' (* new  *): forall (C E D : Cat)  
-    (C' : Cat) (F : functor C C') (S : rel C' D)
-    E' E0 (E0E : functor E0 E) (P : rel C E')
-    D' (D'D : functor D' D) (R : rel E D')  (H : functor E' E0),
-  funcTransf P (Imply_antec_rel' R S D'D) F (Subst_functor H E0E) ->
-  forall D'' (D''D' : functor D'' D') (Q : rel E0 D''),
-  funcTransf Q  R E0E D''D' ->
-  funcTransf (Tensor_antec_rel' P H Q) S F (Subst_functor D''D' D'D)
-
-| Imply_antec_app_funcTransf'''_param'' (* OK version ; OR USE DINATURALITY ??*): forall (C E D : Cat)  
-    (C' : Cat) (F : functor C C') (S : rel C' D)
-    E' E0 (E0E : functor E0 E) (P : rel C E0)
-    D' (D'D : functor D' D) (R : rel E D')  (H : functor E' E0),
-  funcTransf P (Imply_antec_rel' R S D'D) F  E0E ->
-  forall D'' (D''D' : functor D'' D') (Q : rel E0 D''),
-  funcTransf Q  R E0E D''D' (* unused; should restrict this to H ? also P then general E'E ... nope just nice cast blended ... or yep*) ->
-  funcTransf (Tensor_rel' P H Q) S F (Subst_functor D''D' D'D)
-
 | Imply_antec_lambda_funcTransf' (* OK version for skew bif *) : forall (C E D : Cat)  
       (C' : Cat) (F : functor C C') (S : rel C' D)
       E' (E'E : functor E' E) (P : rel C E')
@@ -209,70 +126,11 @@ funcTransf (Tensor_rel P Q) S F (Subst_functor D''D' D'D)
     funcTransf (Tensor_antec_rel' P E'E R) S F D'D ->
     funcTransf P (Imply_antec_rel' R S D'D) F E'E
 
-| Imply_antec_lambda_funcTransf''' (* OK version for bif;  todo change of param version; nope use DINATURALITY*) : forall (C E D : Cat)  
-      (C' : Cat) (F : functor C C') (S : rel C' D)
-      E' (E'E : functor E' E) (P : rel C E)
-      D' (D'D : functor D' D) (R : rel E D'),
-    funcTransf (Tensor_rel' P E'E R) S F D'D ->
-    funcTransf (Subst_rel P (Id_functor _) E'E) (Imply_antec_rel' R S D'D) F E'E
-
-| Imply_antec_lambda_funcTransf'''_param (* OK version for bif;  param versionl; nope use DINATURALITY  *) : forall (C E D : Cat)  
-      (C' : Cat) (F : functor C C') (S : rel C' D)
-      E' (E'E : functor E' E) (P : rel C E)
-      D' D0 (D0D : functor D0 D) (R : rel E D0),
-    funcTransf (Tensor_rel' P E'E R(* contra subst here *)) S F D0D ->
-    forall (T : rel E D') (H : functor D' D0), 
-    funcTransf T R (Id_functor _)(* ?must be id? not really, and must change if imply_bif is more general *) 
-                H (* on cut-free param-arrow then R is uniquely-recoverable/determined subformula of T  *) -> 
-    funcTransf (Subst_rel P (Id_functor _) E'E) (Imply_antec_rel' T S (Subst_functor H D0D)) F E'E
-
-| Imply_antec_lambda_funcTransf'' (* old test *) : forall (C E D : Cat)  
-      (C' : Cat) (F : functor C C') (S : rel C' D)
-      E' (E'E : functor E' E) (P : rel C E')
-      D' D0 (D0D : functor D0 D) (R : rel E D0),
-    funcTransf (Tensor_antec_rel' P E'E R) S F D0D ->
-    forall (T : rel E D') (H : functor D' D0), funcTransf T R (Id_functor _)(* must be id *) H ->
-    funcTransf P (Imply_antec_rel' T S (Subst_functor H D0D)) F E'E
-
-
-
-| TODO_Imply_conse_lambda_funcTransf : forall C E D: Cat, forall R : rel C E, forall (R' : rel E D), forall  D' (G : functor D D'), forall S : rel C D', 
-  funcTransf (Tensor_rel R R') S (Id_functor _) G -> 
-  funcTransf R' (Imply_conse_rel R S) (Id_functor _) G
-
-| Tensor_antec_funcTransf : forall (C A B : Cat) (R : rel A B) (G : functor C B)  (D : Cat) (S : rel D A) C' (H : functor C' D) (S' : rel C' C),
-  forall (F : functor C A), funcTransf S' S H F -> funcTransf (Id_rel G (Id_functor _) ) R F (Id_functor _) ->
-  funcTransf S' (Tensor_rel S R) H G 
-
-| Tensor_antec_funcTransf' (* OK version *): forall (C A B : Cat) (R : rel A B) B' (G : functor C B')  (K : functor B' B) (D : Cat) (S : rel D A) C' (H : functor C' D) (S' : rel C' C),
-forall  (F : functor C A), funcTransf S' S H F -> funcTransf (Id_rel G (Id_functor B') ) R F K ->
-  funcTransf S' (Tensor_rel S R) H (Subst_functor G K) 
 
 | Tensor_antec_funcTransf'' (* OK version for skew bif *) : forall (D A  : Cat)  (S : rel D A) C' (H : functor C' D) C (F : functor C A) (S' : rel C' C)
 E E' (R : rel E E') (G : functor A E)  A' (K : functor A' E')  (R' : rel A A')  ,
  funcTransf S' S H F -> funcTransf R' R G K ->
   funcTransf (Tensor_antec_rel' S' F R') (Tensor_antec_rel' S G R) H K
-
-| Tensor_antec_funcTransf'''  : forall (D A  E : Cat)  (S : rel D E) C' (H : functor C' D) A0 (F : functor A0 A) (S' : rel C' A)
- E' (R : rel E E') (G : functor A E)  A' (K : functor A' E')  (R' : rel A A')  ,
- funcTransf S' S H G -> funcTransf R' R G K ->
-  funcTransf (Tensor_rel' S' F R') (Tensor_rel' S (* (Subst_functor F G) *) G R) H K (* some structural cast is blended here *)
-
-| Tensor_conse_funcTransf : forall (C A B : Cat)   (R : rel A B)  C'' (G : functor C'' B)  (R' : rel C C'')  
-  (D : Cat) (S : rel D A)  (H : functor C D)  ,
-  forall (F (* existential *): functor C A), funcTransf (Id_rel (Id_functor _) H) S (Id_functor _) F -> funcTransf R' R F G ->
-  funcTransf R' (Tensor_rel S R) H G
-
-| Imply_antec_funcTransf :  forall  [A C B C' : Cat] (R : rel A C) (S : rel B C') (K : functor C C')
-B' (F : functor B B')  C'' (G : functor C' C'')  (S' : rel B' C''),
-funcTransf S S' F G  (* G must be id too ? so adj param D'D dont change *) ->
-funcTransf (Imply_antec_rel' R S K) (Imply_antec_rel' R S' (Subst_functor K G)) F (Id_functor _) (* apparently must be id so adj param E'E dont change *)
-
-| Imply_antec_funcTransf''_bif  (* NOPE because contravariance ? *):  forall  [A C0 B C' : Cat] (R' : rel A C0) (S : rel B C') (K : functor C0 C')
-B' (F : functor B B')  C'' (G : functor C' C'')  (S' : rel B' C'')
-C (H : functor C C0) (R : rel A C),
-funcTransf S S' F G (* must G be id ? *) ->  funcTransf R R' (Id_functor _)(* must be id; note this is contra now *) H ->
-funcTransf (Imply_antec_rel' R' S K) (Imply_antec_rel' R S' (Subst_functor H (Subst_functor K G))) F (Id_functor _)(* must be id *)
 
 | Imply_antec_funcTransf''_bif'  (* NOPE because contravariance ? *):  forall  [A A0 C0 B C' : Cat] (R' : rel A0 C0) (S : rel B C') (K : functor C0 C')
 B' (F : functor B B')  C'' (G : functor C' C'')  (S' : rel B' C'')
@@ -282,83 +140,23 @@ forall  A1 (M : functor A1 A),
 funcTransf (Imply_antec_rel' (Subst_rel R' (Subst_functor M L) (Id_functor _)) S K) (Imply_antec_rel' R S' (Subst_functor H (Subst_functor K G))) F M(* must be id; or restrict R'? yeo, input M to restrict rr *)
 
 (* from sol *)
-| Gen_Comp_antec_funcTransf : forall C A B: Cat, forall (F : Functor C A) (R: Rel A B) (G: Functor C B), 
-  Transf R F G -> funcTransf  (Id_rel (Gen_functor G)  (Id_functor _) )  (Gen_rel R) (Gen_functor F) (Id_functor _)
-
-| Gen_Comp_conse_funcTransf : forall C A B: Cat, forall (F : Functor C A) (R: Rel A B) (G: Functor C B), 
-  Transf R F G -> funcTransf   (Id_rel  (Id_functor _)  (Gen_functor F))  (Gen_rel R)  (Id_functor _)  (Gen_functor G) 
-
-| Id_antec_Comp_antec_funcTransf' : forall [E C: Cat] (F : functor C E), 
-  funcTransf (Id_rel F (Id_functor _)) (Id_rel F (Id_functor _) ) (Id_functor _)  (Id_functor _)
-
-| Id_antec_Comp_conse_funcTransf' : forall [E C: Cat] (F : functor C E), 
-  funcTransf (Id_rel (Id_functor _) (Id_functor _)) (Id_rel F (Id_functor _) ) (Id_functor _)  F
-
-| Id_conse_Comp_antec_funcTransf' : forall [E C: Cat] (F : functor C E), 
-  funcTransf (Id_rel (Id_functor _) (Id_functor _)) (Id_rel (Id_functor _) F)  F (Id_functor _)
-
-| Id_conse_Comp_conse_funcTransf' : forall [E C: Cat] (F : functor C E), 
-  funcTransf (Id_rel (Id_functor _) F) (Id_rel (Id_functor _) F)  (Id_functor _) (Id_functor _)
-
-| Id_antec_Comp_antec_funcTransf : forall E C: Cat, forall (F : functor C E), forall A (X : functor A _),
-  funcTransf (Id_rel (Subst_functor X F) (Id_functor _)) (Id_rel F (Id_functor _) ) X  (Id_functor _)
 
 | Id_antec_Comp_antec_funcTransf'' : forall E C: Cat, forall (F : functor C E), forall A (X : functor A _),  forall A' (Y : functor A' _),
   funcTransf (Id_rel (Subst_functor X F) Y) (Id_rel F (Id_functor _) ) X  Y
 
-| Id_antec_Comp_conse_funcTransf : forall E C: Cat, forall (F : functor C E), forall A (X : functor A _),
-  funcTransf (Id_rel (Id_functor _) X) (Id_rel F (Id_functor _) ) (Id_functor _) (Subst_functor X F)
-
 | Id_antec_Comp_conse_funcTransf'' : forall E C: Cat, forall (F : functor C E), forall A (X : functor A _), forall A' (Y : functor A' _),
   funcTransf (Id_rel Y X) (Id_rel F (Id_functor _) ) Y (Subst_functor X F)
 
-| Id_conse_Comp_antec_funcTransf : forall E C: Cat, forall (F : functor C E), forall A (X : functor A _),
-  funcTransf (Id_rel X (Id_functor _)) (Id_rel (Id_functor _) F)  (Subst_functor X F) (Id_functor _)
-
-| Id_conse_Comp_conse_funcTransf : forall E C: Cat, forall (F : functor C E), forall A (X : functor A _),
-  funcTransf (Id_rel (Id_functor _) (Subst_functor X F)) (Id_rel (Id_functor _) F)  (Id_functor _) X
-
 | Id_conse_Comp_conse_funcTransf'' : forall E C: Cat, forall (F : functor C E), forall A (X : functor A _),  forall A' (Y : functor A' _),
   funcTransf (Id_rel Y (Subst_functor X F)) (Id_rel (Id_functor _) F)  Y X
-
-| UnitAdjunc_Comp_antec_funcTransf' : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-      (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), 
-    funcTransf (Id_rel (LeftAdjunc_functor) (Id_functor _)) (Id_rel (Id_functor _) (RightAdjunc_functor) ) (Id_functor C)  (Id_functor _)
-
-| UnitAdjunc_Comp_antec_funcTransf : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-      (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), forall A (X : functor A C), 
-      funcTransf (Id_rel (Subst_functor X (LeftAdjunc_functor)) (Id_functor D)) (Id_rel (Id_functor _) (RightAdjunc_functor) ) X  (Id_functor D)
 
 | UnitAdjunc_Comp_antec_funcTransf'' (* bad  *): forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
       (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), forall A (X : functor A C), forall B (Y : functor B D), 
       funcTransf (Id_rel (Subst_functor X (LeftAdjunc_functor)) Y) (Id_rel (Id_functor _) (RightAdjunc_functor) ) X  Y
 
-| UnitAdjunc_Comp_conse_funcTransf' : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-      (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), 
-  funcTransf (Id_rel (Id_functor _) (Id_functor _) ) (Id_rel (Id_functor _) (RightAdjunc_functor) ) (Id_functor _)  (LeftAdjunc_functor)
-
-| UnitAdjunc_Comp_conse_funcTransf : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-      (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), forall A (X : functor A _), 
-  funcTransf (Id_rel (Id_functor _) X ) (Id_rel (Id_functor _) (RightAdjunc_functor) ) (Id_functor _)  (Subst_functor X (LeftAdjunc_functor))
-
-| CoUnitAdjunc_Comp_antec_funcTransf' : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), 
-  funcTransf (Id_rel (Id_functor _) (Id_functor _) ) (Id_rel (LeftAdjunc_functor) (Id_functor _)) (RightAdjunc_functor) (Id_functor _)
-
-| CoUnitAdjunc_Comp_conse_funcTransf' : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), 
-  funcTransf (Id_rel (Id_functor _) (RightAdjunc_functor) ) (Id_rel (LeftAdjunc_functor) (Id_functor _)) (Id_functor _) (Id_functor _)
-
-
-| CoUnitAdjunc_Comp_antec_funcTransf : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ),
-forall A (X : functor A _),  
-  funcTransf (Id_rel X (Id_functor _) ) (Id_rel (LeftAdjunc_functor) (Id_functor _)) (Subst_functor X (RightAdjunc_functor)) (Id_functor _)
-
 | CoUnitAdjunc_Comp_antec_funcTransf'' : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ),
 forall A (X : functor A _),   forall B (Y : functor B _), 
   funcTransf (Id_rel X Y ) (Id_rel (LeftAdjunc_functor) (Id_functor _)) (Subst_functor X (RightAdjunc_functor)) Y
-
-| CoUnitAdjunc_Comp_conse_funcTransf : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), 
-forall A (X : functor A _), 
-  funcTransf (Id_rel (Id_functor _) (Subst_functor X (RightAdjunc_functor)) ) (Id_rel (LeftAdjunc_functor) (Id_functor _)) (Id_functor _) X 
 
 | CoUnitAdjunc_Comp_conse_funcTransf'' (* bad *) : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), 
 forall A (X : functor A C), forall B (Y : functor B D), 
@@ -484,8 +282,6 @@ A' A''  (M : functor A' A'') (N : functor A' A) (Y : functor A'' C)
 (Id_rel (Subst_functor F G) (Id_functor E')) K  (Subst_functor N X) *
 funcTransf (Id_rel (Subst_functor (Subst_functor K F) G) (Subst_functor N X))
 (Id_rel G (Id_functor E')) (Subst_functor K F)  (Subst_functor N X).
-
-
 
 
 
@@ -630,8 +426,6 @@ A (X : functor A D) A' (Y : functor A' D) A''  (M : functor A'' A) (N : functor 
  CoUnitAdjunc_Comp_antec_funcTransf'' adj (Subst_functor M X) Z ).
 
 
-
-
 (* todo: “I∘1(f)” = id(f)   ;  “1(f)∘I” = id(f)* ;  “1(f)∘F” = id(f)(? := ?) *)
 Check  fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
 (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ) A (X : functor A C)
@@ -644,5 +438,4 @@ funcTransf (Subst_rel (Id_rel LeftAdjunc_functor (Id_functor D)) X K)
 (Id_rel LeftAdjunc_functor (Id_functor D)) X K .
 
 
- 
 End Example.
