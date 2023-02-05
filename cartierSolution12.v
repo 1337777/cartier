@@ -212,14 +212,14 @@ morph (Tensor_cov_hom P' E0E' R') S
 Check  fun (E C: Cat) (F : func C E) A (X : func A C)
 A' A''  (M : func A' A'') (N : func A' A) (Y : func A'' C)
 (g : transf (Unit_hom Y X) M N)  P (K: func P A) =>
-( CoId_UnitHom_con_morph  (Subst_func X F) K N  (* 1∘FX *),
-CoId_UnitHom_con_morph F (Subst_func K X) (Subst_func N X)   ,
+( CoId_UnitHom_con_morph  (Subst_func X F)  N  K (* 1∘FX *),
+CoId_UnitHom_con_morph F (Subst_func N X) (Subst_func K X)    ,
 UnitHom_cov_morph (Comp_transf g (CoId_UnitHom_con_morph F Y X)) (Subst_func K (Subst_func X F)) )
-: morph (Unit_hom K N) (Unit_hom (Subst_func X F) (Id_func E)) K
-(Subst_func N (Subst_func X F)) *
-morph (Unit_hom (Subst_func K X) (Subst_func N X))
-(Unit_hom F (Id_func E)) (Subst_func K X)
-(Subst_func (Subst_func N X) F) *
+: morph (Unit_hom N K) (Unit_hom (Subst_func X F) (Id_func E)) N
+(Subst_func K (Subst_func X F)) *
+morph (Unit_hom (Subst_func N X) (Subst_func K X))
+(Unit_hom F (Id_func E)) (Subst_func N X)
+(Subst_func (Subst_func K X) F) *
 morph
 (Unit_hom (Subst_func N (Subst_func X F))
    (Subst_func K (Subst_func X F))) (Unit_hom F (Id_func E))
