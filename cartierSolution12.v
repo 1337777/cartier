@@ -10,10 +10,10 @@ In one line: the problem of contextual composition (cut elimination) and monoida
 
 Context: There is now sufficient evidence (ref [6], [7]) that Kosta Dosen's ideas and techniques (ref [1], [2], [3], [4], [5]) could be implemented for proof-assistants, sheaves and applications; in particular cut-elimination, rewriting and confluence for various enriched, internal, indexed or double categories with adjunctions, monads, negation, quantifiers or additive biproducts; quantitative/quantum linear algebra semantics; presheaf/profunctor semantics; inductive-sheafification and sheaf semantics; sheaf cohomology and duality...
 
-[1] Dosen-Petric: Cut Elimination in Categories 1999; 
-[2] Proof-Theoretical Coherence 2004; 
-[3] Proof-Net Categories 2005; 
-[4] Coherence in Linear Predicate Logic 2007; 
+[1] Dosen-Petric: Cut Elimination in Categories 1999;
+[2] Proof-Theoretical Coherence 2004;
+[3] Proof-Net Categories 2005;
+[4] Coherence in Linear Predicate Logic 2007;
 [5] Coherence for closed categories with biproducts 2022
 
 Proposal for prospective implementation:
@@ -40,402 +40,403 @@ Finally the problem of “contextual composition/cut” also arises from the pro
 
 Module Example.
 
-From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat seq path fintype tuple finfun bigop ssralg. 
+From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat seq path fintype tuple finfun bigop ssralg.
 
 Set Implicit Arguments. Unset Strict Implicit. Unset Printing Implicit Defensive.
 
-Parameter Cat : Set.
+Parameter Cat : Type.
 
-Inductive functor: forall (C D : Cat), Type :=
-| Subst_functor : forall [C D E: Cat], functor C D -> functor D E ->   functor C E
-| Id_functor : forall C : Cat, functor C C
+Inductive func: forall (C D : Cat), Type :=
+| Subst_func (* admissible *) : forall [C D E: Cat], func C D -> func D E -> func C E
+| Id_func : forall C : Cat, func C C
 
-with rel: forall (C D : Cat), Type :=
-| Tensor_antec_rel' : forall [A B C B' : Cat], rel C B -> functor B B' -> rel B' A -> rel C A
-| Id_rel :  forall [C C' D' : Cat], functor C' C -> functor D' C -> rel C' D'
-| Imply_antec_rel' : forall  [A C B C' : Cat], rel A C -> rel B C' -> functor C C' -> rel B A
-| Subst_rel : forall [C D C' D': Cat], rel C D -> functor C' C -> functor D' D ->  rel C' D' .
+with hom: forall (C D : Cat), Type :=
+| Subst_hom (* admissible *) : forall [C D C' D': Cat], hom C D -> func C' C -> func D' D -> hom C' D' 
+| Unit_hom : forall [C C' D' : Cat], func C' C -> func D' C -> hom C' D'
+| Tensor_cov_hom : forall [A B C B' : Cat], hom C B -> func B B' -> hom B' A -> hom C A
+| Imply_cov_hom : forall [A C B C' : Cat], hom B C -> func C' C -> hom A C' -> hom B A.
 
-Inductive adjunc : forall [C D: Cat], functor C D -> functor D C -> Type := 
+Inductive adj : forall [C D: Cat], func C D -> func D C -> Type :=
 
-with transf:  forall [C A B: Cat], rel A B -> functor C A -> functor C B -> Type :=
+with transf: forall [C A B: Cat], hom A B -> func C A -> func C B -> Type :=
 
-| Restr_transf (* admissible *): forall C A B: Cat, forall (R : rel A B) (F : functor C A) (G : functor C B),
-  forall D (X : functor D C), transf R F G -> transf R (Subst_functor X F) (Subst_functor X G)
+| Comp_transf (* admissible *) : forall [C D C' D' A : Cat] [R : hom C D] [F : func C C']
+[S : hom C' D'] [G : func D D'] [M : func A C] [N : func A D],
+transf R M N -> morph R S F G -> transf S (Subst_func M F) (Subst_func N G)
 
-| Id_antec_transf : forall E C: Cat, forall (F : functor C E), forall D (X : functor D C),
-       transf  (Id_rel F (Id_functor _) ) X  (Subst_functor X F)
-| Id_conse_transf : forall E C: Cat, forall (F : functor C E),  forall D (X : functor D C),
-      transf (Id_rel (Id_functor _) F)   (Subst_functor X F) X
+| Subst_transf (* admissible *) : forall [C A B D : Cat] [R : hom A B] [F : func C A] 
+[G : func C B] (X : func D C),
+transf R F G -> transf R (Subst_func X F) (Subst_func X G)
 
-| UnitAdjunc_transf : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-      (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), forall A (X : functor A C), 
-    transf   (Id_rel (Id_functor _) (RightAdjunc_functor) ) X  (Subst_functor X (LeftAdjunc_functor))
+| Id_transf : forall [E C D: Cat] (F : func C E) (X : func D C),
+transf (Unit_hom (Id_func E) F) (Subst_func X F) X
 
-| CoUnitAdjunc_transf : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-      (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), forall A (X : functor A D), 
-    transf  (Id_rel (LeftAdjunc_functor) (Id_functor D)) (Subst_functor X (RightAdjunc_functor)) X
+| CoId_transf : forall [E C D : Cat] (F : func C E) (X : func D C),
+transf (Unit_hom F (Id_func E)) X (Subst_func X F)
 
-| App_transf : forall [C D C' D' A: Cat], forall [R : rel C D] [F : functor C C'] [S : rel C' D'] [G : functor D D'] [M : functor A C] [N : functor A D], 
-    transf R M  N -> funcTransf R S F G -> transf S (Subst_functor M F) (Subst_functor N G)
+| UnitAdj_transf : forall [C D A : Cat] [LAdj_func : func C D] [RAdj_func : func D C],
+adj LAdj_func RAdj_func -> forall X : func A C,
+transf (Unit_hom (Id_func C) RAdj_func) X (Subst_func X LAdj_func)
 
-with funcTransf: forall [C D C' D': Cat], rel C D -> rel C' D' -> functor C C' -> functor D D' -> Type :=  
-   
+| CoUnitAdj_transf : forall [C D A : Cat] [LAdj_func : func C D] [RAdj_func : func D C],
+adj LAdj_func RAdj_func -> forall X : func A D,
+transf (Unit_hom LAdj_func (Id_func D)) (Subst_func X RAdj_func) X
 
-| Subst_funcTransf (* admissible *) : forall [C D C' D' C'' D'': Cat], forall [R : rel C D] [S : rel C' D'] [F : functor C C'] [G : functor D D']
-  [T : rel C'' D''] [F' : functor C C''] [G' : functor D D''],
-  funcTransf R S F G -> funcTransf (Subst_rel S F G) T F' G' -> funcTransf R T F' G'
+with morph: forall [C D C' D': Cat], hom C D -> hom C' D' -> func C C' -> func D D' -> Type :=
 
-| Id_funcTransf : forall C D: Cat, forall R : rel C D, 
-  forall (C' D': Cat) (F : functor C' C) (G : functor D' D), 
-    funcTransf (Subst_rel R F G) R F G
+| Comp_morph (* admissible *) : forall [C D C' D' C'' D'': Cat], forall [R : hom C D] [S : hom C' D'] [F : func C C'] [G : func D D']
+ [T : hom C'' D''] [F' : func C C''] [G' : func D D''],
+ morph R S F G -> morph (Subst_hom S F G) T F' G' -> morph R T F' G'
 
-| Restr_funcTransf (* admissible *): forall C D: Cat,  forall  C' D' (F : functor C C'), forall S : rel C' D', forall (G : functor D D'),
-  forall  C'' D'' (F' : functor C' C''), forall T : rel C'' D'', forall (G' : functor D' D''),
-   funcTransf S T F' G' -> funcTransf (Subst_rel S F G) T (Subst_functor F F') (Subst_functor G G')
+| Subst_morph (* admissible *) : forall [C D C' D' C'' D'' : Cat] [S : hom C' D'] [F' : func C' C'']
+[T : hom C'' D''] [G' : func D' D''] (X : func C C') (Y : func D D'),
+morph S T F' G' ->
+morph (Subst_hom S X Y) T (Subst_func X F') (Subst_func Y G')
 
-| Comp_antec_funcTransf' : forall C A B: Cat, forall (F : functor C A)  (R: rel A B)  (G: functor C B) ,
-    transf R F G -> forall B' (K: functor B' B), funcTransf (Id_rel G K) R F K
+| Id_morph : forall [C D C' D' : Cat] (R : hom C D) (F : func C' C) (G : func D' D),
+morph (Subst_hom R F G) R F G
 
-| Comp_conse_funcTransf' : forall C A B: Cat, forall (F : functor C A)  (R: rel A B)  (G: functor C B) ,
-    transf R F G -> forall A' (K: functor A' A), funcTransf (Id_rel K F) R K G
+| UnitHom_cov_morph : forall [C A B B' : Cat] [F : func C A] [R : hom A B] [G : func C B],
+transf R F G -> forall K : func B' B, morph (Unit_hom G K) R F K
 
-| CoYoneda_antec_funcTransf'' : forall (C D D' : Cat) (H : functor D D') (R : rel C D) 
-    (C' : Cat) (F : functor C C') (T : rel C' D'),
-    funcTransf R T F H ->
-    forall (D0 : Cat) (K : functor D0 D'),
-    funcTransf (Tensor_antec_rel' R H (Id_rel (Id_functor D') K)) T F K
+| UnitHom_con_morph : forall [C A B A' : Cat] [F : func C A] [R : hom A B] [G : func C B],
+transf R F G -> forall K : func A' A, morph (Unit_hom K F) R K G
 
-| CoYoneda_antec_appId_funcTransf'' (* OK version to derive ?? *): 
-forall C D: Cat, forall D0 (H : functor D  D0), forall R : rel C D,
-forall  C' (F : functor C C') D' (G : functor D D') (T : rel C' D'), 
-    funcTransf (Tensor_antec_rel' R H (Id_rel (Id_functor _) H)) T F G -> 
-    funcTransf R T F G
+| UnitHom_eval_cov_morph : forall [C D D' D0 C' : Cat] [H : func D D'] [R : hom C D] 
+[F : func C C'] [T : hom C' D'],
+morph R T F H -> forall K : func D0 D',
+morph (Tensor_cov_hom R H (Unit_hom (Id_func D') K)) T F K
 
-| Imply_antec_app_funcTransf'' : forall (C E D : Cat)  
-      (C' : Cat) (F : functor C C') (S : rel C' D)
-      E' (E'E : functor E' E) (P : rel C E')
-      D' (D'D : functor D' D) (R : rel E D'),
-    funcTransf P (Imply_antec_rel' R S D'D) F E'E ->
-    funcTransf (Tensor_antec_rel' P E'E R) S F D'D
+| UnitHom_lam_cov_morph : forall [C D D0 C' D' : Cat] [H : func D D0] [R : hom C D] 
+[T : hom C' D'] [F : func C C'] [G : func D D'],
+morph (Tensor_cov_hom R H (Unit_hom (Id_func D0) H)) T F G ->
+morph R T F G
 
-| Imply_antec_lambda_funcTransf' (* OK version for skew bif *) : forall (C E D : Cat)  
-      (C' : Cat) (F : functor C C') (S : rel C' D)
-      E' (E'E : functor E' E) (P : rel C E')
-      D' (D'D : functor D' D) (R : rel E D'),
-    funcTransf (Tensor_antec_rel' P E'E R) S F D'D ->
-    funcTransf P (Imply_antec_rel' R S D'D) F E'E
+| Imply_eval_cov_morph : forall [C E D C' E' D' : Cat] [P : hom C E'] [R : hom E D'] 
+[S : hom C' D] [E'E : func E' E] [F : func C C'] [D'D : func D' D],
+morph P (Imply_cov_hom S D'D R) F E'E ->
+morph (Tensor_cov_hom P E'E R) S F D'D
 
+| Imply_lam_cov_morph : forall [C E D C' E' D' : Cat] [P : hom C E'] [R : hom E D'] 
+[S : hom C' D] [E'E : func E' E] [F : func C C'] [D'D : func D' D],
+morph (Tensor_cov_hom P E'E R) S F D'D ->
+morph P (Imply_cov_hom S D'D R) F E'E
 
-| Tensor_antec_funcTransf'' (* OK version for skew bif *) : forall (D A  : Cat)  (S : rel D A) C' (H : functor C' D) C (F : functor C A) (S' : rel C' C)
-E E' (R : rel E E') (G : functor A E)  A' (K : functor A' E')  (R' : rel A A')  ,
- funcTransf S' S H F -> funcTransf R' R G K ->
-  funcTransf (Tensor_antec_rel' S' F R') (Tensor_antec_rel' S G R) H K
+| Tensor_cov_morph : forall [D A C' C E E' A' : Cat] [S' : hom C' C] [R' : hom A A'] 
+[S : hom D A] [R : hom E E'] [F : func C A] [G : func A E] [H : func C' D] [K : func A' E'],
+morph S' S H F -> morph R' R G K ->
+morph (Tensor_cov_hom S' F R') (Tensor_cov_hom S G R) H K
 
-| Imply_antec_funcTransf''_bif'  (* NOPE because contravariance ? *):  forall  [A A0 C0 B C' : Cat] (R' : rel A0 C0) (S : rel B C') (K : functor C0 C')
-B' (F : functor B B')  C'' (G : functor C' C'')  (S' : rel B' C'')
-C (H : functor C C0) (R : rel A C),
-funcTransf S S' F G (* must G be id ? *) -> forall (L : functor A A0),  funcTransf R R' L(* ?? must be id? more general lambda too; note this is contra now; or assume it is id only for cast*) H ->
-forall  A1 (M : functor A1 A),  
-funcTransf (Imply_antec_rel' (Subst_rel R' (Subst_functor M L) (Id_functor _)) S K) (Imply_antec_rel' R S' (Subst_functor H (Subst_functor K G))) F M(* must be id; or restrict R'? yeo, input M to restrict rr *)
+| Imply_cov_morph : forall [A A0 C0 B C' B' C'' C A1 : Cat] [S : hom B C'] 
+[R' : hom A0 C0] [S' : hom B' C''] [R : hom A C] 
+[L : func A A0] [H : func C C0] [G : func C' C''] [F : func B B'],
+morph S S' F G -> morph R R' L H ->
+forall (K : func C0 C') (M : func A1 A),
+morph (Imply_cov_hom S K (Subst_hom R' (Subst_func M L) (Id_func C0)))
+ (Imply_cov_hom S' (Subst_func H (Subst_func K G)) R) F M
 
 (* from sol *)
 
-| Id_antec_Comp_antec_funcTransf'' : forall E C: Cat, forall (F : functor C E), forall A (X : functor A _),  forall A' (Y : functor A' _),
-  funcTransf (Id_rel (Subst_functor X F) Y) (Id_rel F (Id_functor _) ) X  Y
+| CoId_UnitHom_cov_morph : forall [E C A A' : Cat] (F : func C E) (X : func A C) (Y : func A' E),
+morph (Unit_hom (Subst_func X F) Y) (Unit_hom F (Id_func E)) X Y
 
-| Id_antec_Comp_conse_funcTransf'' : forall E C: Cat, forall (F : functor C E), forall A (X : functor A _), forall A' (Y : functor A' _),
-  funcTransf (Id_rel Y X) (Id_rel F (Id_functor _) ) Y (Subst_functor X F)
+| CoId_UnitHom_con_morph : forall [E C A A' : Cat] (F : func C E) (Y : func A' C) (X : func A C),
+morph (Unit_hom Y X) (Unit_hom F (Id_func E)) Y (Subst_func X F)
 
-| Id_conse_Comp_conse_funcTransf'' : forall E C: Cat, forall (F : functor C E), forall A (X : functor A _),  forall A' (Y : functor A' _),
-  funcTransf (Id_rel Y (Subst_functor X F)) (Id_rel (Id_functor _) F)  Y X
+| Id_UnitHom_con_morph : forall [E C A A' : Cat] (F : func C E) (Y : func A' E) (X : func A C),
+morph (Unit_hom Y (Subst_func X F)) (Unit_hom (Id_func E) F) Y X
 
-| UnitAdjunc_Comp_antec_funcTransf'' (* bad  *): forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-      (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), forall A (X : functor A C), forall B (Y : functor B D), 
-      funcTransf (Id_rel (Subst_functor X (LeftAdjunc_functor)) Y) (Id_rel (Id_functor _) (RightAdjunc_functor) ) X  Y
+| UnitAdj_UnitHom_cov_morph : forall [C D A B : Cat] [LAdj_func : func C D] [RAdj_func : func D C],
+adj LAdj_func RAdj_func -> forall (X : func A C) (Y : func B D),
+morph (Unit_hom (Subst_func X LAdj_func) Y) (Unit_hom (Id_func C) RAdj_func) X Y
 
-| CoUnitAdjunc_Comp_antec_funcTransf'' : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ),
-forall A (X : functor A _),   forall B (Y : functor B _), 
-  funcTransf (Id_rel X Y ) (Id_rel (LeftAdjunc_functor) (Id_functor _)) (Subst_functor X (RightAdjunc_functor)) Y
+| CoUnitAdj_UnitHom_cov_morph : forall [C D A B : Cat] [LAdj_func : func C D] [RAdj_func : func D C],
+adj LAdj_func RAdj_func -> forall (X : func A D) (Y : func B D),
+morph (Unit_hom X Y) (Unit_hom LAdj_func (Id_func D)) (Subst_func X RAdj_func) Y
 
-| CoUnitAdjunc_Comp_conse_funcTransf'' (* bad *) : forall (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor ), 
-forall A (X : functor A C), forall B (Y : functor B D), 
-  funcTransf (Id_rel X (Subst_functor Y (RightAdjunc_functor)) ) (Id_rel (LeftAdjunc_functor) (Id_functor _)) X Y .
+| CoUnitAdj_UnitHom_con_morph : forall [C D A B : Cat] [LAdj_func : func C D] [RAdj_func : func D C],
+adj LAdj_func RAdj_func -> forall (X : func A C) (Y : func B D),
+morph (Unit_hom X (Subst_func Y RAdj_func)) (Unit_hom LAdj_func (Id_func D)) X Y.
 
 
 (* eval/app dinaturality ; redex *)
-Check fun  (C E D : Cat)  
-(C' : Cat)   (F : functor C C') (S : rel C' D)
-E' (E'E : functor E' E) (P : rel C E')
-D' (D'D : functor D' D) (R : rel E D') C0 (C0C : functor C0 C) D0 (D0D' : functor D0 D')
-(ff : funcTransf (Subst_rel P C0C (Id_functor _)) (Imply_antec_rel' (Subst_rel R (Id_functor _) D0D') S (Subst_functor D0D' D'D)) (Subst_functor C0C F) E'E ) 
-E0 (E0E' : functor E0 E') 
-P' (pp : funcTransf P' P C0C E0E') R' (rr : funcTransf R' R E'E D0D')  =>
-( Tensor_antec_funcTransf'' pp rr (* todo in develop form, so one at a time *),
-  (Imply_antec_app_funcTransf'' ff)  )
-: funcTransf (Tensor_antec_rel' P' E0E' R') (Tensor_antec_rel' P E'E R) C0C D0D' *
-funcTransf (Tensor_antec_rel' (Subst_rel P C0C (Id_functor E')) E'E
-                (Subst_rel R (Id_functor E) D0D')) S (Subst_functor C0C F) (Subst_functor D0D' D'D) .
+Check fun  (C E D : Cat)
+(C' : Cat)   (F : func C C') (S : hom C' D)
+E' (E'E : func E' E) (P : hom C E')
+D' (D'D : func D' D) (R : hom E D') C0 (C0C : func C0 C) D0 (D0D' : func D0 D')
+(ff : morph (Subst_hom P C0C (Id_func _)) (Imply_cov_hom S (Subst_func D0D' D'D) (Subst_hom R (Id_func _) D0D')) (Subst_func C0C F) E'E )
+E0 (E0E' : func E0 E')
+P' (pp : morph P' P C0C E0E') R' (rr : morph R' R E'E D0D')  =>
+( Tensor_cov_morph pp rr (* todo in develop form, so one at a time *),
+  (Imply_eval_cov_morph ff)  )
+: morph (Tensor_cov_hom P' E0E' R') (Tensor_cov_hom P E'E R) C0C D0D' *
+morph (Tensor_cov_hom (Subst_hom P C0C (Id_func E')) E'E
+                (Subst_hom R (Id_func E) D0D')) S (Subst_func C0C F) (Subst_func D0D' D'D) .
 
 (* eval/app dinaturality ; contractum *)
-Check fun  (C E D : Cat)  
-(C' : Cat)   (F : functor C C') (S : rel C' D)
-E' (E'E : functor E' E) (P : rel C E')
-D' (D'D : functor D' D) (R : rel E D') C0 (C0C : functor C0 C) D0 (D0D' : functor D0 D')
-(ff : funcTransf (Subst_rel P C0C (Id_functor _)) (Imply_antec_rel' (Subst_rel R (Id_functor _) D0D') S (Subst_functor D0D' D'D)) (Subst_functor C0C F ) E'E ) 
-E0 (E0E' : functor E0 E') 
-P' (pp : funcTransf P' P C0C E0E') R' (rr : funcTransf R' (Subst_rel R (Id_functor _) D0D') E'E (Id_functor _))  =>
+Check fun  (C E D : Cat)
+(C' : Cat)   (F : func C C') (S : hom C' D)
+E' (E'E : func E' E) (P : hom C E')
+D' (D'D : func D' D) (R : hom E D') C0 (C0C : func C0 C) D0 (D0D' : func D0 D')
+(ff : morph (Subst_hom P C0C (Id_func _)) (Imply_cov_hom S (Subst_func D0D' D'D) (Subst_hom R (Id_func _) D0D')) (Subst_func C0C F ) E'E )
+E0 (E0E' : func E0 E')
+P' (pp : morph P' P C0C E0E') R' (rr : morph R' (Subst_hom R (Id_func _) D0D') E'E (Id_func _))  =>
 fun (ff_restr (* becaus input is dependent pair (E0E', pp) ; this is first application of E0E' *)
- : funcTransf (Subst_rel P C0C E0E') (Imply_antec_rel' (Subst_rel R (Id_functor _) D0D') S (Subst_functor D0D' D'D)) (Subst_functor C0C F ) (Subst_functor E0E' E'E)) 
-(tmp_compo_result_type:  funcTransf P'  (Imply_antec_rel' R' S
-                          (Subst_functor (Id_functor D0)
-                              (Subst_functor (Subst_functor D0D' D'D) (Id_functor D))))   (Subst_functor C0C F) E0E') =>
-( (Subst_funcTransf pp ff_restr (* input E0E' to restrict ff *) ),
- (Imply_antec_funcTransf''_bif' (Subst_functor D0D' D'D) (Id_funcTransf S  (Subst_functor C0C F ) (Id_functor _)) rr E0E' (* input E0E' to restrict rr *) (L:=E'E) ),
- Imply_antec_app_funcTransf'' tmp_compo_result_type )
-: funcTransf P'
-(Imply_antec_rel' (Subst_rel R (Id_functor E) D0D') S
-   (Subst_functor D0D' D'D)) (Subst_functor C0C F)
-(Subst_functor E0E' E'E) *
-funcTransf (Imply_antec_rel'
-   (Subst_rel (Subst_rel R (Id_functor E) D0D')
-      (Subst_functor E0E' E'E) (Id_functor D0))
-   (Subst_rel S (Subst_functor C0C F) (Id_functor D))
-   (Subst_functor D0D' D'D))
-(Imply_antec_rel' R' S
-   (Subst_functor (Id_functor D0)
-      (Subst_functor (Subst_functor D0D' D'D) (Id_functor D))))
-(Subst_functor C0C F) E0E' *
-funcTransf (Tensor_antec_rel' P' E0E' R') S 
-(Subst_functor C0C F)
-(Subst_functor (Id_functor D0)
-   (Subst_functor (Subst_functor D0D' D'D) (Id_functor D))).
+: morph (Subst_hom P C0C E0E') (Imply_cov_hom S (Subst_func D0D' D'D) (Subst_hom R (Id_func _) D0D')) (Subst_func C0C F ) (Subst_func E0E' E'E))
+(tmp_compo_result_type:  morph P'  (Imply_cov_hom S
+              (Subst_func (Id_func D0)
+                  (Subst_func (Subst_func D0D' D'D) (Id_func D))) R')   (Subst_func C0C F) E0E') =>
+( (Comp_morph pp ff_restr (* input E0E' to restrict ff *) ),
+(Imply_cov_morph  (Id_morph S  (Subst_func C0C F ) (Id_func _)) rr (Subst_func D0D' D'D) E0E' (* input E0E' to restrict rr *) (L:=E'E) ),
+ Imply_eval_cov_morph tmp_compo_result_type )
+: morph P' (Imply_cov_hom S
+   (Subst_func D0D' D'D) (Subst_hom R (Id_func E) D0D')) (Subst_func C0C F)
+(Subst_func E0E' E'E) *
+morph (Imply_cov_hom
+   (Subst_hom S (Subst_func C0C F) (Id_func D))
+   (Subst_func D0D' D'D) (Subst_hom (Subst_hom R (Id_func E) D0D')
+   (Subst_func E0E' E'E) (Id_func D0)))
+(Imply_cov_hom S
+   (Subst_func (Id_func D0)
+      (Subst_func (Subst_func D0D' D'D) (Id_func D))) R' )
+(Subst_func C0C F) E0E' *
+morph (Tensor_cov_hom P' E0E' R') S
+(Subst_func C0C F)
+(Subst_func (Id_func D0)
+   (Subst_func (Subst_func D0D' D'D) (Id_func D))).
 
 
 
 (*** “1∘FX(h)” <∘ “1∘F(g)”  =                     “1∘F(h X<∘ g)”       *) (* OK *)
 (*** “1∘F(h)” <∘ “1∘F(g)”  =                     “1∘F(h <∘ “1∘I(g)”)”   *) (* OK *)
-Check  fun (E C: Cat) (F : functor C E) A (X : functor A C)
-A' A''  (M : functor A' A'') (N : functor A' A) (Y : functor A'' C)
-(g : transf (Id_rel Y X) M N)  P (K: functor P A) =>
-( Id_antec_Comp_conse_funcTransf''  (Subst_functor X F) K N  (* 1∘FX *),
-Id_antec_Comp_conse_funcTransf'' F (Subst_functor K X) (Subst_functor N X)   ,
-Comp_antec_funcTransf' (App_transf g (Id_antec_Comp_conse_funcTransf'' F X Y)) (Subst_functor K (Subst_functor X F)) )
-:  funcTransf (Id_rel N K) (Id_rel (Subst_functor X F) (Id_functor E)) N (Subst_functor K (Subst_functor X F)) *
-funcTransf (Id_rel (Subst_functor N X) (Subst_functor K X)) (Id_rel F (Id_functor E)) (Subst_functor N X) (Subst_functor (Subst_functor K X) F) *
-funcTransf (Id_rel (Subst_functor N (Subst_functor X F)) (Subst_functor K (Subst_functor X F))) 
-(Id_rel F (Id_functor E)) (Subst_functor M Y) (Subst_functor K (Subst_functor X F)).
+Check  fun (E C: Cat) (F : func C E) A (X : func A C)
+A' A''  (M : func A' A'') (N : func A' A) (Y : func A'' C)
+(g : transf (Unit_hom Y X) M N)  P (K: func P A) =>
+( CoId_UnitHom_con_morph  (Subst_func X F) K N  (* 1∘FX *),
+CoId_UnitHom_con_morph F (Subst_func K X) (Subst_func N X)   ,
+UnitHom_cov_morph (Comp_transf g (CoId_UnitHom_con_morph F Y X)) (Subst_func K (Subst_func X F)) )
+: morph (Unit_hom K N) (Unit_hom (Subst_func X F) (Id_func E)) K
+(Subst_func N (Subst_func X F)) *
+morph (Unit_hom (Subst_func K X) (Subst_func N X))
+(Unit_hom F (Id_func E)) (Subst_func K X)
+(Subst_func (Subst_func N X) F) *
+morph
+(Unit_hom (Subst_func N (Subst_func X F))
+   (Subst_func K (Subst_func X F))) (Unit_hom F (Id_func E))
+(Subst_func M Y) (Subst_func K (Subst_func X F)).
 
 (*** “1∘FX(h)” <∘ “1∘F(g)”                       = “1∘F(h X<∘ g)”       *) (* OK *)
 (*** “1∘F(h)” <∘ “1∘F(g)”                       = “1∘F(h <∘ “1∘I(g)”)”   *) (* OK *)
-Check  fun (E C: Cat) (F : functor C E) A (X : functor A C)
-A' A''  (M : functor A' A'') (N : functor A' A) (Y : functor A'' C)
-(g : transf (Id_rel Y (Subst_functor X (Id_functor _))) M N) P (K: functor P A) =>
-( Comp_antec_funcTransf' g K  (* X<∘ *),
-  Comp_antec_funcTransf' (App_transf g (Id_conse_Comp_conse_funcTransf'' (Id_functor _) X Y)) (Subst_functor K X),
-  Id_antec_Comp_conse_funcTransf'' F (Subst_functor K X) (Subst_functor M Y)  )
-: funcTransf (Id_rel N K) (Id_rel Y (Subst_functor X (Id_functor C))) M K *
- funcTransf (Id_rel (Subst_functor N X) (Subst_functor K X))
-(Id_rel (Id_functor C) (Id_functor C)) (Subst_functor M Y) (Subst_functor K X) *
-funcTransf (Id_rel (Subst_functor M Y) (Subst_functor K X))
-(Id_rel F (Id_functor E)) (Subst_functor M Y) (Subst_functor (Subst_functor K X) F).
+Check  fun (E C: Cat) (F : func C E) A (X : func A C)
+A' A''  (M : func A' A'') (N : func A' A) (Y : func A'' C)
+(g : transf (Unit_hom Y (Subst_func X (Id_func _))) M N) P (K: func P A) =>
+( UnitHom_cov_morph g K  (* X<∘ *),
+  UnitHom_cov_morph (Comp_transf g (Id_UnitHom_con_morph (Id_func _) Y X)) (Subst_func K X),
+  CoId_UnitHom_con_morph F (Subst_func M Y) (Subst_func K X) )
+: morph (Unit_hom N K) (Unit_hom Y (Subst_func X (Id_func C))) M K *
+morph (Unit_hom (Subst_func N X) (Subst_func K X))
+  (Unit_hom (Id_func C) (Id_func C)) (Subst_func M Y) 
+  (Subst_func K X) *
+morph (Unit_hom (Subst_func M Y) (Subst_func K X))
+  (Unit_hom F (Id_func E)) (Subst_func M Y)
+  (Subst_func (Subst_func K X) F).
 
 
 (***   “1∘F(g)” ∘>F h =                     “1∘F”( “I∘1(g)” ∘> h )  *) (* OK *)
- Check  fun (E C: Cat) (F : functor C E) A (X : functor A C)
- A' A''  (M : functor A' A'') (N : functor A' A) (Y : functor A'' C)
- (g : transf (Id_rel Y X) M N) P (K: functor P C) =>
-Comp_conse_funcTransf' (App_transf g (Id_antec_Comp_conse_funcTransf'' F X Y)) K
-:  funcTransf (Id_rel K (Subst_functor M Y)) (Id_rel F (Id_functor E)) K (Subst_functor N (Subst_functor X F)).
+ Check  fun (E C: Cat) (F : func C E) A (X : func A C)
+ A' A''  (M : func A' A'') (N : func A' A) (Y : func A'' C)
+ (g : transf (Unit_hom Y X) M N) P (K: func P C) =>
+UnitHom_con_morph (Comp_transf g (CoId_UnitHom_con_morph F Y X)) K
+:  morph (Unit_hom K (Subst_func M Y)) (Unit_hom F (Id_func E)) K (Subst_func N (Subst_func X F)).
 
 (*   “1∘F(g)” ∘>F h                    = “1∘F”( “I∘1(g)” ∘> h )  *) (* OK *)
-Check  fun (E C: Cat) (F : functor C E) A (X : functor A C)
-A' A''  (M : functor A' A'') (N : functor A' A) (Y : functor A'' C)
-(g : transf (Id_rel Y (Subst_functor X (Id_functor _))) M N) P (K: functor P C) =>
-( Comp_conse_funcTransf' (App_transf g (Id_conse_Comp_conse_funcTransf'' (Id_functor _) X Y)) K,
-  Id_antec_Comp_conse_funcTransf'' F (Subst_functor N X) K)
-: funcTransf (Id_rel K (Subst_functor M Y))
-(Id_rel (Id_functor C) (Id_functor C)) K  (Subst_functor N X) *
-funcTransf (Id_rel K (Subst_functor N X)) (Id_rel F (Id_functor E)) K (Subst_functor (Subst_functor N X) F).
+Check  fun (E C: Cat) (F : func C E) A (X : func A C)
+A' A''  (M : func A' A'') (N : func A' A) (Y : func A'' C)
+(g : transf (Unit_hom Y (Subst_func X (Id_func _))) M N) P (K: func P C) =>
+( UnitHom_con_morph (Comp_transf g (Id_UnitHom_con_morph (Id_func _) Y X)) K,
+  CoId_UnitHom_con_morph F K (Subst_func N X) )
+: morph (Unit_hom K (Subst_func M Y))
+(Unit_hom (Id_func C) (Id_func C)) K  (Subst_func N X) *
+morph (Unit_hom K (Subst_func N X)) (Unit_hom F (Id_func E)) K (Subst_func (Subst_func N X) F).
 
 
 
 (* todo: try  “1(g)∘G”  =  id(g)   then   “1(g)∘G” ∘>G “1∘F(h)” =   g ∘>GFY  ?  *)
 
 (***   “1(g)∘G” ∘>G “1∘F(h)” =                    “1(“1(g)∘GF” ∘>GF h)∘G”   *) (* OK *)
-Check  fun (E C: Cat) (F : functor C E) E' (G : functor E E') A (X : functor A E')
-A' A''  (M : functor A' A'') (N : functor A' A) (Y : functor A'' C)
-(g : transf (Id_rel  (Subst_functor (Subst_functor Y F) G) X) M N) P (K: functor P _) =>
-(  Id_antec_Comp_conse_funcTransf'' F (Subst_functor M Y) K ,
-Comp_conse_funcTransf' (App_transf g (Id_antec_Comp_antec_funcTransf'' G (Subst_functor Y F) X)) (Subst_functor K F) )
-: funcTransf (Id_rel K (Subst_functor M Y)) (Id_rel F (Id_functor E)) K (Subst_functor (Subst_functor M Y) F) *
-funcTransf (Id_rel (Subst_functor K F) (Subst_functor M (Subst_functor Y F)))
-(Id_rel G (Id_functor E')) (Subst_functor K F)  (Subst_functor N X).
+Check  fun (E C: Cat) (F : func C E) E' (G : func E E') A (X : func A E')
+A' A''  (M : func A' A'') (N : func A' A) (Y : func A'' C)
+(g : transf (Unit_hom  (Subst_func (Subst_func Y F) G) X) M N) P (K: func P _) =>
+(  CoId_UnitHom_con_morph F K (Subst_func M Y) ,
+UnitHom_con_morph (Comp_transf g (CoId_UnitHom_cov_morph G (Subst_func Y F) X)) (Subst_func K F) )
+: morph (Unit_hom K (Subst_func M Y)) (Unit_hom F (Id_func E)) K (Subst_func (Subst_func M Y) F) *
+morph (Unit_hom (Subst_func K F) (Subst_func M (Subst_func Y F)))
+(Unit_hom G (Id_func E')) (Subst_func K F)  (Subst_func N X).
 
 (***   “1(g)∘G” ∘>G “1∘F(h)”                      = “1(“1(g)∘GF” ∘>GF h)∘G”   *) (* OK *)
-Check  fun (E C: Cat) (F : functor C E) E' (G : functor E E') A (X : functor A E')
-A' A''  (M : functor A' A'') (N : functor A' A) (Y : functor A'' C)
-(g : transf (Id_rel  (Subst_functor Y (Subst_functor F G)) X) M N) P (K: functor P _) =>
-( Comp_conse_funcTransf' (App_transf g (Id_antec_Comp_antec_funcTransf'' (Subst_functor F G) Y X)) K ,
- Id_antec_Comp_antec_funcTransf'' G (Subst_functor K F) (Subst_functor N X) )
-: funcTransf (Id_rel K (Subst_functor M Y))
-(Id_rel (Subst_functor F G) (Id_functor E')) K  (Subst_functor N X) *
-funcTransf (Id_rel (Subst_functor (Subst_functor K F) G) (Subst_functor N X))
-(Id_rel G (Id_functor E')) (Subst_functor K F)  (Subst_functor N X).
+Check  fun (E C: Cat) (F : func C E) E' (G : func E E') A (X : func A E')
+A' A''  (M : func A' A'') (N : func A' A) (Y : func A'' C)
+(g : transf (Unit_hom  (Subst_func Y (Subst_func F G)) X) M N) P (K: func P _) =>
+( UnitHom_con_morph (Comp_transf g (CoId_UnitHom_cov_morph (Subst_func F G) Y X)) K ,
+ CoId_UnitHom_cov_morph G (Subst_func K F) (Subst_func N X) )
+: morph (Unit_hom K (Subst_func M Y))
+(Unit_hom (Subst_func F G) (Id_func E')) K  (Subst_func N X) *
+morph (Unit_hom (Subst_func (Subst_func K F) G) (Subst_func N X))
+(Unit_hom G (Id_func E')) (Subst_func K F)  (Subst_func N X).
 
 
 
-(*** “ϕ∘F(g)” ∘>F h =                “ϕ∘F(“I∘1(g)” ∘> h)” *)  (* OK *) (* instance included: “(“ϕ∘F”g)∘FY”h =                   “ϕ∘F”(“g∘Y”h) *)  
-Check fun  (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor )
- A (X : functor A D)
- A' A''  (M : functor A' A'') (N : functor A' A) (Y : functor A'' C)
- (g : transf (Id_rel Y (Subst_functor X RightAdjunc_functor)) M N)  P (K: functor P C) =>
-Comp_conse_funcTransf' (App_transf g (CoUnitAdjunc_Comp_conse_funcTransf'' adj Y X)) K
-: funcTransf (Id_rel K (Subst_functor M Y))
-(Id_rel LeftAdjunc_functor (Id_functor D)) K  (Subst_functor N X).
+(*** “ϕ∘F(g)” ∘>F h =                “ϕ∘F(“I∘1(g)” ∘> h)” *)  (* OK *) (* instance included: “(“ϕ∘F”g)∘FY”h =                   “ϕ∘F”(“g∘Y”h) *)
+Check fun  (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C) (adj: adj LAdj_func RAdj_func )
+ A (X : func A D)
+ A' A''  (M : func A' A'') (N : func A' A) (Y : func A'' C)
+ (g : transf (Unit_hom Y (Subst_func X RAdj_func)) M N)  P (K: func P C) =>
+UnitHom_con_morph (Comp_transf g (CoUnitAdj_UnitHom_con_morph adj Y X)) K
+: morph (Unit_hom K (Subst_func M Y))
+(Unit_hom LAdj_func (Id_func D)) K  (Subst_func N X).
 
-(* “ϕ∘F(g)” ∘>F h                 = “ϕ∘F(“I∘1(g)” ∘> h)” *)  (* OK *) 
-Check fun  (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor )
- A (X : functor A D)
- A' A''  (M : functor A' A'') (N : functor A' A) (Y : functor A'' C)
- (g : transf (Id_rel Y (Subst_functor (Subst_functor X RightAdjunc_functor) (Id_functor _) )) M N)  P (K: functor P C) =>
-( Comp_conse_funcTransf' (App_transf g (Id_conse_Comp_conse_funcTransf'' (Id_functor _) (Subst_functor X RightAdjunc_functor) Y)) K ,
-CoUnitAdjunc_Comp_conse_funcTransf'' adj K (Subst_functor N X) )
-: funcTransf (Id_rel K (Subst_functor M Y)) (Id_rel (Id_functor C) (Id_functor C)) K (Subst_functor N (Subst_functor X RightAdjunc_functor)) *
-funcTransf (Id_rel K (Subst_functor (Subst_functor N X) RightAdjunc_functor)) (Id_rel LeftAdjunc_functor (Id_functor D)) K (Subst_functor N X).
+(* “ϕ∘F(g)” ∘>F h                 = “ϕ∘F(“I∘1(g)” ∘> h)” *)  (* OK *)
+Check fun  (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C) (adj: adj LAdj_func RAdj_func )
+ A (X : func A D)
+ A' A''  (M : func A' A'') (N : func A' A) (Y : func A'' C)
+ (g : transf (Unit_hom Y (Subst_func (Subst_func X RAdj_func) (Id_func _) )) M N)  P (K: func P C) =>
+( UnitHom_con_morph (Comp_transf g (Id_UnitHom_con_morph (Id_func _) Y (Subst_func X RAdj_func))) K ,
+CoUnitAdj_UnitHom_con_morph adj K (Subst_func N X) )
+: morph (Unit_hom K (Subst_func M Y)) (Unit_hom (Id_func C) (Id_func C)) K (Subst_func N (Subst_func X RAdj_func)) *
+morph (Unit_hom K (Subst_func (Subst_func N X) RAdj_func)) (Unit_hom LAdj_func (Id_func D)) K (Subst_func N X).
 
 
 (*** alt: “ϕ∘F(g)” <∘ “1∘F(h)” =                “ϕ∘F( g <∘ “I∘1(h)” )” *)  (* OK *)
-Check fun  (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor )
- A A' (X : functor A' C) (Y : functor A C)
- B (M : functor B A') (N : functor B A) 
- (h: transf (Id_rel X Y) M N  )  P (K: functor P D) =>
- ( CoUnitAdjunc_Comp_conse_funcTransf'' adj (Subst_functor N Y) K ,
- Comp_antec_funcTransf' (App_transf h (Id_antec_Comp_conse_funcTransf'' LeftAdjunc_functor Y X)) K )
-: funcTransf (Id_rel (Subst_functor N Y) (Subst_functor K RightAdjunc_functor))
-(Id_rel LeftAdjunc_functor (Id_functor D))  (Subst_functor N Y) K *
-funcTransf (Id_rel (Subst_functor N (Subst_functor Y LeftAdjunc_functor)) K)
-(Id_rel LeftAdjunc_functor (Id_functor D))  (Subst_functor M X) K .
+Check fun  (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C) (adj: adj LAdj_func RAdj_func )
+ A A' (X : func A' C) (Y : func A C)
+ B (M : func B A') (N : func B A)
+ (h: transf (Unit_hom X Y) M N  )  P (K: func P D) =>
+ ( CoUnitAdj_UnitHom_con_morph adj (Subst_func N Y) K ,
+ UnitHom_cov_morph (Comp_transf h (CoId_UnitHom_con_morph LAdj_func X Y )) K )
+: morph (Unit_hom (Subst_func N Y) (Subst_func K RAdj_func))
+(Unit_hom LAdj_func (Id_func D))  (Subst_func N Y) K *
+morph (Unit_hom (Subst_func N (Subst_func Y LAdj_func)) K)
+(Unit_hom LAdj_func (Id_func D))  (Subst_func M X) K .
 
 (* alt: “ϕ∘F(g)” <∘ “1∘F(h)”                   = “ϕ∘F( g <∘ “I∘1(h)” )” *)  (* OK *)
-Check fun  (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor )
- A A' (X : functor A' C) (Y : functor A C)
- B (M : functor B A') (N : functor B A) 
- (h: transf (Id_rel X (Subst_functor Y (Id_functor _))) M N  )  P (K: functor P D) =>
- ( Comp_antec_funcTransf' (App_transf h (Id_conse_Comp_conse_funcTransf'' (Id_functor _ ) Y X)) (Subst_functor K RightAdjunc_functor),
- CoUnitAdjunc_Comp_conse_funcTransf'' adj (Subst_functor M X) K  )
-: funcTransf (Id_rel (Subst_functor N Y) (Subst_functor K RightAdjunc_functor))
-(Id_rel (Id_functor C) (Id_functor C)) (Subst_functor M X) (Subst_functor K RightAdjunc_functor) *
-funcTransf (Id_rel (Subst_functor M X) (Subst_functor K RightAdjunc_functor))
-(Id_rel LeftAdjunc_functor (Id_functor D))  (Subst_functor M X) K.
+Check fun  (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C) (adj: adj LAdj_func RAdj_func )
+ A A' (X : func A' C) (Y : func A C)
+ B (M : func B A') (N : func B A)
+ (h: transf (Unit_hom X (Subst_func Y (Id_func _))) M N  )  P (K: func P D) =>
+ ( UnitHom_cov_morph (Comp_transf h (Id_UnitHom_con_morph (Id_func _ ) X Y)) (Subst_func K RAdj_func),
+ CoUnitAdj_UnitHom_con_morph adj (Subst_func M X) K  )
+: morph (Unit_hom (Subst_func N Y) (Subst_func K RAdj_func))
+(Unit_hom (Id_func C) (Id_func C)) (Subst_func M X) (Subst_func K RAdj_func) *
+morph (Unit_hom (Subst_func M X) (Subst_func K RAdj_func))
+(Unit_hom LAdj_func (Id_func D))  (Subst_func M X) K.
 
 
 
 (*** h <∘ “ϕ∘F(g)” =                “ϕ∘F( h G<∘ “G∘1(g)” )” *)  (* OK *)
-Check  fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor )
-A (X : functor A D) A' (Y : functor A' C) A''  (M : functor A'' A') (N : functor A'' A)
-(g : transf (Id_rel Y (Subst_functor X RightAdjunc_functor)) M N) P (K: functor P D)  =>
-Comp_antec_funcTransf' (App_transf g (CoUnitAdjunc_Comp_conse_funcTransf'' adj Y X )) K
-: funcTransf (Id_rel (Subst_functor N X) K)
-(Id_rel LeftAdjunc_functor (Id_functor D)) (Subst_functor M Y) K.
+Check  fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C) (adj: adj LAdj_func RAdj_func )
+A (X : func A D) A' (Y : func A' C) A''  (M : func A'' A') (N : func A'' A)
+(g : transf (Unit_hom Y (Subst_func X RAdj_func)) M N) P (K: func P D)  =>
+UnitHom_cov_morph (Comp_transf g (CoUnitAdj_UnitHom_con_morph adj Y X )) K
+: morph (Unit_hom (Subst_func N X) K)
+(Unit_hom LAdj_func (Id_func D)) (Subst_func M Y) K.
 
                                      (*? old? todo: here subst exact matching only on cotravariant and conversion of subst on covariant*)
 (* h <∘ “ϕ∘F(g)”                  = “ϕ∘F( h G<∘ “G∘1(g)” )” *)  (* OK *)
-Check  fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor )
-A (X : functor A D) A' (Y : functor A' C) A''  (M : functor A'' A') (N : functor A'' A)
-(g : transf (Id_rel Y (Subst_functor X RightAdjunc_functor)) M N) P (K: functor P D)  =>
-( Comp_antec_funcTransf' (App_transf g (Id_conse_Comp_conse_funcTransf'' RightAdjunc_functor X Y)) K ,
-CoUnitAdjunc_Comp_conse_funcTransf'' adj (Subst_functor M Y) K )
-: funcTransf (Id_rel (Subst_functor N X) K)
-(Id_rel (Id_functor C) RightAdjunc_functor)  (Subst_functor M Y) K *
-funcTransf (Id_rel (Subst_functor M Y) (Subst_functor K RightAdjunc_functor))
-(Id_rel LeftAdjunc_functor (Id_functor D))  (Subst_functor M Y) K .
+Check  fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C) (adj: adj LAdj_func RAdj_func )
+A (X : func A D) A' (Y : func A' C) A''  (M : func A'' A') (N : func A'' A)
+(g : transf (Unit_hom Y (Subst_func X RAdj_func)) M N) P (K: func P D)  =>
+( UnitHom_cov_morph (Comp_transf g (Id_UnitHom_con_morph RAdj_func Y X)) K ,
+CoUnitAdj_UnitHom_con_morph adj (Subst_func M Y) K )
+: morph (Unit_hom (Subst_func N X) K)
+(Unit_hom (Id_func C) RAdj_func)  (Subst_func M Y) K *
+morph (Unit_hom (Subst_func M Y) (Subst_func K RAdj_func))
+(Unit_hom LAdj_func (Id_func D))  (Subst_func M Y) K .
 
 
 
 (*** “ϕ∘F(“γ∘(g)”)” =            “1∘F(g)”   *) (* OK *)
-Check fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-(adj: adjunc LeftAdjunc_functor RightAdjunc_functor ) A (X : functor A C) B (Y : functor B C) =>
-(Comp_conse_funcTransf' (UnitAdjunc_transf adj X) Y,
-CoUnitAdjunc_Comp_conse_funcTransf'' adj Y (Subst_functor X LeftAdjunc_functor)  )
-: funcTransf (Id_rel Y X) (Id_rel (Id_functor C) RightAdjunc_functor) Y (Subst_functor X LeftAdjunc_functor) *
-funcTransf (Id_rel Y (Subst_functor (Subst_functor X LeftAdjunc_functor) RightAdjunc_functor))
-(Id_rel LeftAdjunc_functor (Id_functor D)) Y (Subst_functor X LeftAdjunc_functor) .
+Check fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C)
+(adj: adj LAdj_func RAdj_func ) A (X : func A C) B (Y : func B C) =>
+(UnitHom_con_morph (UnitAdj_transf adj X) Y,
+CoUnitAdj_UnitHom_con_morph adj Y (Subst_func X LAdj_func)  )
+: morph (Unit_hom Y X) (Unit_hom (Id_func C) RAdj_func) Y (Subst_func X LAdj_func) *
+morph (Unit_hom Y (Subst_func (Subst_func X LAdj_func) RAdj_func))
+(Unit_hom LAdj_func (Id_func D)) Y (Subst_func X LAdj_func) .
 
 (* “ϕ∘F(“γ∘(g)”)”             = “1∘F(g)”  *) (* OK *)
-Check fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-(adj: adjunc LeftAdjunc_functor RightAdjunc_functor ) A (X : functor A C) B (Y : functor B C) =>
-Id_antec_Comp_conse_funcTransf'' LeftAdjunc_functor  X Y
-: funcTransf (Id_rel Y X) (Id_rel LeftAdjunc_functor (Id_functor D)) Y (Subst_functor X LeftAdjunc_functor).
+Check fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C)
+(adj: adj LAdj_func RAdj_func ) A (X : func A C) B (Y : func B C) =>
+CoId_UnitHom_con_morph LAdj_func  Y  X
+: morph (Unit_hom Y X) (Unit_hom LAdj_func (Id_func D)) Y (Subst_func X LAdj_func).
 
 
 (*** “(f)∘ϕ” <∘ “1∘F(g)” =         f <∘ “ϕ∘F(g)” *) (* OK *)
-Check  fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-(adj: adjunc LeftAdjunc_functor RightAdjunc_functor ) A (X : functor A D)
- A' (K : functor A' C) A'' (M : functor A'' A') (N : functor A'' A) 
- (g : transf (Id_rel K (Subst_functor X (RightAdjunc_functor))) M N ) B (Y : functor B D) =>
-( CoUnitAdjunc_Comp_antec_funcTransf'' adj (Subst_functor N X) Y,
- Comp_antec_funcTransf' (App_transf g (Id_antec_Comp_conse_funcTransf'' LeftAdjunc_functor (Subst_functor X RightAdjunc_functor) K)) Y )
-: funcTransf (Id_rel (Subst_functor N X) Y)
-(Id_rel LeftAdjunc_functor (Id_functor D)) (Subst_functor (Subst_functor N X) RightAdjunc_functor) Y *
-funcTransf (Id_rel (Subst_functor N (Subst_functor (Subst_functor X RightAdjunc_functor) LeftAdjunc_functor)) Y)
-(Id_rel LeftAdjunc_functor (Id_functor D))  (Subst_functor M K) Y .
+Check  fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C)
+(adj: adj LAdj_func RAdj_func ) A (X : func A D)
+ A' (K : func A' C) A'' (M : func A'' A') (N : func A'' A)
+ (g : transf (Unit_hom K (Subst_func X (RAdj_func))) M N ) B (Y : func B D) =>
+( CoUnitAdj_UnitHom_cov_morph adj (Subst_func N X) Y,
+ UnitHom_cov_morph (Comp_transf g (CoId_UnitHom_con_morph LAdj_func K (Subst_func X RAdj_func))) Y )
+: morph (Unit_hom (Subst_func N X) Y)
+(Unit_hom LAdj_func (Id_func D)) (Subst_func (Subst_func N X) RAdj_func) Y *
+morph (Unit_hom (Subst_func N (Subst_func (Subst_func X RAdj_func) LAdj_func)) Y)
+(Unit_hom LAdj_func (Id_func D))  (Subst_func M K) Y .
 
-(* “(f)∘ϕ” <∘ “1∘F(g)”             =  f <∘ “ϕ∘F(g)” *) (* OK *) 
-Check  fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-(adj: adjunc LeftAdjunc_functor RightAdjunc_functor ) A (X : functor A D)
-A' (K : functor A' C) A'' (M : functor A'' A') (N : functor A'' A) 
-(g : transf (Id_rel K (Subst_functor X (RightAdjunc_functor))) M N ) B (Y : functor B D) =>
-Comp_antec_funcTransf' (App_transf g (CoUnitAdjunc_Comp_conse_funcTransf'' adj K X)) Y.
+(* “(f)∘ϕ” <∘ “1∘F(g)”             =  f <∘ “ϕ∘F(g)” *) (* OK *)
+Check  fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C)
+(adj: adj LAdj_func RAdj_func ) A (X : func A D)
+A' (K : func A' C) A'' (M : func A'' A') (N : func A'' A)
+(g : transf (Unit_hom K (Subst_func X (RAdj_func))) M N ) B (Y : func B D) =>
+UnitHom_cov_morph (Comp_transf g (CoUnitAdj_UnitHom_con_morph adj K X)) Y.
 
 
 (*** “ϕ∘F(“G(f)∘γ”)”  =            id(f) *) (* OK *)
-Check  fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-(adj: adjunc LeftAdjunc_functor RightAdjunc_functor ) A (X : functor A C)
- A' (K : functor A' D) (* A'' (M : functor A'' A') (N : functor A'' A) 
- (f : transf (Id_rel (Subst_functor X (LeftAdjunc_functor)) K) N M ) *) =>
-( UnitAdjunc_Comp_antec_funcTransf'' adj X K,
- CoUnitAdjunc_Comp_conse_funcTransf'' adj X K )
-:  funcTransf (Id_rel (Subst_functor X LeftAdjunc_functor) K)
-(Id_rel (Id_functor C) RightAdjunc_functor) X K *
-funcTransf (Id_rel X (Subst_functor K RightAdjunc_functor))
-(Id_rel LeftAdjunc_functor (Id_functor D)) X K .
+Check  fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C)
+(adj: adj LAdj_func RAdj_func ) A (X : func A C)
+ A' (K : func A' D) (* A'' (M : func A'' A') (N : func A'' A)
+ (f : transf (Unit_hom (Subst_func X (LAdj_func)) K) N M ) *) =>
+( UnitAdj_UnitHom_cov_morph adj X K,
+ CoUnitAdj_UnitHom_con_morph adj X K )
+:  morph (Unit_hom (Subst_func X LAdj_func) K)
+(Unit_hom (Id_func C) RAdj_func) X K *
+morph (Unit_hom X (Subst_func K RAdj_func))
+(Unit_hom LAdj_func (Id_func D)) X K .
 
 (* “ϕ∘F(“G(f)∘γ”)”             =  id(f) *) (* OK *)
-Check  fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-(adj: adjunc LeftAdjunc_functor RightAdjunc_functor ) A (X : functor A C)
- A' (K : functor A' D)  =>
-Id_funcTransf (Id_rel LeftAdjunc_functor (Id_functor D)) X K
-: funcTransf (Subst_rel (Id_rel LeftAdjunc_functor (Id_functor D)) X K)
-(Id_rel LeftAdjunc_functor (Id_functor D)) X K.
+Check  fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C)
+(adj: adj LAdj_func RAdj_func ) A (X : func A C)
+ A' (K : func A' D)  =>
+Id_morph (Unit_hom LAdj_func (Id_func D)) X K
+: morph (Subst_hom (Unit_hom LAdj_func (Id_func D)) X K)
+(Unit_hom LAdj_func (Id_func D)) X K.
 
 
 (*** h <∘ “(g)∘ϕ” =                   “(h <∘ g)∘ϕ”    *)  (* OK *)
-Check  fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor )
-A (X : functor A D) A' (Y : functor A' D) A''  (M : functor A'' A) (N : functor A'' A')
-(g : transf (Id_rel X Y) M N) B (Z: functor B D)  =>
-Comp_antec_funcTransf' (App_transf g (CoUnitAdjunc_Comp_antec_funcTransf'' adj X Y)) Z
-: funcTransf (Id_rel (Subst_functor N Y) Z)
-(Id_rel LeftAdjunc_functor (Id_functor D)) (Subst_functor M (Subst_functor X RightAdjunc_functor)) Z.
+Check  fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C) (adj: adj LAdj_func RAdj_func )
+A (X : func A D) A' (Y : func A' D) A''  (M : func A'' A) (N : func A'' A')
+(g : transf (Unit_hom X Y) M N) B (Z: func B D)  =>
+UnitHom_cov_morph (Comp_transf g (CoUnitAdj_UnitHom_cov_morph adj X Y)) Z
+: morph (Unit_hom (Subst_func N Y) Z)
+(Unit_hom LAdj_func (Id_func D)) (Subst_func M (Subst_func X RAdj_func)) Z.
 
 (* h <∘ “(g)∘ϕ”                      =  “(h <∘ “1(g)∘I”)∘ϕ”    *)  (* OK *)
-Check  fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) (adj: adjunc LeftAdjunc_functor RightAdjunc_functor )
-A (X : functor A D) A' (Y : functor A' D) A''  (M : functor A'' A) (N : functor A'' A')
-(g : transf (Id_rel (Subst_functor X (Id_functor _)) Y) M N) B (Z: functor B D)  =>
-( Comp_antec_funcTransf' (App_transf g (Id_antec_Comp_antec_funcTransf'' (Id_functor _) X Y)) Z ,
- CoUnitAdjunc_Comp_antec_funcTransf'' adj (Subst_functor M X) Z ).
+Check  fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C) (adj: adj LAdj_func RAdj_func )
+A (X : func A D) A' (Y : func A' D) A''  (M : func A'' A) (N : func A'' A')
+(g : transf (Unit_hom (Subst_func X (Id_func _)) Y) M N) B (Z: func B D)  =>
+( UnitHom_cov_morph (Comp_transf g (CoId_UnitHom_cov_morph (Id_func _) X Y)) Z ,
+ CoUnitAdj_UnitHom_cov_morph adj (Subst_func M X) Z ).
 
 
 (* todo: “I∘1(f)” = id(f)   ;  “1(f)∘I” = id(f)* ;  “1(f)∘F” = id(f)(? := ?) *)
-Check  fun (C D: Cat) (LeftAdjunc_functor : functor C D) (RightAdjunc_functor : functor D C) 
-(adj: adjunc LeftAdjunc_functor RightAdjunc_functor ) A (X : functor A C)
- A' (K : functor A' D)  =>
- ( Id_antec_Comp_antec_funcTransf'' LeftAdjunc_functor X K,
- Id_funcTransf (Id_rel LeftAdjunc_functor (Id_functor D)) X K   )
-:  funcTransf (Id_rel (Subst_functor X LeftAdjunc_functor) K)
-(Id_rel LeftAdjunc_functor (Id_functor D)) X K *
-funcTransf (Subst_rel (Id_rel LeftAdjunc_functor (Id_functor D)) X K)
-(Id_rel LeftAdjunc_functor (Id_functor D)) X K .
+Check  fun (C D: Cat) (LAdj_func : func C D) (RAdj_func : func D C)
+(adj: adj LAdj_func RAdj_func ) A (X : func A C)
+ A' (K : func A' D)  =>
+ ( CoId_UnitHom_cov_morph LAdj_func X K,
+ Id_morph (Unit_hom LAdj_func (Id_func D)) X K   )
+:  morph (Unit_hom (Subst_func X LAdj_func) K)
+(Unit_hom LAdj_func (Id_func D)) X K *
+morph (Subst_hom (Unit_hom LAdj_func (Id_func D)) X K)
+(Unit_hom LAdj_func (Id_func D)) X K .
 
 
 End Example.
