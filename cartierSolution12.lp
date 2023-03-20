@@ -1,7 +1,8 @@
-/* TODO: these are unfinished prototypes for demo that it does work
+/* TITLE: Cut-elimination in the double category of profunctors with J-rule-eliminated adjunctions
+TODO: these are unfinished prototypes for demo that it does work
 
-https://github.com/1337777/cartier/blob/master/cartierSolution12.v (head version; experiment file)
-https://github.com/1337777/cartier/blob/master/cartierSolution12.lp (lagging version; future primary file; must use LambdaPi for modulo structural coherence)
+https://github.com/1337777/cartier/blob/master/cartierSolution12.lp (head version; future primary file; must use LambdaPi proof-assistant for modulo structural coherence)
+https://github.com/1337777/cartier/blob/master/cartierSolution12.v (lagging version; unable proof-assistant)
 
 In one line: the problem of contextual composition (cut elimination) and monoidal units (J-rule elimination) is solved by alternative formulations of adjunctions.
 
@@ -37,23 +38,92 @@ Finally the problem of “contextual composition/cut” also arises from the pro
  builtin "Prop" ≔ Prop;
  builtin "P" ≔ Prf;
  
- 
  inductive cat : TYPE ≔ 
  
+ | One_cat : cat
+ 
+ | Fibre_cat : Π [X I : cat] (A : catd X) (x : func I X), cat
+ 
+ | Mod_cat : Π [A B : cat] (R : mod A B), cat
+ 
+ with catd: Π (X : cat), TYPE ≔ 
+ 
+ | Triv_catd : Π (A : cat), catd A
+ 
+ | Cast_catd : Π (A : cat), catd One_cat
+ 
+ | Fibre_catd : Π [X I : cat] (A : catd X) (x : func I X), catd  I
+ 
+ | Mod_con_catd : Π [A B : cat] (R : mod A B), catd A
+ 
+ | Mod_cov_catd : Π [A B : cat] (R : mod A B), catd  B
+ 
  with func : Π (A B : cat), TYPE ≔
+ 
  | Id_func : Π [A : cat], func A A
  
- with mod : Π (A B : cat), TYPE ≔
+ //Subst_func'  constructor
+ | '∘> : Π [A B C: cat], func A B → func B C → func A C
+ 
+ | One_func :  Π (A : cat), func A One_cat
+ 
+ | Mod_func : Π [A B I : cat] [R : mod A B] [x : func I A] [y : func I B] (r : hom x R y),
+  func I (Mod_cat R) 
+ 
+ with funcd : Π [X Y : cat] (A : catd X) (F : func X Y) (B : catd Y), TYPE ≔
+ 
+ | Id_funcd : Π [X : cat] [A : catd X], funcd A Id_func A
+ 
+ | '∘>d: Π [X Y Z : cat] (A : catd X) (B : catd Y) (C : catd Z) (F : func X Y)
+    (G : func Y Z), funcd A F B → funcd B G C → funcd A (('∘>) F G) C
+ 
+ | Triv_funcd :  Π [X Y : cat] (xy : func X Y), funcd (Triv_catd X) xy (Triv_catd Y)
+ 
+ | Proj_funcd : Π [X Y I : cat] [A : catd X] (x : func I X) [B : catd Y] [F : func X Y],
+ funcd A F B →  funcd (Fibre_catd A x) (('∘>) x  F ) B
+ 
+ | Univ_funcd : Π [X I : cat] [A : catd X] [x : func I X] [J : catd I]  ,
+   funcd J x A  → funcd J Id_func (Fibre_catd A x)
+ 
+ | Mod_con_funcd : Π [A B I : cat] [R : mod A B] [x : func I A] [y : func I B] (r : hom x R y),
+  funcd (Triv_catd I) x (Mod_con_catd R)
+ 
+ | Mod_cov_funcd : Π [A B I : cat] [R : mod A B] [x : func I A] [y : func I B] (r : hom x R y),
+ funcd (Triv_catd I) y (Mod_cov_catd R)
+ 
+ with  mod : Π (A B : cat), TYPE ≔
+ 
  | Unit_mod : Π [X A B : cat], func A X → func B X → mod A B
- | Tensor_cov_mod : Π [A B C X : cat], mod A B → func B C → mod C X → mod A X
- | Tensor_con_mod : Π [A B C X : cat], mod X C → func A C → mod A B → mod X B
+ 
+ | ⊗ : Π [A B X : cat], mod A B → mod B X → mod A X //Tensor_mod
+ 
  | Imply_cov_mod : Π [A B C X : cat], mod A B → func C B → mod X C → mod A X
+ 
  | Imply_con_mod : Π [A B C X : cat], mod C X → func C A → mod A B → mod X B
  
- with modd : Π [A X Y B : cat], func A X → mod X Y → func B Y → TYPE ≔
- // fibred
+ | One_mod : Π (A B : cat), mod A B
  
- with adj : Π [R L : cat], func R L → func L R → TYPE ≔
+ | Mod_mod : Π [A B : cat] (R : mod A B), mod (Mod_cat R) (Mod_cat R)
+ 
+ | Sheaf_con_mod : Π [A B : cat], mod A B → mod A B
+ 
+ with modd : Π [X Y : cat], catd X → mod X Y → catd Y → TYPE ≔ 
+ 
+ | ⊗d : Π [A B X : cat] [AA : catd A][BB : catd B][XX : catd X]
+  [R :mod A B] [S :mod B X], modd AA R BB →  modd BB S XX →
+  modd AA ( (⊗) R S) XX  //Tensor_modd
+ 
+ | Triv_modd : Π [X Y : cat] (R : mod X Y) ,
+ modd (Triv_catd X) R (Triv_catd Y)
+ 
+ | Fibre_modd : Π [X Y I : cat] [A : catd X] [R : mod X Y] [B : catd Y]
+ (RR : modd A R B) [x : func I X] [y : func I Y], hom x R y → 
+  modd (Fibre_catd A x) (Unit_mod Id_func Id_func) (Fibre_catd B y)
+ 
+ | Mod_modd : Π [A B : cat] (R : mod A B), modd (Mod_con_catd R) R (Mod_cov_catd R)
+ 
+ | Sheaf_con_modd : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y],
+  modd A R B → modd A R B
  
  with hom: Π [I A B : cat], func I A → mod A B → func I B → TYPE ≔
  
@@ -64,20 +134,96 @@ Finally the problem of “contextual composition/cut” also arises from the pro
  hom F (Unit_mod Id_func F) Id_func
  
  | Adj_cov_hom : Π [L R I : cat] [LAdj_func : func R L] [RAdj_func : func L R]
- (aj : adj LAdj_func RAdj_func),
- hom RAdj_func (Unit_mod LAdj_func Id_func) Id_func
+ (aj : adj LAdj_func RAdj_func), Π [I] (Z : func I _),
+ hom ( ('∘>) Z  RAdj_func) (Unit_mod ( ('∘>) Id_func  LAdj_func) Z) Id_func
  
  | Adj_con_hom : Π [L R I : cat] [LAdj_func : func R L] [RAdj_func : func L R]
- (aj : adj LAdj_func RAdj_func),
- hom Id_func (Unit_mod Id_func RAdj_func) LAdj_func;
+ (aj : adj LAdj_func RAdj_func), Π [I] (Z : func I _),
+ hom Id_func (Unit_mod Z ( ('∘>) Id_func  RAdj_func)) ( ('∘>) Z  LAdj_func)
+ 
+ | One_hom : Π [A B I : cat] (F : func I A) (G : func I B),  hom F (One_mod A B) G
+ 
+ | Mod_hom : Π [A B I : cat] [R : mod A B] [x : func I A] [y : func I B] (r : hom x R y),
+ hom (Mod_func r) (Mod_mod R) (Mod_func r)
+ 
+ | Tensor_hom_hom  : Π [A  X I : cat] [P : mod A I] [Q : mod I X]
+ [F : func I A] [G : func I X],
+ hom F P Id_func → hom Id_func Q G → hom F ((⊗) P  Q) G
+ 
+ with homd: Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y], hom F R G → 
+   Π [A : catd X] [B : catd Y] [II: catd I] (FF : funcd II F A) (RR : modd A R B) (GG : funcd II G B), TYPE ≔
+ 
+ | Mod_homd : Π [A B I : cat] [R : mod A B] [x : func I A] [y : func I B] (r : hom x R y),
+ homd r (Mod_con_funcd r) (Mod_modd R) (Mod_cov_funcd r)
+ 
+ with adj : Π [R L : cat], func R L → func L R → TYPE ≔
+ 
+ with covering : Π [X Y I : cat] [A : catd X] [R : mod X Y] [B : catd Y]
+ (RR : modd A R B) [J : catd I][y : func I Y],  funcd J y B → TYPE ≔
+ 
+ | Triv_covering : Π [X Y I : cat] [R : mod X Y] [G : func I Y], 
+ covering (Triv_modd R) (Triv_funcd G)
+ 
+ | Fibre_covering : Π [X Y I : cat] [A : catd X] [R : mod X Y] [B : catd Y]
+  (RR : modd A R B) [J : catd I] [G : func I Y]  (H : funcd J G B), Π [F : func I X]  (r : hom F R G),
+   covering RR H → 
+   covering (Fibre_modd RR r)  (Univ_funcd H)
+ 
+ | Sigma_covering : Π [X Y I : cat] [A : catd X] [R : mod X Y] [B : catd Y]
+ (RR : modd A R B) [G : func I Y], Π [J : catd I] [H : funcd J G B],
+ (Π [F : func I X] (r : hom F R G), covering (Fibre_modd RR r)  (Univ_funcd H)) → 
+  covering RR H ;
+ 
+ notation '∘> infix right 90; notation ⊗ infix left 70; notation ⊗d infix left 70;
+ 
+ symbol Sigma_cat : Π [X : cat], catd X → cat;
+ 
+ symbol Sigma_func : Π [X Y : cat] [A : catd X] [B : catd Y] [xy : func X Y],
+  funcd A xy B → func (Sigma_cat A) (Sigma_cat B);
+ 
+ symbol Sigma_mod : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y],
+  modd A R B → mod (Sigma_cat A) (Sigma_cat B);
+ 
+ symbol Sigma_hom : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
+  [A : catd X] [B : catd Y] [II: catd I] [FF : funcd II F A] [RR : modd A R B] [GG : funcd II G B],
+ homd r FF RR GG  → hom (Sigma_func FF) (Sigma_mod RR) (Sigma_func GG);
+ 
+ rule Sigma_cat (Triv_catd $A) ↪ $A
+ with Sigma_cat (Cast_catd $A) ↪ $A
+ with Sigma_cat (Fibre_catd $A $F) ↪ Fibre_cat $A $F
+ with Sigma_cat (Mod_con_catd $R) ↪ (Mod_cat $R)
+ with Sigma_cat (Mod_cov_catd $R) ↪ (Mod_cat $R);
+ 
+ rule Sigma_func (Id_funcd) ↪ Id_func
+ with Sigma_func (Triv_funcd $F) ↪ $F
+ with Sigma_func (Mod_con_funcd $r) ↪ (Mod_func $r)
+ with Sigma_func (Mod_cov_funcd $r) ↪ (Mod_func $r);
+ 
+ rule Sigma_mod (Triv_modd $R) ↪ $R
+ with Sigma_mod (Mod_modd $R) ↪ (Mod_mod $R)
+ with Sigma_mod ($R ⊗d $S) ↪ (Sigma_mod $R) ⊗ (Sigma_mod $S);
+ 
+ rule Sigma_hom (Mod_homd $r) ↪ Mod_hom $r;
  
  //Subst_func
  symbol ∘> : Π [A B C: cat], func A B → func B C → func A C;
- notation ∘> infix right 80;
+ notation ∘> infix right 90;
+ symbol <∘ [A B C: cat] : func B C → func A B → func A C ≔ λ G F, F ∘> G;
+ notation <∘ infix left 90;
  
- symbol <∘ : Π [A B C: cat], func B C → func A B → func A C 
-   ≔ λ _ _ _ G F, F ∘> G;
- notation <∘ infix left 80;
+ rule ($F ∘> $G) ∘> $H ↪ $F ∘> ($G ∘> $H)
+ with $F ∘> Id_func ↪ $F
+ with Id_func ∘> $F ↪ $F
+ with ($F ∘> ($G '∘> $H)) ↪ (($F ∘> $G) '∘> $H)
+ with (($F '∘> $G) ∘> $H) ↪ ($F '∘> ($G ∘> $H));
+ 
+ // Subst_hom 
+ symbol ∘↓ : Π [I A B I' : cat] [R : mod A B] [F : func I A] 
+ [G : func I B], hom F R G → Π (X : func I' I), hom (X ∘> F) R (G <∘ X);
+ notation ∘↓ infix left 120;
+ 
+ rule $r ∘↓ Id_func ↪ $r
+ with ($r ∘↓ $H) ∘↓ $K ↪ $r ∘↓ ($H <∘ $K); 
  
  //Subst_cov_mod
  symbol <<∘ : Π [A X C: cat], mod A X → func C X → mod A C;
@@ -87,24 +233,13 @@ Finally the problem of “contextual composition/cut” also arises from the pro
  symbol ∘>> : Π [X B C: cat], func C X → mod X B → mod C B;
  notation ∘>> infix right 80;
  
- // Subst_hom
- symbol ∘↓ : Π [I A B I' : cat] [R : mod A B] [F : func I A] 
- [G : func I B], hom F R G → Π (X : func I' I), hom (X ∘> F) R (G <∘ X);
- notation ∘↓ infix left 120;
- 
- rule ($F ∘> $G) ∘> $H ↪ $F ∘> ($G ∘> $H)
- with $F ∘> Id_func ↪ $F
- with Id_func ∘> $F ↪ $F;
- 
  rule (Unit_mod $F $G) <<∘ $K ↪ Unit_mod $F ($G <∘ $K)
- with (Tensor_cov_mod $R $H $S) <<∘ $G ↪ Tensor_cov_mod $R $H ($S <<∘ $G)
- with (Tensor_con_mod $R $H $S) <<∘ $G ↪ Tensor_con_mod $R $H ($S <<∘ $G)
+ with ($R ⊗ $S) <<∘ $G ↪ $R ⊗ ($S <<∘ $G)
  with (Imply_cov_mod $R $H $S) <<∘ $G ↪ Imply_cov_mod $R $H ($G ∘>> $S)
  with (Imply_con_mod $R $H $S) <<∘ $G ↪ Imply_con_mod $R $H ($S <<∘ $G);
  
  rule $K ∘>> (Unit_mod $F $G) ↪ Unit_mod ($K ∘> $F) $G
- with $G ∘>> (Tensor_con_mod $R $H $S) ↪ Tensor_con_mod ($G ∘>> $R) $H $S
- with $G ∘>> (Tensor_cov_mod $R $H $S) ↪ Tensor_cov_mod ($G ∘>> $R) $H $S
+ with $G ∘>> ($R ⊗ $S) ↪ ($G ∘>> $R) ⊗ $S
  with $G ∘>> (Imply_con_mod $R $H $S) ↪ Imply_con_mod ($R <<∘ $G) $H $S
  with $G ∘>> (Imply_cov_mod $R $H $S) ↪ Imply_cov_mod ($G ∘>> $R) $H $S;
  
@@ -117,63 +252,76 @@ Finally the problem of “contextual composition/cut” also arises from the pro
  
  rule ($F ∘>> $R) <<∘ $G ↪ ($F ∘>> ($R <<∘ $G));
  
- rule $r ∘↓ Id_func ↪ $r
- with ($r ∘↓ $H) ∘↓ $K ↪ $r ∘↓ ($H <∘ $K); 
- 
- /* =========================== */
- 
  inductive transf: Π [A' B' A B: cat], mod A' B' → func A' A → mod A B → func B' B → TYPE ≔
  
  | Id_transf : Π [A X : cat] (R : mod A X) ,
  transf R Id_func R Id_func
  
- //Unit_cov_trans
- | ∘>'_ : Π [I A B J : cat] [F : func I A] [R : mod A B] [G : func I B],
- hom F R G → Π (N: func J B), transf (Unit_mod G N) F (R <<∘ N) Id_func
+ | Unit_Tensor_cov_transff : Π [A B A' X : cat] [P : mod A B] [P' : mod A' B] [F : func A A'] ,
+ transf P F P' Id_func → 
+ transf (P ⊗ ( Unit_mod Id_func Id_func )) F P' Id_func
  
- //Unit_con_trans
- | _'∘> : Π [I A B J : cat] [F : func I A] [R : mod A B] [G : func I B],
- Π (M : func J A), hom F R G → transf ( Unit_mod M F) Id_func (M ∘>> R) G
+ | Eval_cov_transf : Π [A B  X A' X' : cat] [P : mod A B] [Q : mod B X] 
+ [O : mod A' X']  [F : func A A'] [L : func X X'],
+ transf P                       F (Imply_cov_mod O L Q) Id_func →
+ transf ( P ⊗ Q)  F O                     L
  
- | Unit_Tensor_cov_transf : Π [A B A' X : cat] [P : mod A B] [P' : mod A' X] [F : func A A'] [K : func B X],
- transf P F P' K → 
- transf (Tensor_cov_mod P K ( Unit_mod Id_func Id_func )) F P' Id_func
+ | Lambda_cov_transf : Π [A B  X A' X' : cat] [P : mod A B] [Q : mod B X] 
+ [O : mod A' X']  [F : func A A'] [L : func X X'],
+ transf P                       F (Imply_cov_mod O L Q) Id_func →
+ transf ( P ⊗ Q)  F O                     L
  
- | Eval_cov_transf : Π [A B C X A' X' : cat] [P : mod A B] [Q : mod C X] 
- [O : mod A' X'] [K : func B C] [F : func A A'] [L : func X X'],
- transf P                       F (Imply_cov_mod O L Q) K →
- transf (Tensor_cov_mod P K Q)  F O                     L
+ | Tensor_cov_transff : Π [A' I X' A X: cat] [P' : mod A' I] [Q' : mod I X'] 
+ [P : mod A I] [Q : mod I X] [F : func A' A]  [G : func X' X],
+ transf P' F P Id_func → transf Q' Id_func Q G →
+ transf (P' ⊗ Q') F (P ⊗ Q) G
  
- | Lambda_cov_transf : Π [A B C X A' X' : cat] [P : mod A B] [Q : mod C X] 
- [O : mod A' X'] [K : func B C] [F : func A A'] [L : func X X'],
- transf (Tensor_cov_mod P K Q) F O L →
- transf P F (Imply_cov_mod O L Q) K 
+ | Tensor_cov_hom_transf : Π [A' I A X: cat] [P' : mod A' I] 
+ [P : mod A I] [Q : mod I X] [F : func A' A]  [G : func I X],
+ transf P' F P Id_func → hom Id_func Q G →
+ transf P' F (P ⊗ Q) G
  
- | Tensor_cov_transf : Π [A' B' X' A B C X C': cat] [P' : mod A' B'] [Q' : mod C' X'] 
- [P : mod A B] [Q : mod C X] [K' : func B' B] [F : func A' A] [K : func C' C] [G : func X' X],
- transf P' F P K' → transf Q' K Q G → Π  (K0 : func B C'),
- transf (Tensor_cov_mod P' (K' ∘> K0) Q') F (Tensor_cov_mod P K0 (K ∘>> Q)) G
- 
- | Tensor_hom_cov_transf : Π [A' I' I X' A C X I0 : cat] [P' : mod A' I']
- [P : mod A I0] [Q : mod C X] [F : func A' A] [H : func I' I0] [K : func I C] [G : func I X],
- transf P' F P H → hom K Q G → Π (H0 : func I0 I),
- transf P' F (Tensor_cov_mod P H0 (K ∘>> Q)) (G <∘ (H0 <∘ H))
- 
- | Imply_cov_transf : Π [A B A' B' C D C' D' : cat] [O : mod A B] [O' : mod A' B']
-  [Q : mod C D] [Q' : mod C' D'] [F : func A A'] [G : func B B'] [H : func C C'] [L : func D D'],
- transf O F O' G → Π (K : func D' B), transf Q H Q' L → 
- transf   (Imply_cov_mod O K (H ∘>> Q'))
+ | Tensor_cov_transf : Π [A B A' B' C D D' : cat] [O : mod A B] [O' : mod A' B']
+  [Q : mod C D] [Q' : mod C D'] [F : func A A'] [G : func B B']  [L : func D D'],
+ transf O F O' G → Π (K : func D' B), transf Q Id_func Q' L → 
+ transf   (Imply_cov_mod O K Q')
         F (Imply_cov_mod O' ((G <∘ K) <∘ L) Q) Id_func
  
- | Imply_hom_cov_transf : Π [A B A' B' C C' D' : cat] [O : mod A B] [O' : mod A' B']
-   [Q' : mod C' D'] [F : func A A'] [G : func B B'] [H : func C C'] [L : func C D'],
- transf O F O' G → Π (K : func D' B), hom H Q' L → 
- transf   (Imply_cov_mod O K (H ∘>> Q'))
-        F (O' <<∘ ((G <∘ K) <∘ L)) Id_func ;
+ | Imply_cov_hom_transf : Π [A B A' B' C  D' : cat] [O : mod A B] [O' : mod A' B']
+   [Q' : mod C D'] [F : func A A'] [G : func B B']  [L : func C D'],
+ transf O F O' G → Π (K : func D' B), hom Id_func Q' L → 
+ transf   (Imply_cov_mod O K Q')
+        F (O' <<∘ ((G <∘ K) <∘ L)) Id_func 
+ 
+ | Glue_transf : Π [X Y A' B': cat] [A : catd X]  [B: catd Y] [R : mod X Y]
+ (RR : modd A R B) (FF : funcd A (One_func X) (Cast_catd A')) (RR' : mod A'  B') (GG : funcd B (One_func Y)  (Cast_catd B')),
+ Π I [G : func I Y], Π [J : catd I] [H : funcd J G B], covering RR H →
+ (Π [F : func I X] (r : hom F R G), transf (Sigma_mod (Fibre_modd  RR r)) (Sigma_func (Proj_funcd F FF )) (Sheaf_con_mod RR') (Sigma_func (Proj_funcd  G GG))) →
+   transf (Sigma_mod RR) (Sigma_func FF) (Sheaf_con_mod RR') (Sigma_func GG )
+ 
+ with transfd: Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [xx' : func X X'] [yy' : func Y Y'] [R' : mod X' Y'] [R : mod X Y], 
+   modd A R B → funcd A xx' A' → modd A' R' B' → funcd B yy' B' → TYPE ≔
+ 
+ | Glue_transfd : Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [xx' : func X X'] [yy' : func Y Y'] [R' : mod X' Y'] [R : mod X Y]
+ (RR : modd A R B) (FF : funcd A xx' A') (RR' : modd A' R' B') (GG : funcd B yy' B'),
+ Π I [G : func I Y], Π [J : catd I] [H : funcd J G B], covering RR H →
+ (Π [F : func I X] (r : hom F R G), transfd (Fibre_modd  RR r) (Proj_funcd F FF ) (Sheaf_con_modd RR') (Proj_funcd  G GG)) →
+   transfd RR FF (Sheaf_con_modd RR') GG ;
+ 
+ // "J-rule" , admissible/eliminated until accumulation onto basic constructors
+ //Unit_cov_trans
+ symbol  ∘>'_ : Π [I A B J : cat] [F : func I A] [R : mod A B] [G : func I B],
+ hom F R G → Π (N: func J B), transf (Unit_mod G N) F (R <<∘ N) Id_func;
+ 
+ //Unit_con_trans
+ symbol  _'∘> : Π [I A B J : cat] [F : func I A] [R : mod A B] [G : func I B],
+ Π (M : func J A), hom F R G → transf ( Unit_mod M F) Id_func (M ∘>> R) G;
  
  notation _'∘> infix right 80;
  notation ∘>'_ infix left 80;
  
+ 
+ // (substitution) admissible/eliminated until accumulation onto basic constructors
  //Comp_hom
  symbol '∘ : Π [A' B' A B I : cat] [S : mod A' B'] [T : mod A B]
  [X : func I A'] [Y : func I B'] [F : func A' A] [G : func B' B],
@@ -198,13 +346,6 @@ Finally the problem of “contextual composition/cut” also arises from the pro
    ≔ λ st rs, rs ''∘ st;
  notation ∘'' infix left 80;
  
- //TODO  THESE ARE ADMISSIBLE Id_cov_transf ,  Id_con_transf  then can derive structural operations, Subst_cov_transf, UnSubst_cov_transf
- symbol Id_cov_transf : Π [A X A' : cat] (R : mod A X) (F : func A' A),
- transf (F ∘>> R) F R Id_func;
- 
- symbol Id_con_transf : Π [X B B' : cat] (R : mod X B) (G : func B' B),
- transf (R <<∘ G) Id_func R G;
- 
  injective symbol ==> : Π [I A B: cat] [F : func I A] [T : mod A B] [G :func I B],
  hom F T G → hom F T G → TYPE;
  notation ==> infix 20;
@@ -213,6 +354,34 @@ Finally the problem of “contextual composition/cut” also arises from the pro
  transf S F T G → transf S F T G → TYPE;
  notation ==>> infix 20;
  
+ 
+ /* ========================== */
+ 
+ // inductive data type
+ 
+ symbol OneArrow_cat : cat;
+ symbol OneArrow_First_func : Π [A : cat], func A One_cat → func A OneArrow_cat;
+ symbol OneArrow_Second_func : Π [A : cat], func A One_cat → func A OneArrow_cat;
+ symbol OneArrow_hom : Π [A : cat] (F : func A One_cat), hom (OneArrow_First_func F) (Unit_mod Id_func Id_func) (OneArrow_Second_func F);
+ symbol OneArrow_elim : Π (E : cat) (first_func : func One_cat E) 
+ (second_func : func One_cat E) (one_hom : hom first_func (Unit_mod Id_func Id_func) second_func), func OneArrow_cat E;
+ 
+ /* ========================== */
+ 
+ // weighted covariant limit (with reindexing)
+ 
+ injective symbol limit : Π [B J0 J J' : cat] (K : func J J0) (F : func J0 B) (W : mod J' J) (F_⇐_W : func J' B), TYPE;
+ 
+ symbol limit_transf : Π  [B J0 J J' : cat] [K : func J J0] [W : mod J' J] [F : func J0 B] [F_⇐_W : func J' B]
+ (isl : limit K F W F_⇐_W), Π [I : cat] (M : func I B),
+ transf (Imply_cov_mod ((Unit_mod M F)) K W) Id_func (Unit_mod M F_⇐_W) Id_func;
+ 
+ type λ  [B J0 J J' A : cat] (K : func J J0) (W : mod J' J) (F : func J0 B) (F_⇐_W : func J' B)
+ (isl : limit K F W F_⇐_W) (R : func B A) (L : func A B) (isa : adj L R) I (M : func I A), 
+  ((Tensor_cov_transf ((M)_'∘> Adj_cov_hom isa F) K (Id_transf W)) ''∘ (limit_transf isl (M '∘> L)))
+  ''∘ ((Adj_con_hom isa M) ∘>'_(F_⇐_W)) ;
+  // : transf (Imply_cov_mod (Unit_mod M (F '∘> R)) K W) 
+  // ((Id_func ∘> Id_func) ∘> Id_func) (Unit_mod M (Id_func '∘> R) <<∘ F_⇐_W) (Id_func <∘ (Id_func <∘ Id_func))
  
  
  /* ========================== */
@@ -243,46 +412,46 @@ Finally the problem of “contextual composition/cut” also arises from the pro
  
  /* ========================== */
  
- // adjunct inverses
+ // adjunction inverses
  
  // “ϕ∘F(“G(f)∘γ”)”  =                  id∘1( 1(-)∘F ) 
- type λ [L R I J : cat] [LAdj_func : func R L] [RAdj_func : func L R]
- (aj : adj LAdj_func RAdj_func) (Z : func I R) (N : func J L),
-  (((Adj_con_hom aj) ∘↓ Z) ∘>'_(N)) ''∘ ((Id_func)_'∘> ((Adj_cov_hom aj) ∘↓ N))
-  ==>> (((Id_cov_hom LAdj_func) ∘↓ Z) ∘>'_(N) ) ''∘ (  (LAdj_func)_'∘> ((Id_con_hom Id_func) ∘↓ N) );
- // : transf (((LAdj_func <∘ Z) ∘>1_) <<∘ N) ((Z ∘> Id_func) ∘> Id_func) (Id_func ∘>> Unit_mod LAdj_func Id_func) ((Id_func <∘ N) <∘ Id_func)
+ type λ [L R I J I0 : cat] [LAdj_func : func R L] [RAdj_func : func L R]
+ (aj : adj LAdj_func RAdj_func) (Z : func I0 R) (M : func I I0)  (N : func J L),
+  (((Adj_con_hom aj Z) ∘↓ M) ∘>'_(N)) ''∘ ((Z)_'∘> ((Adj_cov_hom aj Id_func) ∘↓ N))
+ ==>>  (((Id_cov_hom (Z '∘> LAdj_func)) ∘↓ M) ∘>'_(N) ) ''∘ (  (Z '∘> LAdj_func)_'∘> ((Id_con_hom Id_func) ∘↓ N) );
+ // : transf (Unit_mod (M ∘> (Z ∘> LAdj_func)) N) M (Unit_mod (Z ∘> LAdj_func) Id_func) N
  
  
  // “ϕ∘F(“γ∘(g)”)” =            “1∘F(g)”   
  type λ [L R I J : cat] [LAdj_func : func R L] [RAdj_func : func L R]
- (aj : adj LAdj_func RAdj_func) (Z : func I R) V (M : func J R),
- ( (M)_'∘> ((Adj_con_hom aj) ∘↓ Z) ) ''∘ ( (M)_'∘> ((Adj_cov_hom aj) ) )
- ==>> ( (M)_'∘> ((Id_cov_hom LAdj_func) ∘↓ Z) );
- // : transf (M ∘>> _1<∘ (Z ∘> Id_func)) (Id_func ∘> Id_func) (M ∘>> Unit_mod LAdj_func Id_func) (Id_func <∘ (LAdj_func <∘ Z))
- 
+ (aj : adj LAdj_func RAdj_func) Z (N : func I R) (M : func J R),
+ ( (M)_'∘> ((Adj_con_hom aj Z) ∘↓ N) )   ''∘ ( (M ∘> Z )_'∘> (Adj_cov_hom aj Id_func) )
+ ==>>  ( (M)_'∘> ((Id_cov_hom (Z '∘> LAdj_func)) ∘↓ N) ); 
+ // : transf (Unit_mod M N) Id_func (Unit_mod (M ∘> (Z ∘> LAdj_func)) Id_func) ((Z ∘> LAdj_func) <∘ N)
  
  /* ========================== */
  
  // naturality and dinaturality of evaluation
- type λ  [A B C X A' X' A0 C0 : cat] [P : mod A B] [Q : mod C X] 
- [O : mod A' X'] [K0 : func B C0] [F : func A A'] [L : func X X'] (M: func A0 A)  (K : func C0 C)
- (pq_o : transf P F (Imply_cov_mod O L (K ∘>> Q)) K0)
- B0 (N : func B0 B) D (Z : func D X) 
- (P': mod A0 B0) (p'p : transf P' M P N)  (Q' : mod C0 D) (q'q : transf Q' K Q Z),
- (Eval_cov_transf pq_o) ∘'' (Tensor_cov_transf p'p q'q K0)  
- ==>> Eval_cov_transf ((pq_o ∘'' p'p) ''∘  (Imply_cov_transf (Id_transf O) L q'q));
- //transf (Tensor_cov_mod P' (N ∘> K0) Q') (M ∘> F) O (L <∘ Z)
  
+ type λ [A B B X A' X' : cat] [P : mod A B] [Q : mod B X] 
+ (O : mod A' X')  [F : func A A'] (L : func X X')
+ (pq_o : transf P                       F (Imply_cov_mod O L Q) Id_func)
+ A0  X0 (M: func A0 A)  (Z : func X0 X) 
+ (P': mod A0 B) (Q' : mod B X0) 
+ (p'p : transf P' M P Id_func) (q'q : transf Q' Id_func Q Z),
+ (Eval_cov_transf  pq_o)  ∘'' (Tensor_cov_transff p'p q'q)
+ ==>> Eval_cov_transf  ((pq_o ∘'' p'p) ''∘ (Tensor_cov_transf (Id_transf O) L q'q)); 
  
- // pp (- o> 1)  ==>>  pp    coyoneda 
- type λ [A B A' X : cat] [P : mod A B] [P' : mod A' X] [F : func A A'] [K : func B X]
- (pp : transf P F P' K),
- (Unit_Tensor_cov_transf pp)  ∘'' (Tensor_hom_cov_transf (Id_transf P) (Id_con_hom Id_func) K)
+ // evaluation of coyoneda at identity hom
+ 
+ type λ [A B A' : cat] [P : mod A B] [P' : mod A' B] [F : func A A'] 
+ (pp : transf P F P' Id_func),
+ (Unit_Tensor_cov_transff pp)  ∘'' (Tensor_cov_hom_transf (Id_transf P) (Id_con_hom Id_func))
   ==>> pp;
- //transf P (Id_func ∘> F) P' (Id_func <∘ (Id_func <∘ (K <∘ Id_func)))
- 
+ // transf P (Id_func ∘> F) P' (Id_func <∘ Id_func)
  
  /* ========================== */
  
  //voila
+ 
  
