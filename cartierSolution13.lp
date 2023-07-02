@@ -1,12 +1,59 @@
-/* A new implementation of dependent types via Dosen's substructural categorial programming: example of the Yoneda lemma for fibrations
+/* Re: [Agda] position in Deducteam — Lawvere/Dosen session on categorial logic/programming @ CT2023
+
+Salut Louis Auguste « L'Enfermé » Blanqui,
+
+  A new implementation of dependent types via Dosen's substructural categorial programming: example of the Yoneda lemma for fibrations
 
 This closes the open problem of implementing a dependent-types computer for category theory, where types are categories and dependent types are fibrations of categories. The basis for this implementation are the ideas and techniques from Kosta Dosen's book « Cut-elimination in categories » (1999), which essentially is about the substructural logic of category theory, in particular about how some good substructural formulation of the Yoneda lemma allows for computation and automatic-decidability of categorial equations.
 
-The core of dependent types/fibrations in category theory is the Comma/slice construction and the corresponding Yoneda lemma for fibrations (https://stacks.math.columbia.edu/tag/0GWH), thereby its implementation essentially closes this open problem also investigated by Cisinski's directed types or Garner's 2-dimensional types. Even what constitutes a solution is subtle and is often misunderstood/misframed, but at the end of the day, the thesis here is that Dosen's substructural techniques cannot be bypassed.
+The core of dependent types/fibrations in category theory is the Lawvere's comma/slice construction and the corresponding Yoneda lemma for fibrations (https://stacks.math.columbia.edu/tag/0GWH), thereby its implementation essentially closes this open problem also investigated by Cisinski's directed types or Garner's 2-dimensional types. What qualifies as a solution is subtle and the thesis here is that Dosen's substructural techniques cannot be bypassed.
 
-In summary, this text implements an (outer) cut-elimination in the double category of fibred profunctors with (inner) cut-eliminated adjunctions. The outer cut-elimination essentially is a new functorial lambda calculus via dinaturality, without need for multicategories because (outer) contexts are expressed via dependent types.  This text also implements Sigma-categories/types and categories-of-functors and more generally Pi-categories-of-functors, but a complete better formulation using spans or polynomial functors will be investigated. This text also implements a dualizing Op operations, and it can computationally-prove that left-adjoint functors preserve profunctor-weighted colimits from the proof that right-adjoint functors preserve profunctor-weighted limits. This text also implements a grammatical (univalent) universe and the univeral fibration classifying fibrations, together with the dual universal opfibration. Finally, there is an experimental implementation of covering (co)sieves towards grammatical sheaf cohomology and a description of algebraic geometry’s schemes in their formulation as locally affine ringed sites (structured topos), instead of via their formulation as underlying topological space...
+In summary, this text implements, using Blanqui's LambdaPi metaframework software tool, an (outer) cut-elimination in the double category of fibred profunctors with (inner) cut-eliminated adjunctions. The outer cut-elimination essentially is a new functorial lambda calculus via the « dinaturality » of evaluation and the monoidal bi-closed structure of profunctors, without need for multicategories because (outer) contexts are expressed via dependent types. This text also implements (higher) inductive datatypes such as the join-category (interval simplex), with its introduction/elimination/computation rules. This text also implements Sigma-categories/types and categories-of-functors and more generally Pi-categories-of-functors, but an alternative more-intrinsic formulation using functors fibred over spans or over Kock's polynomial-functors will be investigated. This text also implements a dualizing Op operations, and it can computationally-prove that left-adjoint functors preserve profunctor-weighted colimits from the proof that right-adjoint functors preserve profunctor-weighted limits. This text also implements a grammatical (univalent) universe and the universal fibration classifying small fibrations, together with the dual universal opfibration. Finally, there is an experimental implementation of covering (co)sieves towards grammatical sheaf cohomology and towards a description of algebraic geometry's schemes in their formulation as locally affine ringed sites (structured topos), instead of via their Coquand's formulation as underlying topological space...
 
-https://github.com/1337777/cartier/blob/master/cartierSolution13.lp */
+References:
+
+[1] Dosen-Petric: Cut Elimination in Categories 1999; 
+[2] Proof-Theoretical Coherence 2004; 
+[3] Proof-Net Categories 2005; 
+[4] Coherence in Linear Predicate Logic 2007; 
+[5] Coherence for closed categories with biproducts 2022 
+[6] Cut-elimination in the double category of fibred profunctors with inner cut-eliminated adjunctions: 
+https://github.com/1337777/cartier/blob/master/cartierSolution13.lp 
+[7] Pierre Cartier
+
+Subscribe for live updates, WorkSchool 365 : https://www.youtube.com/@workschool365
+
+FAQ:
+
+* How is « substructural » contrasted vs « synthetic » ? The substructural Yoneda lemma for fibrations is expressed via a blend of the universality/introduction rule of the transported/pulledback objects inside fibred categories:
+
+  constant symbol Fibration_con_intro_homd : Π [I X X'  : cat] [x'x : func X' X] (G : func X I) [KK : catd X'] [F : func X' I] [II : catd I] (II_isf : isFibration_con II) (FF : funcd KK F II) (f : hom x'x (Unit_mod G Id_func) F) [X'0 : cat] [x'0x : func X'0 X] [X'' : cat] [x''x' : func X'' X'] [x''x'0 : func X'' X'0] (x'0x' :  hom x''x'0 (Unit_mod x'0x x'x) x''x') [JJ : catd X'0] (MM : funcd JJ x'0x (Fibre_catd II G)) [HH : funcd (Fibre_catd KK x''x') x''x'0 JJ],
+homd ((x'0x' '∘ ((x'0x)_'∘> f))) HH (Unit_modd (MM ∘>d (Fibre_elim_funcd II G)) Id_funcd) ((Fibre_elim_funcd KK (x''x')) ∘>d FF) →  
+homd x'0x' HH (Unit_modd MM (Fibration_con_funcd G II_isf FF f)) (Fibre_elim_funcd KK (x''x')) ;
+
+together with the composition operation (in Yoneda formulation) inside fibred categories:
+
+  constant symbol ∘>d'_ : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G] [A : catd X] [B : catd Y] [II] [FF : funcd II F A] [RR : modd A R B] [GG : funcd II G B], homd r FF RR GG → 
+Π [J: cat] [M : func J Y] [JJ : catd J] (MM : funcd JJ M B), 
+transfd ( r ∘>'_(M) ) (Unit_modd GG MM) FF (RR d<<∘ MM ) Id_funcd;                
+
+* How is « J-rule arrow induction » contrasted vs « fibrational transport » ? The above intrinsic/structural universality formulation comes with a corresponding reflected/internalized algebra formulation, which is the comma category where the J-rule elimination ("equality/path/arrow induction") occurs. Similarly, pullbacks have a universal formulation (fibre of fibration), an algebraic formulation (composition of spans), or mixed (product of fibration-objects in the slice category).
+
+  constant symbol Comma_con_intro_funcd : Π [A B I : cat] [R : mod A B] (BB : catd B) [x : func I A] [y : func I B] (r : hom x R y),
+funcd (Fibre_catd BB y) x (Comma_con_catd R BB);
+
+  constant symbol Comma_con_elim_funcd : Π [I X : cat] (G : func X I)  [II : catd I] (II_isf : isFibration_con II) [KK : catd I] (FF : funcd KK Id_func II), 
+funcd (Comma_con_catd (Unit_mod G Id_func) KK) G II;
+
+* Are substitutions explicit or intrinsic/structural? Ordinary (non-fibred) cut-elimination considers pairs of composable arrows p : X → Y then q : Y → Z, but fibred cut-elimination should also consider pairs of arrows p : X → f*Y then q : g*Y → Z, where f*Y is the pullback of Y along f, and such a pair is not manifestly/grammatically/syntactically-composable but only semantically-composable as g'*p : g'*X → g'*(f*Y) then f'*q : f'*(g*Y) → f'*Z, where f' = g*f is the pullback of f along g and g' = f*g is the pullback of g along f. The remedy is to make those pullback intrinsic/implicit in the implementation's grammar, so that p : X → f*Y is really notation for a judgment with 3 parameters X, Y and f, which can be read as « p is a fibred arrow forward-above the arrow f », and similarly q : g*Y → Z is read as « q is a fibred arrow backward-above the arrow g », and more generally r : g*X → f*Z is read as « r is a fibred arrow above the span of arrows g backward with f forward ». Ultimately it should be possible to express arrows fibred over polynomial-functors, so that the distributivity (ΠΣ = ΣΠε*) in the composition of polynomial-functors is intrinsic in the implementation's grammar... Finally, all of these intrinsic structures are reflected/internalized as an explicit substitution/pullback-type-former for any fibration.
+
+* What is the difference between the Pi-type of sections and the category-of-functors? Ordinary Pi/product-types consider only the sections of some fibration, but Pi-categories should consider all the category-of-functors to some fibration, this leads to the new construction of Pi-category-of-functors. The preliminary implementation in this text does not yet use the more-intrinsic formulation using functors fibred-above-a-span of functors. It should be noted that Sigma/sum-categories can be already intrinsically-implemented using only functors fibred-forward-above a single functor.
+
+* And why profunctors (of sets)? The primary motivation is that they form a monoidal bi-closed double category (functorial lambda calculus). Another motivation is that the subclass of fibrations called discrete/groupoidal fibrations can only be computationally-recognized/expressed instead via (indexed) presheaves/profunctors of sets. And the comma construction is how to recover the intended discrete fibration. Ultimately profunctors enriched in preorders/quantales instead of mere sets could be investigated (Tholen's TV, lol).
+
+* What is a fibred profunctor anyway? The comma/slice categories are only fibred categories (of triangles of arrows fibred by their base), not really fibred profunctors. One example of fibred profunctor from the coslice category to the slice category is the set of squares fibred by their diagonal which witnesses that this square is constructed by pasting two triangles. This text implements such fibred profunctor of (cubical) squares (thereby validating the hypothesis that computational-cubes should have connections/diagonals...). For witnessing the (no-computational-content) pasting along the diagonal, this implementation uses for the first time the LambdaPi-metaframework's equality predicate which internally-reflects all the conversion-rules; in particular the implementation uses here the categorial-associativity equation axiom, which is a provable metatheorem which must *not* be added as a rewrite rule!
+
+*/
 
 constant symbol Set : TYPE;
 injective symbol τ : Set → TYPE;
@@ -774,11 +821,6 @@ rule ((join_hom $A $B $a $b) '∘ ((join_First_func $A $B) _'∘> (Func_con_hom'
  rule Op_isFibration_cov (Op_isFibration_con $A_isf) ↪ $A_isf
  with Op_isFibration_con (Op_isFibration_cov $A_isf) ↪ $A_isf;
 
- //| Fibre_cat : Π [X I : cat] (A : catd X) (x : func I X), cat //not lacked;
- 
-
- constant symbol Comma_cat : Π [A B : cat] (R : mod A B), cat;
- 
  constant symbol Universe_con_cat : cat; 
  constant symbol Universe_cov_cat : cat;
  constant symbol Universe_con_catd : catd Universe_con_cat;
@@ -814,27 +856,23 @@ constant symbol Productd'_catd : Π [U : cat] (X : catd U) (Y : catd U), catd U;
 
 constant symbol Pid_catd : Π [X' X Y : cat] (K : func X X') (A : catd X) (F : func X Y) (B : catd Y), catd X';
 
- 
- constant symbol Comma_con_catd : Π [A B : cat] (R : mod A B), catd A;
  constant symbol Comma_con_catd' : Π [A B : cat] (R : mod A B) (BB : catd B) , catd A;
- 
- constant symbol Comma_cov_catd : Π [A B : cat] (R : mod A B), catd B;
- constant symbol Comma_cov_catd' : Π [A B : cat] (AA : catd A) (R : mod A B), catd B;
- 
+  constant symbol Comma_cov_catd' : Π [A B : cat] (AA : catd A) (R : mod A B), catd B;
+
 rule Op_catd (Fibre_catd $A $x) ↪ (Fibre_catd (Op_catd $A) (Op_func $x))
 with Op_catd (Productdt_catd $T $A) ↪ (Productdt_catd (Op_catd $T) (Op_cat $A))
 with Op_catd (Productd'_catd $X $Y) ↪ (Productd'_catd (Op_catd $Y) (Op_catd $X))
 with Op_catd (Triv_catd $X)  ↪ Triv_catd (Op_cat $X)
 with Op_catd (Comma_con_catd' $R $BB) ↪ (Comma_cov_catd'  (Op_catd $BB) (Op_mod $R))
-with Op_catd (Comma_cov_catd $R) ↪ (Comma_con_catd (Op_mod $R));
+with Op_catd (Comma_cov_catd' $AA $R) ↪ (Comma_con_catd' (Op_mod $R) (Op_catd $AA));
  
  rule Fibre_catd $A Id_func ↪ $A
  with Fibre_catd $A ($x ∘> $y)  ↪ Fibre_catd (Fibre_catd $A $y) $x
  // reverse direction ?
 // with  Fibre_catd (Fibre_catd $A $y) $x ↪ Fibre_catd $A ($x ∘> $y)  
 with Fibre_catd (Triv_catd _) _ ↪ (Triv_catd _)
- with Fibre_catd (Comma_con_catd $R) $F ↪ (Comma_con_catd ($F ∘>> $R))  //todo review this?
- with Fibre_catd (Comma_cov_catd $R) $G ↪ (Comma_cov_catd ($R <<∘ $G)) ;
+ with Fibre_catd (Comma_con_catd' $R $BB) $F ↪ (Comma_con_catd' ($F ∘>> $R) $BB)  //todo review this?
+ with Fibre_catd (Comma_cov_catd' $AA $R) $G ↪ (Comma_cov_catd' $AA ($R <<∘ $G)) ;
 
 // NOTE: contrast Sigma_cat vs Total_cat: Total_cat is defined by rules, 
 // Sigma_cat is constant constructor adjoint to Cast_catd
@@ -855,8 +893,8 @@ with @Total_cat _ (Cast_catd $A) $U' $F  ↪  (Product_cat $U' $A)
 with Total_cat (Productd'_catd $X $Y) $H ↪  
 (Pullback_cat (Total_proj_func $X $H) (Total_proj_func $Y $H)) 
 // these are instances of fibre rule above
-with Total_cat (Comma_con_catd ($F ∘>> $R)) $F' ↪ Total_cat (Comma_con_catd $R) ($F' ∘> $F)
-with Total_cat (Comma_cov_catd ($R <<∘ $G)) $G' ↪ Total_cat (Comma_cov_catd $R) ($G' ∘> $G)
+with Total_cat (Comma_con_catd' ($F ∘>> $R) $BB) $F' ↪ Total_cat (Comma_con_catd' $R $BB) ($F' ∘> $F)
+with Total_cat (Comma_cov_catd' $AA ($R <<∘ $G)) $G' ↪ Total_cat (Comma_cov_catd' $AA $R) ($G' ∘> $G)
 ;
 
 
@@ -1110,6 +1148,8 @@ symbol Total_func : Π [X Y : cat] [A : catd X] [B : catd Y] [xy : func X Y],
 funcd A xy B → Π [X'] (x : func X' X), func (Total_cat A x) (Total_cat B (x ∘> xy));
 
 rule (@Total_func _ _ $A $B $F $FF $X' $x) ∘> (@Total_proj_func _ $B $X' $x ) ↪ (Total_proj_func $A $x) ;
+//TODO REVIEW THIS, ACCUMULATOR VERSION?
+// rule (@Total_func _ _ $A $B $F $FF $X' $x) ∘> ((@Total_proj_func _ $B $X' $x ) ∘> $K) ↪ (Total_proj_func $A $x) ∘> $K ;
 
 rule Total_func (Id_funcd) _  ↪ Id_func
 with Total_func (Fibre_elim_funcd $A $F) _ ↪ Id_func
@@ -1405,364 +1445,6 @@ notation ''∘d infix right 80;
 
 rule Op_transfd ($rs ''∘d $st) ↪ (Op_transfd $rs) ''∘d (Op_transfd $st);
 
- 
-
- 
-//  /* (7) fibrations: semantics ========================== */
- 
-
-// next adjust
-
-//  //lacked? could use Total_func
-//  //todo: del
-//  // symbol Total_funchd_func : Π [X : cat] [A : catd X] [B : catd X],
-//  //  funchd A B → func (Total_cat A) (Total_cat B);
- 
-//  symbol Total_mod : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y],
-//   modd A R B → Π [X'] [x : func X' X] [Y'] [y : func Y' Y] [S : mod X' Y'] (r : transf S x R y), mod (Total_cat A x) (Total_cat B y);
- 
-//  symbol Total_modd_proj_transf : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y]
-//   (RR : modd A R B), Π [X'] [x : func X' X] [Y'] [y : func Y' Y] [S : mod X' Y'] (r : transf S x R y), transf (Total_mod RR r) (Total_proj_func A x Id_func) S (Total_proj_func B y Id_func);
- 
-//  symbol Total_hom_mod : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y],
-//  modd A R B → Π [I] [I'] (i : func I' I) [x : func I X]  [y : func I Y] (r : hom x R y), 
-//  mod (Total_cat A (i ∘> x)) (Total_cat B (i ∘> y));
-//  //TODO Total_hom_modd_proj_transf  ??
- 
-//  rule Total_hom_mod $648696 ($648732 ∘> $648728) $648712 ↪ Total_hom_mod $648696 $648732 ($648712 ∘↓ $648728);
-
-//  symbol Total_hom_modd_proj_transf : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y]
-//  (RR : modd A R B), Π [I] [I'] (i : func I' I) [x : func I X]  [y : func I Y] (r : hom x R y), 
-//  transf (Total_hom_mod RR i r) (Total_proj_func A (i ∘> x) (i ∘> x)) R (Total_proj_func B (i ∘> y) (i ∘> y));
- 
-//  symbol Total_moddu_mod : Π [I : cat] [A : catd I] [B : catd I],
-//   moddu A B → Π [I'] (i : func I' I) , mod (Total_cat A i) (Total_cat B i);
- 
- 
-//  //lacked? could use Total_modd_proj_transf
-// //  symbol Total_moddu_proj_transf : Π [I : cat] [A : catd I] [B : catd I]
-// //  (RR : moddu A B), Π [I'] (i : func I' I), transf (Total_moddu_mod RR i) (Total_proj_func A i Id_func) (Unit_mod0 I') (Total_proj_func B i Id_func);
-// symbol Total_moddu_proj_transf : Π [I : cat] [A : catd I] [B : catd I]
-// (RR : moddu A B), Π [I'] (i : func I' I), 
-// transf (Total_moddu_mod RR i) (Total_proj_func A i Id_func) (Unit_mod Id_func Id_func) (Total_proj_func B i Id_func);
-
-// //  symbol Total_hom : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
-// //   [A : catd X] [B : catd Y] [FF : funcd (Triv_catd I) F A] [RR : modd A R B] [GG : funcd (Triv_catd I) G B],
-// //  homd r FF RR GG  → Π [I'] (i : func I' I), hom (Total_func FF i) (Total_hom_mod RR i r) (Total_func GG i);
-//  symbol Total_hom : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
-//   [A : catd X] [B : catd Y] [II] [FF : funcd II F A] [RR : modd A R B] [GG : funcd II G B],
-//  homd r FF RR GG  → //Π [I'] [i : func I' I][I'I'] (ii : funcd I'I' i II), 
-//  Π [I'] (i : func I' I), 
-//  hom (Total_func FF i) (Total_hom_mod RR i r) (Total_func GG i);
-// //  symbol Total_hom' : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
-// //   [A : catd X] [B : catd Y] [II] [FF : funcd II F A] [RR : modd A R B] [GG : funcd II G B],
-// //  homd r FF RR GG  → Π [I'] [i : func I' I][I'I'] (ii : funcd I'I' i II), 
-// //  hom (Total_func FF i) (Total_hom_mod RR i r) (Total_func GG i);
- 
-// //  symbol Total_homdu_hom: Π [I: cat] [A : catd I] [B : catd I]
-// //  [FF : funcd (Triv_catd I) Id_func A] [RR : moddu A B] [GG : funcd (Triv_catd I) Id_func B], homdu FF RR GG → Π [I'] (i : func I' I), 
-// //  hom (Total_func FF i) (Total_moddu_mod RR i) (Total_func GG i);
-//  symbol Total_homdu_hom: Π [I: cat] [A : catd I] [B : catd I]
-//  [II] [FF : funcd II Id_func A] [RR : moddu A B] [GG : funcd II Id_func B], homdu FF RR GG → Π [I'] (i : func I' I), 
-//  hom (Total_func FF i) (Total_moddu_mod RR i) (Total_func GG i);
- 
-// //  symbol Total_transf: Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [xx' : func X X'] [yy' : func Y Y'] [R' : mod X' Y'] [R : mod X Y]
-// //  [t : transf R xx' R' yy' ] [RR : modd A R B] [FF : funcd A xx' A'] [RR' : modd A' R' B'] [GG : funcd B yy' B'] ,
-// //  transfd t RR FF RR' GG → transf (Total_mod RR) (Total_func FF) (Total_mod RR') (Total_func GG);
- 
-// //  // symbol Total_transfdu_transf : Π [I X' Y': cat] [A' : catd X'] [A : catd I] [B' : catd Y'] [B: catd I] [xx' : func I X'] [yy' : func I Y'] [R' : mod X' Y']
-// //  // [r : hom xx' R' yy' ] [RR : moddu A B] [FF : funcd A xx' A'] [RR' : modd A' R' B'] [GG : funcd B yy' B' ],
-// //  // transfdu r RR FF RR' GG → transf (Total_moddu_mod RR) (Total_func FF) (Total_mod RR') (Total_func GG);
- 
-// //  //com
-// // //  symbol Total_transfduu_transf : Π [I : cat] [A' : catd I] [A : catd I] [B' : catd I] [B: catd I]
-// // //  [RR : moddu A B] [FF : funcd A Id_func A'] [RR' : moddu A' B'] [GG : funcd B Id_func B'],
-// // //  transfduu RR FF RR' GG → transf (Total_moddu_mod RR) (Total_func FF) (Total_moddu_mod RR') (Total_func GG);
- 
- 
-// //  // symbol FibreProj_func : Π [X I : cat] (A : catd X) (x : func I X), func (Total_cat (Fibre_catd A x)) (Total_cat A);
-// //  // rule (Total_func (Fibre_elim_funcd $A $x))  ↪ Id_func 
-// //  // with (Total_func (Fibre_intro_funcd' $A $x $FF))  ↪ (Total_func $FF) ;
- 
- 
-
- 
-
- 
-// //  rule Total_moddu_mod (Triv_moddu $I) $i ↪ (Unit_mod0 _)
-// rule Total_moddu_mod (Triv_moddu $I) $i ↪ (Unit_mod Id_func Id_func)
-// //TODO with Total_moddu_mod (Productdt_moddu $R) Id_func ↪ $R
-//  //with Total_moddu_mod (Unit_moddu $F $G) ↪ (Unit_mod (Total_func $F) (Total_func $G));
-// //  with Total_moddu_mod (Unit_moddu0 $AA) $i ↪ (Unit_mod0 (Total_cat $AA $i))
-// with Total_moddu_mod (Unit_moddu0 $AA) $i ↪ (Unit_mod (@Id_func (Total_cat $AA $i)) Id_func)
-// with  Total_moddu_mod ($FF ∘>>du $RR) $i ↪ (Total_func $FF $i) ∘>> (Total_moddu_mod $RR $i)
-//  with  Total_moddu_mod ($RR du<<∘ $GG ) $i ↪ (Total_moddu_mod $RR $i) <<∘ (Total_func $GG $i);
- 
-// //  rule Total_moddu_proj_transf (Triv_moddu $X) $i ↪ (Id_transf (Unit_mod0 _))
-// rule Total_moddu_proj_transf (Triv_moddu $X) $i ↪ (Id_transf (Unit_mod Id_func Id_func))
-// //TODO with Total_moddu_proj_transf (Productdt_moddu $R) Id_func ↪ (Terminal_transf $R)
-//  ;
- 
-//  rule @Total_mod _ _ _ _ _ (Triv_modd $R) _ _ _ _ $S $r ↪ $S
-//  //with Total_mod (Unit_modd $FF $GG) ↪ (Unit_mod (Total_func $FF) (Total_func $GG))
-//  //with Total_mod (Unit_modd0 $AA) ↪ (Unit_mod0 (Total_cat $AA))
-//  //with Total_mod (Comma_modd $R) ↪ (Comma_mod $R)
-//  with Total_mod ($R ⊗d $S) (Tensor_cov_transf  $p $q) ↪ (Total_mod $R $p) ⊗ (Total_mod $S $q)
-//  //with  Total_mod ($FF ∘>>d $RR) ↪ (Total_func $FF) ∘>> (Total_mod $RR)
-//  //with  Total_mod ($RR d<<∘ $GG ) ↪ (Total_mod $RR) <<∘ (Total_func $GG)
-//  ;
- 
-//  rule Total_modd_proj_transf (Triv_modd $R) $r ↪ (Id_transf _)
-//  //with Total_modd_proj_transf (Comma_modd $R) ↪ (Comma_transf $R)
-//  //.?with  Total_mod_proj ($FF ∘>>d $RR) ↪ (Total_func $FF) ∘>> (Total_mod $RR);
-//  ;
- 
- 
-// //  rule Total_hom_mod (Unit_modd0 $AA)  $i (Id_hom $F) ↪ (Unit_mod0 (Total_cat $AA ($i ∘> $F)));
-// // rule Total_hom_mod (Unit_modd0 $AA)  $i (Id_hom $F) ↪ (Unit_mod  (@Id_func (Total_cat $AA ($i ∘> $F))) Id_func );
-// rule Total_hom_mod (Unit_modd (@Id_funcd _ $AA) Id_funcd)  $i (Id_hom $F) 
-//    ↪ (Unit_mod  (@Id_func (Total_cat $AA ($i ∘> $F))) Id_func );
-
-//  //k====kjkkdd=====kjd
- 
-// //  type λ [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
-// //  [A : catd X] [B : catd Y] [FF : funcd (Triv_catd I) F A] [RR : modd A R B] [GG : funcd (Triv_catd I) G B]
-// //  (rr :homd r FF RR GG)  [I'] (i : func I' I), (@Total_hom _ _ _ _ _ _ r _ _ _ RR _  rr _ i) '∘ (Total_hom_modd_proj_transf RR (r ∘↓ i));
-//  //dkd=====kddddkd
-
-// //   rule (@Total_hom _ _ _ _ _ _ $r _ _ _ $RR _ $rr _ $i) '∘ (Total_hom_modd_proj_transf $RR $i $r) ↪ 
-// //   ($r ∘↓ $i);
-// rule (@Total_hom _ _ _ _ _ _ $r _ _ $II _ $RR _ $rr _ $i ) '∘ (Total_hom_modd_proj_transf $RR $i $r) ↪ 
-// ($r ∘↓ (Total_proj_func $II $i $i  ));
-// // rule (@Total_hom' _ _ _ _ _ _ $r _ _ $II _ $RR _ $rr _ $i $I'I' $ii ) '∘ (Total_hom_modd_proj_transf $RR $i $r) ↪ 
-// // ($r ∘↓ (Total_proj_func $I'I' Id_func $i  ));
-
-//  //rule (@Total_hom _ _ _ _ _ _ $r _ _ _ $RR _ $rr) '∘ (Total_modd_proj_transf $RR) ↪  $r;==
- 
-// //  rule //Total_hom (Comma_homd $r) ↪ Comma_hom $r
-// //   Total_hom ($rr ∘↓d $Z) $i ↪ (Total_hom $rr ($i ∘> $Z)) ;
-// rule //Total_hom (Comma_homd $r) ↪ Comma_hom $r
-// Total_hom ($rr ∘↓d (Triv_funcd $Z)) $i ↪ (Total_hom $rr ($i ∘> $Z)) ;
-
-//  rule Total_hom (Id_homd $F) $i ↪ Id_hom (Total_func $F $i);
- 
-//  //rule (@Total_homdu_hom $I _ _ _ $RR _ $rr _  $i) '∘ (Total_moddu_proj_transf $RR $i) ↪  Id_hom Id_func;//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
- 
-// //  rule (@Total_homdu_hom $I _ _ _ _$RR _ $rr _ $i) '∘ (Total_moddu_proj_transf $RR $i) ↪  Id_hom Id_func;//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
-//   rule (@Total_homdu_hom $I _ _ $II _ $RR _ $rr _ $i) '∘ (Total_moddu_proj_transf $RR $i) ↪  Id_hom (Total_proj_func $II $i Id_func);//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
-
-//  rule Total_homdu_hom (Id_homdu $F)$i ↪ Id_hom (Total_func $F $i);
- 
- 
- 
- 
- 
- 
- 
-// //  ///---
- 
- 
- 
-// //  rule (@Total_transf _ _ _ _ _ _ _ _ _ _ _ _ $rr' $RR _ $RR' _ $rrr'r') ''∘ (Total_modd_proj_transf $RR') ↪ (Total_modd_proj_transf $RR) ''∘ $rr';
- 
-// //  //Unit_mod Id_func (Total_func $59302320) ≡ Total_mod (Unit_modd Id_funcd $59302320)
-// //  rule Total_transf ( ($MM)_'∘>d $rr) ↪ (Total_func $MM)_'∘> (Total_hom $rr);
-// //  rule Total_transf ($rs ''∘d $st) ↪ (Total_transf $rs) ''∘ (Total_transf $st);
-// //  rule Total_transfduu_transf ($rs ''∘duuduu $st) ↪ (Total_transfduu_transf $rs) ''∘ (Total_transfduu_transf $st);
-// //  // rule Total_transfdu_transf ($rs ''∘duudu $st) ↪ (Total_transfduu_transf $rs) ''∘ (Total_transfdu_transf $st);
-// //  // rule Total_transfdu_transf ($rs ''∘dud $st) ↪ (Total_transfdu_transf $rs) ''∘ (Total_transf $st);
- 
-// //  // todo: Total_hom of homdu applied/Comp_homd onto transfdu
-// //  // todo: postpone Total_transf of  Comp_transfd or act_transfd 
- 
-// //  // symbol Fibre_transfd_transfdu : Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [xx' : func X X'] [yy' : func Y Y'] [R' : mod X' Y'] [R : mod X Y]
-// //  //  [RR : modd A R B] [FF : funcd A xx' A'] [RR' : modd A' R' B'] [GG : funcd B yy' B'],
-// //  // transfd RR FF RR' GG → 
-// //  // Π [I : cat] [G : func I Y] [F : func I X] (r : hom F R G), 
-// //  // transfdu (Fibre_hom_moddu RR r) (Fibre_elim_funcd F FF) RR' (Fibre_elim_funcd G GG);
- 
- 
-// //  //todo review this or add Proj_transfduu ?
-// //  // symbol Proj_transfdu : Π [X Y : cat] [A : catd X] [B: catd Y] [R : mod X Y]
-// //  // [RR : modd A R B], Π [I : cat] [G : func I Y] [F : func I X] (r : hom F R G), 
-// //  // transfdu r (Fibre_hom_moddu RR r) (Fibre_elim_funcd  _ F) RR (Fibre_elim_funcd _ G);
- 
-// //  // symbol Fibre_transfd : Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [xx' : func X X'] [yy' : func Y Y'] [R' : mod X' Y'] [R : mod X Y]
-// //  //  [RR : modd A R B] [FF : funcd A xx' A'] [RR' : modd A' R' B'] [GG : funcd B yy' B'],
-// //  // transfd RR FF RR' GG → 
-// //  // Π [X0 Y0 : cat] [S : mod X0 Y0] [G : func Y0 Y] [F : func X0 X] (t : transf S F R G), 
-// //  // transfd (Fibre_transf_modd RR t) (Fibre_elim_funcd F FF) RR' (Fibre_elim_funcd G GG);
- 
-// //  symbol Proj_transfd : Π [X Y : cat] [A : catd X] [B: catd Y] [R : mod X Y]
-// //  [RR : modd A R B], Π [X0 Y0 : cat] [S : mod X0 Y0] [G : func Y0 Y] [F : func X0 X] (t : transf S F R G), 
-// //  transfd t (Fibre_transf_modd RR t) (Fibre_elim_funcd _ F) RR (Fibre_elim_funcd _ G); 
- 
- 
- 
- 
-// //  constant symbol Unit_transf : Π [I X Y : cat] [xi $yi: func X I] [yi : func Y I] [II : catd I]
-// //    (F : funcd (Triv_catd X) xi II) (G : funcd (Triv_catd Y) yi II), 
-// //   transf (Unit_mod (Total_func F) (Total_func G)) Id_func (Unit_mod xi yi) Id_func;
-
-
-
-
-/// OLD TOTAL
-
-
-// /* (7) fibrations: semantics ========================== */
-
-// // other defined operations via induction-recursion
-
-// symbol Total_cat : Π [X : cat], catd X → cat;
-
-// //todo: allow explicit accumulator argument?
-// symbol Total_proj_func : Π [X : cat] (A : catd X), func (Total_cat A) X;
-
-// // symbol Total_func : Π [X Y : cat] [A : catd X] [B : catd Y] [xy : func X Y],
-// //  funcd A xy B → func (Total_cat A) (Total_cat B);
-
-// symbol Total_func : Π [X Y : cat] [A : catd X] [B : catd Y] [xy : func X Y],
-// funcd A xy B → func (Total_cat A) (Total_cat (Fibre_catd B xy));
-
-// //lacked? could use Total_func
-// //todo: del
-// // symbol Total_funchd_func : Π [X : cat] [A : catd X] [B : catd X],
-// //  funchd A B → func (Total_cat A) (Total_cat B);
-
-// symbol Total_mod : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y],
-//  modd A R B → mod (Total_cat A) (Total_cat B);
-
-// symbol Total_modd_proj_transf : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y]
-//  (RR : modd A R B), transf (Total_mod RR) (Total_proj_func A) R (Total_proj_func B);
-
-// symbol Total_moddu_mod : Π [I : cat] [A : catd I] [B : catd I],
-//  moddu A B → mod (Total_cat A) (Total_cat B);
-
-// //lacked? could use Total_modd_proj_transf
-// symbol Total_moddu_proj_transf : Π [I : cat] [A : catd I] [B : catd I]
-// (RR : moddu A B), transf (Total_moddu_mod RR) (Total_proj_func A) (Unit_mod0 _) (Total_proj_func B);
-
-// symbol Total_hom : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
-//  [A : catd X] [B : catd Y] [FF : funcd (Triv_catd I) F A] [RR : modd A R B] [GG : funcd (Triv_catd I) G B],
-// homd r FF RR GG  → hom (Total_func FF) (Total_mod RR) (Total_func GG);
-
-// symbol Total_homdu_hom: Π [I: cat] [A : catd I] [B : catd I]
-// [FF : funcd (Triv_catd I) Id_func A] [RR : moddu A B] [GG : funcd (Triv_catd I) Id_func B], homdu FF RR GG →
-// hom (Total_func FF) (Total_moddu_mod RR) (Total_func GG);
-
-// symbol Total_transf: Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [xx' : func X X'] [yy' : func Y Y'] [R' : mod X' Y'] [R : mod X Y]
-// [t : transf R xx' R' yy' ] [RR : modd A R B] [FF : funcd A xx' A'] [RR' : modd A' R' B'] [GG : funcd B yy' B'] ,
-// transfd t RR FF RR' GG → transf (Total_mod RR) (Total_func FF) (Total_mod RR') (Total_func GG);
-
-// // symbol Total_transfdu_transf : Π [I X' Y': cat] [A' : catd X'] [A : catd I] [B' : catd Y'] [B: catd I] [xx' : func I X'] [yy' : func I Y'] [R' : mod X' Y']
-// // [r : hom xx' R' yy' ] [RR : moddu A B] [FF : funcd A xx' A'] [RR' : modd A' R' B'] [GG : funcd B yy' B' ],
-// // transfdu r RR FF RR' GG → transf (Total_moddu_mod RR) (Total_func FF) (Total_mod RR') (Total_func GG);
-
-// symbol Total_transfduu_transf : Π [I : cat] [A' : catd I] [A : catd I] [B' : catd I] [B: catd I]
-// [RR : moddu A B] [FF : funcd A Id_func A'] [RR' : moddu A' B'] [GG : funcd B Id_func B'],
-// transfduu RR FF RR' GG → transf (Total_moddu_mod RR) (Total_func FF) (Total_moddu_mod RR') (Total_func GG);
-
-
-// symbol FibreProj_func : Π [X I : cat] (A : catd X) (x : func I X), func (Total_cat (Fibre_catd A x)) (Total_cat A);
-// rule (Total_func (FibreProj_funcd $A $x))  ↪ Id_func 
-// with (Total_func (FibrePairing_funcd' $A $x $FF))  ↪ (Total_func $FF) ;
-
-
-// rule Total_cat (Triv_catd $A) ↪ $A
-// with Total_cat (Cast_catd $A) ↪ $A
-// //with Total_cat (Fibre_catd $A $F) ↪ Fibre_cat $A $F  //should depend on particular catd
-// // with Total_cat (Comma_con_catd $R) ↪ (Comma_cat $R)
-// // with Total_cat (Comma_cov_catd $R) ↪ (Comma_cat $R)
-// //nope more general 
-// //with Total_cat (Sigma_catd $Z $F) ↪ (Total_cat $Z)
-// ;
-
-// rule Total_proj_func (Triv_catd $A) ↪ Id_func
-// with Total_proj_func (Cast_catd $A) ↪ Terminal_func $A
-// // with Total_proj_func (Comma_con_catd $R) ↪ (Comma_con_func $R)
-// // with Total_proj_func (Comma_cov_catd $R) ↪ (Comma_cov_func $R)
-// //nope more general 
-// //with Total_proj_func (Sigma_catd $Z $F) ↪ (Total_proj_func $Z) ∘> $F
-// ;
-
-// //rule (@Total_func _ _ $A $B $F $FF) ∘> (Total_proj_func $B) ↪ (Total_proj_func $A) ∘> $F;
-// rule (@Total_func _ _ $A $B $F $FF) ∘> (Total_proj_func (Fibre_catd $B $F)) ↪ (Total_proj_func $A);
-
-// rule  Total_func ( @∘>d _ _ _ $A $B $C $F $G $FF $GG) ↪ (Total_func $FF) ∘> ((FibreProj_func $B $F) ∘> (Total_func $GG))
-// ;
-
-// rule Total_func (Id_funcd) ↪ Id_func
-// // todo: postpone Total_func of  Comp_funcd or act_funcd 
-// with Total_func ($FF ∘>d $GG) ↪ Total_func $FF ∘> ((Total_func (FibreProj_funcd _ _)) ∘> (Total_func $GG))
-// with Total_func (Triv_funcd $F) ↪ $F
-// with Total_func (Cast_funcd $F) ↪ $F
-// with Total_func (Comma_con_funcd $r) ↪ (Comma_func $r)
-// with Total_func (Comma_cov_funcd $r) ↪ (Comma_func $r)
-// //nope more general 
-// //with Total_func (SigmaIntro_funcd $Z $F) ↪ (Id_func)
-// ;
-// // todo Total_funchd_func  on inclusion
-
-// //todo: del
-// // rule Total_funchd_func (Id_funchd) ↪ Id_func;
-
-// rule Total_moddu_mod (Triv_moddu $X) ↪ (Unit_mod Id_func Id_func)
-// with Total_moddu_mod (Cast_moddu $R) ↪ $R
-// //with Total_moddu_mod (Unit_moddu $F $G) ↪ (Unit_mod (Total_func $F) (Total_func $G));
-// with Total_moddu_mod (Unit_moddu0 $AA) ↪ (Unit_mod0 (Total_cat $AA))
-// with  Total_moddu_mod ($FF ∘>>du $RR) ↪ (Total_func $FF) ∘>> (Total_moddu_mod $RR)
-// with  Total_moddu_mod ($RR du<<∘ $GG ) ↪ (Total_moddu_mod $RR) <<∘ (Total_func $GG);
-
-// rule Total_moddu_proj_transf (Triv_moddu $X) ↪ (Id_transf (Unit_mod Id_func Id_func))
-// with Total_moddu_proj_transf (Cast_moddu $R) ↪ (Terminal_transf $R);
-
-// rule Total_mod (Triv_modd $R) ↪ $R
-// //with Total_mod (Unit_modd $FF $GG) ↪ (Unit_mod (Total_func $FF) (Total_func $GG))
-// with Total_mod (Unit_modd0 $AA) ↪ (Unit_mod0 (Total_cat $AA))
-// with Total_mod (Comma_modd $R) ↪ (Comma_mod $R)
-// with Total_mod ($R ⊗d $S) ↪ (Total_mod $R) ⊗ (Total_mod $S)
-// with  Total_mod ($FF ∘>>d $RR) ↪ (Total_func $FF) ∘>> (Total_mod $RR)
-// with  Total_mod ($RR d<<∘ $GG ) ↪ (Total_mod $RR) <<∘ (Total_func $GG);
-
-// rule Total_modd_proj_transf (Triv_modd $R) ↪ (Id_transf $R)
-// with Total_modd_proj_transf (Comma_modd $R) ↪ (Comma_transf $R)
-// //.?with  Total_mod_proj ($FF ∘>>d $RR) ↪ (Total_func $FF) ∘>> (Total_mod $RR);
-// ;
-
-// rule (@Total_hom _ _ _ _ _ _ $r _ _ _ $RR _ $rr) '∘ (Total_modd_proj_transf $RR) ↪  $r;
-
-// rule Total_hom (Comma_homd $r) ↪ Comma_hom $r
-// with Total_hom ($rr ∘↓d $Z) ↪ (Total_hom $rr) ∘↓ $Z ;
-
-// rule Total_hom (Id_homd $F) ↪ Id_hom (Total_func $F);
-
-// rule (@Total_homdu_hom $I _ _ _ $RR _ $rr) '∘ (Total_moddu_proj_transf $RR) ↪  Id_hom Id_func;//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
-
-// rule Total_homdu_hom (Id_homdu $F) ↪ Id_hom (Total_func $F);
-
-
-
-
-
-
-
-// ///---
-
-
-
-// rule (@Total_transf _ _ _ _ _ _ _ _ _ _ _ _ $rr' $RR _ $RR' _ $rrr'r') ''∘ (Total_modd_proj_transf $RR') ↪ (Total_modd_proj_transf $RR) ''∘ $rr';
-
-// //Unit_mod Id_func (Total_func $59302320) ≡ Total_mod (Unit_modd Id_funcd $59302320)
-// rule Total_transf ( ($MM)_'∘>d $rr) ↪ (Total_func $MM)_'∘> (Total_hom $rr);
-// rule Total_transf ($rs ''∘d $st) ↪ (Total_transf $rs) ''∘ (Total_transf $st);
-// rule Total_transfduu_transf ($rs ''∘duuduu $st) ↪ (Total_transfduu_transf $rs) ''∘ (Total_transfduu_transf $st);
-// // rule Total_transfdu_transf ($rs ''∘duudu $st) ↪ (Total_transfduu_transf $rs) ''∘ (Total_transfdu_transf $st);
-// // rule Total_transfdu_transf ($rs ''∘dud $st) ↪ (Total_transfdu_transf $rs) ''∘ (Total_transf $st);
-
-// // todo: Total_hom of homdu applied/Comp_homd onto transfdu
-// // todo: postpone Total_transf of  Comp_transfd or act_transfd 
-
 
  
 // //  /* (8) fibrations: cartesian transport / fibred yoneda ========================== */
@@ -1834,10 +1516,10 @@ symbol todo_rule_Comma_homd'_Comma_con_homd' ≔ λ [A B I : cat]  (R : mod A B)
      (Comma_homd'_lemma1 x'x_ t r x''x'_ prf) 
      (Comma_homd'_lemma2 y'y_ s  r x''x'_ prf2) );
 
- 
-constant symbol Comma_con_elim_funcd' : Π [I X : cat] (xi : func X I)  [II : catd I] (II_isf : isFibration_con II) [KK : catd I] /* KK is non cart */
+
+constant symbol Comma_con_elim_funcd' : Π [I X : cat] (G : func X I)  [II : catd I] (II_isf : isFibration_con II) [KK : catd I] /* KK is non cart */
 (FF : funcd KK Id_func II), //OK
-funcd (Comma_con_catd' (Unit_mod xi Id_func) KK) xi II;
+funcd (Comma_con_catd' (Unit_mod G Id_func) KK) G II;
 
 constant symbol Comma_con_elim_homd' : Π [I X X'  : cat] [x'x : func X' X] (xi : func X I) //OK
 [KK : catd I] [F : func X' I]  [II : catd I] (II_isf : isFibration_con II)
@@ -1858,28 +1540,27 @@ type λ [I X X'  : cat] [x'x : func X' X] (xi : func X I) //OK
  (( _ ) _'∘>d (Comma_con_elim_homd' xi II_isf FF f))) ==>d
  (Comma_con_elim_homd' (x'0x ∘> xi) II_isf FF (x'0x' '∘ ( (_ ) _'∘> f)));
 
-symbol Fibration_con_funcd'' : Π [I X X'  : cat] [x'x : func X' X] (xi : func X I) //OK
-  [KK : catd X'] [F : func X' I]  [II : catd I] (II_isf : isFibration_con II) /* II Cart */
+symbol Fibration_con_funcd'' : Π [I X X'  : cat] [x'x : func X' X] (xi : func X I) 
+  [KK : catd X'] [F : func X' I]  [II : catd I] (II_isf : isFibration_con II) 
 (FF : funcd KK F II) (f : hom x'x (Unit_mod xi Id_func) F), 
 funcd KK x'x  (Fibre_catd II xi); // aka f*FF
-symbol Fibration_cov_funcd : Π [I X X'  : cat] [x'x : func X' X] (xi : func X I) //OK
+
+symbol Fibration_cov_funcd : Π [I X X'  : cat] [x'x : func X' X] (xi : func X I) 
 [KK : catd X'] [F : func X' I]  [II : catd I] /* II coCart */
 (FF : funcd KK F II) (f : hom F (Unit_mod Id_func xi) x'x ), 
 funcd KK x'x  (Fibre_catd II xi); // aka f!FF
 
-constant symbol Fibration_con_elim_homd'' :  Π [I X X'  : cat] [x'x : func X' X] (xi : func X I) //OK
+constant symbol Fibration_con_elim_homd'' :  Π [I X X'  : cat] [x'x : func X' X] (xi : func X I) 
  [KK : catd X'] [F : func X' I]  [II : catd I] (II_isf : isFibration_con II)
  (FF : funcd KK F II) (f : hom x'x (Unit_mod xi Id_func) F),
   homd f (Fibration_con_funcd'' xi II_isf FF f) (Unit_modd (Fibre_elim_funcd II xi)  Id_funcd) FF;
  
-constant symbol Fibration_con_intro_homd'' : Π [I X X'  : cat] [x'x : func X' X] (xi : func X I) //OK
-[KK : catd X'] [F : func X' I]  [II : catd I] (II_isf : isFibration_con II)
-(FF : funcd KK F II) (f : hom x'x (Unit_mod xi Id_func) F)
-[X'0] [x'0x : func X'0 X] [X''] [x''x' : func X'' X'] [x''x'0 : func X'' X'0] 
-(x'0x' :  hom x''x'0 (Unit_mod x'0x x'x) x''x') [JJ : catd X'0] (MM : funcd JJ x'0x (Fibre_catd II xi))
-[H : funcd (Fibre_catd KK x''x') x''x'0 JJ],
-homd ((x'0x' '∘ ((x'0x)_'∘> f))) H (Unit_modd (MM ∘>d (Fibre_elim_funcd II xi)) Id_funcd) ((Fibre_elim_funcd KK (x''x')) ∘>d FF) →  //TODO move FF outside
-homd x'0x' H (Unit_modd MM (Fibration_con_funcd'' xi II_isf FF f)) (Fibre_elim_funcd KK (x''x')) ;
+constant symbol Fibration_con_intro_homd'' : Π [I X X'  : cat] [x'x : func X' X] (G : func X I) [KK : catd X'] [F : func X' I] [II : catd I] (II_isf : isFibration_con II)
+ (FF : funcd KK F II) (f : hom x'x (Unit_mod G Id_func) F) 
+ [X'0 : cat] [x'0x : func X'0 X] [X'' : cat] [x''x' : func X'' X'] [x''x'0 : func X'' X'0] 
+ (x'0x' :  hom x''x'0 (Unit_mod x'0x x'x) x''x') [JJ : catd X'0] (MM : funcd JJ x'0x (Fibre_catd II G)) [HH : funcd (Fibre_catd KK x''x') x''x'0 JJ],
+homd ((x'0x' '∘ ((x'0x)_'∘> f))) HH (Unit_modd (MM ∘>d (Fibre_elim_funcd II G)) Id_funcd) ((Fibre_elim_funcd KK (x''x')) ∘>d FF) →  
+homd x'0x' HH (Unit_modd MM (Fibration_con_funcd'' G II_isf FF f)) (Fibre_elim_funcd KK (x''x')) ;
 
 
 // naturality
@@ -1982,3 +1663,150 @@ constant symbol Glue_transfd : Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [
 (Π [F : func I X] (r : hom F R G), transfduu  (Fibre_hom_moddu RR r) (Fibre_intro_funcd _ (F ∘> xx') Id_func (Fibre_elim_funcd A F ∘>d FF))  
    (Fibre_hom_moddu (Sheaf_con_modd  RR') (r '∘ rr')) (Fibre_intro_funcd _ (G ∘> yy') Id_func (Fibre_elim_funcd B G ∘>d GG))) → 
 transfd rr' RR FF (Sheaf_con_modd RR') GG;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//TODO: /!\ /!\  REVIEW ALL THIS SECTION /!\  /!\ 
+//  /* (7) fibrations: semantics ========================== */
+//TODO: /!\ /!\  REVIEW ALL THIS SECTION /!\  /!\ 
+
+symbol Total_mod : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y],
+modd A R B → Π [X'] [x : func X' X] [Y'] [y : func Y' Y] [S : mod X' Y'] (r : transf S x R y), mod (Total_cat A x) (Total_cat B y);
+
+symbol Total_modd_proj_transf : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y]
+(RR : modd A R B), Π [X'] [x : func X' X] [Y'] [y : func Y' Y] [S : mod X' Y'] (r : transf S x R y), transf (Total_mod RR r) (Total_proj_func A x ) S (Total_proj_func B y );
+
+symbol Total_hom_mod : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y],
+modd A R B → Π [I] [I'] (i : func I' I) [x : func I X]  [y : func I Y] (r : hom x R y), 
+mod (Total_cat A (i ∘> x)) (Total_cat B (i ∘> y));
+//TODO Total_hom_modd_proj_transf  ??
+
+rule Total_hom_mod $648696 ($648732 ∘> $648728) $648712 ↪ Total_hom_mod $648696 $648732 ($648712 ∘↓ $648728);
+
+symbol Total_hom_modd_proj_transf : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd Y]
+(RR : modd A R B), Π [I] [I'] (i : func I' I) [x : func I X]  [y : func I Y] (r : hom x R y), 
+transf (Total_hom_mod RR i r) (Total_proj_func A (i ∘> x) ∘> (i ∘> x)) R (Total_proj_func B (i ∘> y) ∘> (i ∘> y));
+
+symbol Total_moddu_mod : Π [I : cat] [A : catd I] [B : catd I],
+moddu A B → Π [I'] (i : func I' I) , mod (Total_cat A i) (Total_cat B i);
+
+
+//lacked? could use Total_modd_proj_transf
+//  symbol Total_moddu_proj_transf : Π [I : cat] [A : catd I] [B : catd I]
+//  (RR : moddu A B), Π [I'] (i : func I' I), transf (Total_moddu_mod RR i) (Total_proj_func A i Id_func) (Unit_mod0 I') (Total_proj_func B i Id_func);
+symbol Total_moddu_proj_transf : Π [I : cat] [A : catd I] [B : catd I]
+(RR : moddu A B), Π [I'] (i : func I' I), 
+transf (Total_moddu_mod RR i) (Total_proj_func A i) (Unit_mod Id_func Id_func) (Total_proj_func B i);
+
+//  symbol Total_hom : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
+//   [A : catd X] [B : catd Y] [FF : funcd (Triv_catd I) F A] [RR : modd A R B] [GG : funcd (Triv_catd I) G B],
+//  homd r FF RR GG  → Π [I'] (i : func I' I), hom (Total_func FF i) (Total_hom_mod RR i r) (Total_func GG i);
+symbol Total_hom : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
+[A : catd X] [B : catd Y] [II] [FF : funcd II F A] [RR : modd A R B] [GG : funcd II G B],
+homd r FF RR GG  → //Π [I'] [i : func I' I][I'I'] (ii : funcd I'I' i II), 
+Π [I'] (i : func I' I), 
+hom (Total_func FF i) (Total_hom_mod RR i r) (Total_func GG i);
+//  symbol Total_hom' : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
+//   [A : catd X] [B : catd Y] [II] [FF : funcd II F A] [RR : modd A R B] [GG : funcd II G B],
+//  homd r FF RR GG  → Π [I'] [i : func I' I][I'I'] (ii : funcd I'I' i II), 
+//  hom (Total_func FF i) (Total_hom_mod RR i r) (Total_func GG i);
+
+//  symbol Total_homdu_hom: Π [I: cat] [A : catd I] [B : catd I]
+//  [FF : funcd (Triv_catd I) Id_func A] [RR : moddu A B] [GG : funcd (Triv_catd I) Id_func B], homdu FF RR GG → Π [I'] (i : func I' I), 
+//  hom (Total_func FF i) (Total_moddu_mod RR i) (Total_func GG i);
+symbol Total_homdu_hom: Π [I: cat] [A : catd I] [B : catd I]
+[II] [FF : funcd II Id_func A] [RR : moddu A B] [GG : funcd II Id_func B], homdu FF RR GG → Π [I'] (i : func I' I), 
+hom (Total_func FF i) (Total_moddu_mod RR i) (Total_func GG i);
+
+//  symbol Total_transf: Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [xx' : func X X'] [yy' : func Y Y'] [R' : mod X' Y'] [R : mod X Y]
+//  [t : transf R xx' R' yy' ] [RR : modd A R B] [FF : funcd A xx' A'] [RR' : modd A' R' B'] [GG : funcd B yy' B'] ,
+//  transfd t RR FF RR' GG → transf (Total_mod RR) (Total_func FF) (Total_mod RR') (Total_func GG);
+
+//  // symbol Total_transfdu_transf : Π [I X' Y': cat] [A' : catd X'] [A : catd I] [B' : catd Y'] [B: catd I] [xx' : func I X'] [yy' : func I Y'] [R' : mod X' Y']
+//  // [r : hom xx' R' yy' ] [RR : moddu A B] [FF : funcd A xx' A'] [RR' : modd A' R' B'] [GG : funcd B yy' B' ],
+//  // transfdu r RR FF RR' GG → transf (Total_moddu_mod RR) (Total_func FF) (Total_mod RR') (Total_func GG);
+
+//  //com
+// //  symbol Total_transfduu_transf : Π [I : cat] [A' : catd I] [A : catd I] [B' : catd I] [B: catd I]
+// //  [RR : moddu A B] [FF : funcd A Id_func A'] [RR' : moddu A' B'] [GG : funcd B Id_func B'],
+// //  transfduu RR FF RR' GG → transf (Total_moddu_mod RR) (Total_func FF) (Total_moddu_mod RR') (Total_func GG);
+
+//  rule Total_moddu_mod (Triv_moddu $I) $i ↪ (Unit_mod0 _)
+rule Total_moddu_mod (Triv_moddu $I) $i ↪ (Unit_mod Id_func Id_func)
+//TODO with Total_moddu_mod (Productdt_moddu $R) Id_func ↪ $R
+//with Total_moddu_mod (Unit_moddu $F $G) ↪ (Unit_mod (Total_func $F) (Total_func $G));
+//  with Total_moddu_mod (Unit_moddu0 $AA) $i ↪ (Unit_mod0 (Total_cat $AA $i))
+with Total_moddu_mod (Unit_moddu (@Id_funcd _ $AA) Id_funcd) $i ↪ (Unit_mod (@Id_func (Total_cat $AA $i)) Id_func)
+with  Total_moddu_mod ($FF ∘>>du $RR) $i ↪ (Total_func $FF $i) ∘>> (Total_moddu_mod $RR $i)
+with  Total_moddu_mod ($RR du<<∘ $GG ) $i ↪ (Total_moddu_mod $RR $i) <<∘ (Total_func $GG $i);
+
+//  rule Total_moddu_proj_transf (Triv_moddu $X) $i ↪ (Id_transf (Unit_mod0 _))
+rule Total_moddu_proj_transf (Triv_moddu $X) $i ↪ (Id_transf (Unit_mod Id_func Id_func))
+//TODO with Total_moddu_proj_transf (Productdt_moddu $R) Id_func ↪ (Terminal_transf $R)
+;
+
+rule @Total_mod _ _ _ _ _ (Triv_modd $R) _ _ _ _ $S $r ↪ $S
+//with Total_mod (Unit_modd $FF $GG) ↪ (Unit_mod (Total_func $FF) (Total_func $GG))
+//with Total_mod (Unit_modd0 $AA) ↪ (Unit_mod0 (Total_cat $AA))
+//with Total_mod (Comma_modd $R) ↪ (Comma_mod $R)
+with Total_mod ($R ⊗d $S) (Tensor_cov_transf  $p $q) ↪ (Total_mod $R $p) ⊗ (Total_mod $S $q)
+//with  Total_mod ($FF ∘>>d $RR) ↪ (Total_func $FF) ∘>> (Total_mod $RR)
+//with  Total_mod ($RR d<<∘ $GG ) ↪ (Total_mod $RR) <<∘ (Total_func $GG)
+;
+
+rule Total_modd_proj_transf (Triv_modd $R) $r ↪ (Id_transf _)
+//with Total_modd_proj_transf (Comma_modd $R) ↪ (Comma_transf $R)
+//.?with  Total_mod_proj ($FF ∘>>d $RR) ↪ (Total_func $FF) ∘>> (Total_mod $RR);
+;
+
+
+//  rule Total_hom_mod (Unit_modd0 $AA)  $i (Id_hom $F) ↪ (Unit_mod0 (Total_cat $AA ($i ∘> $F)));
+// rule Total_hom_mod (Unit_modd0 $AA)  $i (Id_hom $F) ↪ (Unit_mod  (@Id_func (Total_cat $AA ($i ∘> $F))) Id_func );
+rule Total_hom_mod (Unit_modd (@Id_funcd _ $AA) Id_funcd)  $i (Id_hom $F) 
+ ↪ (Unit_mod  (@Id_func (Total_cat $AA ($i ∘> $F))) Id_func );
+
+
+//   rule (@Total_hom _ _ _ _ _ _ $r _ _ _ $RR _ $rr _ $i) '∘ (Total_hom_modd_proj_transf $RR $i $r) ↪ 
+//   ($r ∘↓ $i);
+
+
+//TODO: REVIEW THIS AND UNCOMMENT
+// rule (@Total_hom _ _ _ _ _ _ $r _ _ $II _ $RR _ $rr _ $i ) '∘ (Total_hom_modd_proj_transf $RR $i $r) ↪ 
+// ($r ∘↓ (Total_proj_func $II $i ∘> $i  ));
+
+
+
+// rule (@Total_hom' _ _ _ _ _ _ $r _ _ $II _ $RR _ $rr _ $i $I'I' $ii ) '∘ (Total_hom_modd_proj_transf $RR $i $r) ↪ 
+// ($r ∘↓ (Total_proj_func $I'I' Id_func $i  ));
+
+//rule (@Total_hom _ _ _ _ _ _ $r _ _ _ $RR _ $rr) '∘ (Total_modd_proj_transf $RR) ↪  $r;==
+
+//  rule //Total_hom (Comma_homd $r) ↪ Comma_hom $r
+//   Total_hom ($rr ∘↓d $Z) $i ↪ (Total_hom $rr ($i ∘> $Z)) ;
+rule //Total_hom (Comma_homd $r) ↪ Comma_hom $r
+Total_hom ($rr ∘↓d (Triv_funcd $Z)) $i ↪ (Total_hom $rr ($i ∘> $Z)) ;
+
+rule Total_hom (Id_homd $F) $i ↪ Id_hom (Total_func $F $i);
+
+//rule (@Total_homdu_hom $I _ _ _ $RR _ $rr _  $i) '∘ (Total_moddu_proj_transf $RR $i) ↪  Id_hom Id_func;//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
+
+//  rule (@Total_homdu_hom $I _ _ _ _$RR _ $rr _ $i) '∘ (Total_moddu_proj_transf $RR $i) ↪  Id_hom Id_func;//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
+rule (@Total_homdu_hom $I _ _ $II _ $RR _ $rr _ $i) '∘ (Total_moddu_proj_transf $RR $i) ↪  Id_hom (Total_proj_func $II $i);//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
+
+rule Total_homdu_hom (Id_homdu $F)$i ↪ Id_hom (Total_func $F $i);
+
+
+
+/* Voila */
