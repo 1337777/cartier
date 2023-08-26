@@ -60,67 +60,206 @@ funcd (Comma_con_catd (Unit_mod G Id_func) KK) G II;
 
 */
 
+// require open Blanqui.Lib.Set Blanqui.Lib.Prop Blanqui.Lib.Eq;
+
 constant symbol Set : TYPE;
 injective symbol τ : Set → TYPE;
 builtin "T" ≔ τ;
 
 constant symbol Prop : TYPE;
+builtin "Prop" ≔ Prop;
 injective symbol π : Prop → TYPE;
-builtin "Prop" ≔ Prop; builtin "P" ≔ π;
+builtin "P" ≔ π;
 
-constant symbol = [a] : τ a → τ a → Prop; notation = infix 10;
+constant symbol = [a] : τ a → τ a → Prop;
+notation = infix 10;
 constant symbol eq_refl [a] (x:τ a) : π (x = x);
-constant symbol ind_eq [a] [x y:τ a] : π (x = y) → Π p, π (p y) → π (p x); 
-builtin "eq" ≔ = ; builtin "refl"  ≔ eq_refl; builtin "eqind" ≔ ind_eq;
- 
+constant symbol ind_eq [a] [x y:τ a] : π (x = y) → Π p, π (p y) → π (p x);
+builtin "eq"    ≔ =;
+builtin "refl"  ≔ eq_refl;
+builtin "eqind" ≔ ind_eq;
+
+constant symbol × : Set → Set → Set; notation × infix right 10; 
+symbol & [a b] : τ a → τ b → τ (a × b); notation & infix right 30;
+symbol ₁ [a b] : τ(a × b) → τ a; notation ₁ postfix 10;
+rule ($x & _)₁ ↪ $x;
+symbol ₂ [a b] : τ(a × b) → τ b; notation ₂ postfix 10;
+rule (_ & $x)₂ ↪ $x;
+
+constant symbol ⊤ : Prop;
+constant symbol top : π ⊤;
+
+constant symbol ⊥ : Prop;
+constant symbol ⊥ₑ [p] : π ⊥ → π p;
+
+constant symbol Π_ : Π [a], (τ a → Set) → Set; notation Π_ quantifier;
+rule τ (@Π_ $a $b) ↪ Π x : τ $a, τ ($b x);
+
+constant symbol →_ : Set → Set → Set; notation →_ infix right 10;
+rule τ ($x →_ $y) ↪ τ $x → τ $y;
+
+inductive τΣ_ [a : Set] (P : τ a → Set) : TYPE ≔
+| Struct_sigma [a P] : Π
+(sigma_Fst : τ a)
+(sigma_Snd : τ (P sigma_Fst) ), @τΣ_ a P;
+notation τΣ_ quantifier;
+constant symbol Σ_ [a : Set] (P : τ a → Set) : Set; notation Σ_ quantifier;
+rule τ (Σ_ $P) ↪ τΣ_ $P;
+injective symbol sigma_Fst [a P] (s : @τΣ_ a P) : τ a;
+rule sigma_Fst (Struct_sigma $1 $2) ↪ $1;
+injective symbol sigma_Snd [a P] (s : @τΣ_ a P) : τ (P (sigma_Fst s)) ;
+rule sigma_Snd (Struct_sigma $1 $2) ↪ $2;
+
+inductive τsub_ [a : Set] (P : τ a → Prop) : TYPE ≔
+| Struct_sub [a P] : Π
+(sub_Fst : τ a)
+(sub_Snd : π (P sub_Fst) ), @τsub_ a P;
+notation τsub_ quantifier;
+constant symbol sub_ [a : Set] (P : τ a → Prop) : Set; notation sub_ quantifier;
+rule τ (sub_ $P) ↪ τsub_ $P;
+injective symbol sub_Fst [a P] (s : @τsub_ a P) : τ a;
+rule sub_Fst (Struct_sub $1 $2) ↪ $1;
+injective symbol sub_Snd [a P] (s : @τsub_ a P) : π (P (sub_Fst s)) ;
+rule sub_Snd (Struct_sub $1 $2) ↪ $2;
+
+inductive 𝔹 : TYPE ≔
+| true : 𝔹
+| false : 𝔹;
+constant symbol bool : Set;
+rule τ bool ↪ 𝔹;
+
+symbol istrue : 𝔹 → Prop;
+rule istrue true ↪ ⊤
+with istrue false ↪ ⊥;
+
+symbol or : 𝔹 → 𝔹 → 𝔹; notation or infix left 20;
+rule true  or _     ↪ true
+with _     or true  ↪ true
+with false or $b    ↪ $b
+with $b    or false ↪ $b;
+
+symbol and : 𝔹 → 𝔹 → 𝔹; notation and infix left 7;
+rule true  and $b    ↪ $b
+with $b    and true  ↪ $b
+with false and _     ↪ false
+with _     and false ↪ false;
+
+symbol if : 𝔹 → Π [a], τ a → τ a → τ a;
+rule if true  $x _ ↪ $x
+with if false _ $y ↪ $y;
+
+inductive ℕ : TYPE ≔
+| zero : ℕ
+| s : ℕ → ℕ;
+builtin "0"  ≔ zero;
+builtin "+1" ≔ s;
+constant symbol nat : Set;
+rule τ nat ↪ ℕ;
+
+symbol eqn : ℕ → ℕ → 𝔹;
+rule eqn 0 0 ↪ true
+with eqn (s $x) (s $y) ↪ eqn $x $y
+with eqn 0 (s _) ↪ false
+with eqn (s _) 0 ↪ false;
+
+(a:Set) inductive 𝕃:TYPE ≔
+| □ : 𝕃 a // \Box
+| ⸬ : τ a → 𝕃 a → 𝕃 a; // ::
+notation ⸬ infix right 20;
+constant symbol list : Set → Set;
+rule τ (list $a) ↪ 𝕃 $a;
+
+symbol ⋅ [a] : 𝕃 a → 𝕃 a → 𝕃 a; notation ⋅ infix right 30; // \cdot
+rule □ ⋅ $m ↪ $m
+with ($x ⸬ $l) ⋅ $m ↪ $x ⸬ ($l ⋅ $m);
+
+symbol filter [a] : (τ a → 𝔹) → 𝕃 a → 𝕃 a;
+rule filter _ □ ↪ □
+with filter $p ($x ⸬ $l) ↪ if ($p $x) ($x ⸬ (filter $p $l)) (filter $p $l);
+
+symbol ∈ [a] : (τ a → τ a → 𝔹) → τ a → 𝕃 a → 𝔹;
+rule ∈ _ _ □ ↪ false
+with ∈ $beq $x ($y ⸬ $l) ↪ $beq $x $y or ∈ $beq $x $l;
+
+symbol map [a b] : (τ a → τ b) → 𝕃 a → 𝕃 b;
+rule map _ □ ↪ □
+with map $f ($x ⸬ $l) ↪ $f $x ⸬ map $f $l;
+
+
  /* (A) INTERFACE ========================== */
 
  constant symbol cat : TYPE ;
+ constant symbol cat_Set : Set ;
+ rule τ (cat_Set) ↪ cat;
  
  constant symbol func : Π (A B : cat), TYPE ;
- 
- constant symbol mod : Π (A B : cat), TYPE ;
+ constant symbol func_Set : Π (A B : cat), Set ;
+ rule τ (@func_Set $A $B) ↪ @func $A $B ;
 
- constant symbol hom_Set : Π [I A B : cat], func I A → mod A B → func I B → Set ;
- injective symbol hom [I A B : cat] (F : func I A) (R : mod A B) (G : func I B): TYPE 
-  ≔ τ (@hom_Set I A B F R G );
+ constant symbol mod : Π (A B : cat), TYPE ;
+ constant symbol mod_Set : Π (A B : cat), Set ;
+ rule τ (@mod_Set $A $B) ↪ @mod $A $B;
  
+ constant symbol hom : Π [I A B : cat], func I A → mod A B → func I B →  TYPE ;
+ constant symbol hom_Set : Π [I A B : cat], func I A → mod A B → func I B → Set ;
+ rule τ (@hom_Set $I $A $B $F $R $G) ↪ @hom $I $A $B $F $R $G;
+
  //TODO ALLOW OVER SPAN OF FUNC, SIMILAR AS FOR DEPENDENT MORPHISM OF FIBRATIONS
  // AND FOR COMPOSIITON OF SPANS USE ALGEBRAIC PULLBACKS NOT UNIVERSAL VERSION
- constant symbol transf_Set: Π [A' B' A B: cat], mod A' B' → func A' A → mod A B → func B' B → Set  ;
- injective symbol transf [A' B' A B: cat] (R' : mod A' B') (F : func A' A) (R : mod A B) (G : func B' B) : TYPE  
-  ≔ τ (@transf_Set A' B' A B R' F R G);
+ constant  symbol transf : Π [A' B' A B: cat], mod A' B' → func A' A → mod A B → func B' B → TYPE ;
+ constant symbol transf_Set : Π [A' B' A B: cat], mod A' B' → func A' A → mod A B → func B' B → Set  ;
+ rule τ (@transf_Set $A' $B' $A $B $R' $F $R $G) ↪ @transf $A' $B' $A $B $R' $F $R $G;
  
  constant symbol adj : Π [R L : cat], func R L → func L R → TYPE  ;
- 
- constant symbol limit_cov : Π [B J0 J J' : cat] (K : func J J0) (F : func J0 B) (W : mod J' J) (F_⇐_W : func J' B), TYPE  ;
- 
- constant symbol limit_con: Π [B J0 J J' : cat] (K : func J J0) (F : func J0 B) (W : mod J J') (W_⊗_F : func J' B), TYPE  ;
+ constant symbol adj_Set : Π [R L : cat], func R L → func L R → Set  ;
+ rule τ (@adj_Set $R $L $F $G) ↪ (@adj $R $L $F $G);
+
+ constant symbol limit_cov : Π [B J J' : cat] (F : func J B) (W : mod J' J) (F_⇐_W : func J' B), TYPE  ;
+ constant symbol limit_cov_Set : Π [B J J' : cat] (F : func J B) (W : mod J' J) (F_⇐_W : func J' B), Set  ;
+ rule τ (@limit_cov_Set $B $J $J' $F $W $F_⇐_W) ↪ @limit_cov $B $J $J' $F $W $F_⇐_W;
+
+ constant symbol limit_con: Π [B J J' : cat] (F : func J B) (W : mod J J') (W_⊗_F : func J' B), TYPE  ;
  
  constant symbol catd: Π (X : cat), TYPE ; 
+ constant symbol catd_Set: Π (X : cat), Set ; 
+ rule τ (@catd_Set $X) ↪ (@catd $X);
+
  constant symbol isFibration_con: Π [X : cat] (XX : catd X), TYPE; 
+ constant symbol isFibration_con_Set: Π [X : cat] (XX : catd X), Set; 
+ rule τ (@isFibration_con_Set $X $XX) ↪ (@isFibration_con $X $XX);
+
  constant symbol isFibration_cov: Π [X : cat] (XX : catd X), TYPE; 
 
  constant symbol funcd : Π [X Y : cat] (A : catd X) (F : func X Y) (B : catd Y), TYPE ;
- 
- constant symbol funcs : Π [X Y : cat] (F : func X Y) (B : catd Y), TYPE ;
+ constant symbol funcd_Set : Π [X Y : cat] (A : catd X) (F : func X Y) (B : catd Y), Set ;
+ rule τ (@funcd_Set $X $Y $A $F $B) ↪ (@funcd $X $Y $A $F $B);
 
+ constant symbol funcs : Π [X Y : cat] (F : func X Y) (B : catd Y), TYPE ;
+ constant symbol funcs_Set : Π [X Y : cat] (F : func X Y) (B : catd Y), Set ;
+ rule τ (@funcs_Set $X $Y $F $B) ↪ (@funcs $X $Y $F $B);
+
+ constant symbol funci : Π [X : cat] (A : catd X), TYPE ;
+ constant symbol funci_Set : Π [X : cat] (A : catd X),  Set ;
+ rule τ (@funci_Set $X $A) ↪ (@funci $X $A);
+ 
 //TODO: erase, instead declare the Total_func $FF $u as isFuncEquiv
  constant symbol isEquiv : Π [X Y : cat] [A : catd X] [F : func X Y] [B : catd Y], funcd A F B → TYPE ;
  
  constant symbol modd : Π [X Y : cat], catd X → mod X Y → catd Y → TYPE ;
+ constant symbol modd_Set : Π [X Y : cat], catd X → mod X Y → catd Y → Set ;
+ rule τ (@modd_Set $X $Y $A $R $B) ↪ (@modd $X $Y $A $R $B);
 
+ constant symbol homd : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y], hom F R G → 
+ Π [A : catd X] [B : catd Y] [II : catd I] (FF : funcd II F A) (RR : modd A R B) (GG : funcd II G B), TYPE ;
  constant symbol homd_Set : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y], hom F R G → 
 Π [A : catd X] [B : catd Y] [II : catd I] (FF : funcd II F A) (RR : modd A R B) (GG : funcd II G B), Set ; 
-injective symbol homd [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] (r : hom F R G) 
- [A : catd X] [B : catd Y] [II : catd I] (FF : funcd II F A) (RR : modd A R B) (GG : funcd II G B) : TYPE
-≔ τ (@homd_Set X Y I F R G r A B II FF RR GG); 
+ rule τ (@homd_Set $X $Y $I $F $R $G $r $A $B $II $FF $RR $GG) ↪ @homd $X $Y $I $F $R $G $r $A $B $II $FF $RR $GG; 
 
-constant symbol transfd_Set : Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [xx' : func X X'] [yy' : func Y Y'] [R' : mod X' Y'] [R : mod X Y], 
-transf R xx' R' yy' → modd A R B → funcd A xx' A' → modd A' R' B' → funcd B yy' B' → Set ;
-injective symbol transfd  [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [F : func X X'] [G : func Y Y'] [R' : mod X' Y'] [R : mod X Y]
- (r : transf R F R' G) (RR: modd A R B) (FF : funcd A F A') (RR' : modd A' R' B') (GG : funcd B G B') : TYPE
- ≔ τ (@transfd_Set X Y X' Y' A' A B' B F G R' R r RR FF RR' GG); 
+constant symbol transfd : Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [F : func X X'] [G : func Y Y'] [R' : mod X' Y'] [R : mod X Y]
+(r : transf R F R' G) (RR: modd A R B) (FF : funcd A F A') (RR' : modd A' R' B') (GG : funcd B G B'), TYPE ;
+constant symbol transfd_Set : Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [F : func X X'] [G : func Y Y'] [R' : mod X' Y'] [R : mod X Y]
+(r : transf R F R' G) (RR: modd A R B) (FF : funcd A F A') (RR' : modd A' R' B') (GG : funcd B G B'), Set ;
+rule τ (@transfd_Set $X $Y $X' $Y' $A' $A $B' $B $F $G $R' $R $r $RR $FF $RR' $GG) ↪ @transfd $X $Y $X' $Y' $A' $A $B' $B $F $G $R' $R $r $RR $FF $RR' $GG; 
    
  constant symbol Id_func : Π [A : cat], func A A;
  
@@ -129,7 +268,7 @@ injective symbol transfd  [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : cat
  constant symbol homdu: Π [I: cat] [A : catd I] [B : catd I] [II : catd I]
 (FF : funcd II Id_func A) (RR : moddu A B) (GG : funcd II Id_func B), TYPE ;
  
- constant symbol transfduu: Π [I : cat] [A' : catd I] [A : catd I] [B' : catd I] [B: catd I], 
+ constant symbol transfdu: Π [I : cat] [A' : catd I] [A : catd I] [B' : catd I] [B: catd I], 
  moddu A B → funcd A Id_func A' → moddu A' B' → funcd B Id_func B' → TYPE ; 
 
  ///experimental grammatical topology covering (co)sieves, for sheaf cohomology
@@ -183,7 +322,7 @@ with Op_func ($F ∘> $G) ↪  ((Op_func $F) ∘> (Op_func $G));
 symbol Pullback_fst_func : Π [U X Y : cat] (F : func X U) (G : func Y U), func (Pullback_cat F G) X;
 symbol Pullback_snd_func : Π [U X Y : cat] (F : func X U) (G : func Y U), func (Pullback_cat F G) Y;
 
-symbol Terminal_func :  Π (A : cat), func A Terminal_cat;
+injective symbol Terminal_func :  Π (A : cat), func A Terminal_cat;
 
 constant symbol Product_intro_func : Π [T X I : cat] (F : func I T) (G : func I X),
   func I (Product_cat T X);
@@ -263,17 +402,17 @@ constant symbol Unit_mod : Π [X A B : cat], func A X → func B X → mod A B;
  constant symbol ⊗ : Π [A B X : cat], mod A B → mod B X → mod A X; //Tensor_mod;
  notation ⊗ infix left 70;
  
- constant symbol Imply_cov_mod : Π [A B C X : cat], mod A B → func C B → mod X C → mod A X;
+ constant symbol Imply_cov_mod : Π [A B X : cat], mod A B → mod X B → mod A X;
  
- constant symbol Imply_con_mod : Π [A B C X : cat], mod C X → func C A → mod A B → mod X B;
+ constant symbol Imply_con_mod : Π [A B X : cat], mod A X → mod A B → mod X B;
  
  constant symbol Terminal_mod : Π (A B : cat), mod A B;
 
  rule Op_mod (Op_mod $A) ↪ $A
 with Op_mod (Unit_mod $F $G) ↪   (Unit_mod (Op_func $G) (Op_func $F)) 
 with Op_mod ( $R ⊗ $S ) ↪   (Op_mod $S) ⊗ (Op_mod $R)  
- with Op_mod ( Imply_cov_mod $R  $F $S ) ↪   Imply_con_mod (Op_mod $S) (Op_func $F) (Op_mod $R) 
- with Op_mod ( Imply_con_mod $R  $F $S ) ↪   Imply_cov_mod (Op_mod $S) (Op_func $F) (Op_mod $R)   ;
+ with Op_mod ( Imply_cov_mod $R $S ) ↪   Imply_con_mod (Op_mod $S) (Op_mod $R) 
+ with Op_mod ( Imply_con_mod $R $S ) ↪   Imply_cov_mod (Op_mod $S) (Op_mod $R)   ;
 
  //Subst_cov_mod
  symbol <<∘ : Π [A X C: cat], mod A X → func C X → mod A C;
@@ -283,13 +422,13 @@ with Op_mod ( $R ⊗ $S ) ↪   (Op_mod $S) ⊗ (Op_mod $R)
  
  rule  (Unit_mod $F $G) <<∘ $K ↪ Unit_mod $F ($G <∘ $K) 
  with ($R ⊗ $S) <<∘ $G ↪ $R ⊗ ($S <<∘ $G)
- with (Imply_cov_mod $R $H $S) <<∘ $G ↪ Imply_cov_mod $R $H ($G ∘>> $S)
- with (Imply_con_mod $R $H $S) <<∘ $G ↪ Imply_con_mod $R $H ($S <<∘ $G);
+ with (Imply_cov_mod $R $S) <<∘ $G ↪ Imply_cov_mod $R ($G ∘>> $S)
+ with (Imply_con_mod $R $S) <<∘ $G ↪ Imply_con_mod $R ($S <<∘ $G);
  
  rule  $K ∘>> (Unit_mod $F $G) ↪ Unit_mod ($K ∘> $F) $G 
  with  $G ∘>> ($R ⊗ $S) ↪ ($G ∘>> $R) ⊗ $S
- with $G ∘>> (Imply_con_mod $R $H $S) ↪ Imply_con_mod ($R <<∘ $G) $H $S
- with $G ∘>> (Imply_cov_mod $R $H $S) ↪ Imply_cov_mod ($G ∘>> $R) $H $S;
+ with $G ∘>> (Imply_con_mod $R $S) ↪ Imply_con_mod ($R <<∘ $G) $S
+ with $G ∘>> (Imply_cov_mod $R $S) ↪ Imply_cov_mod ($G ∘>> $R) $S;
  
  rule $R <<∘ Id_func ↪ $R 
 // with $R <<∘ ($K ∘> $H  ) ↪ ($R <<∘ $H) <<∘ $K; 
@@ -304,7 +443,11 @@ with Op_mod ( $R ⊗ $S ) ↪   (Op_mod $S) ⊗ (Op_mod $R)
 rule Op_mod ($F ∘>> $R)  ↪ ((Op_mod $R) <<∘ (Op_func $F))
 with Op_mod ($R <<∘ $G)  ↪ ((Op_func $G) ∘>> (Op_mod $R));
 
- 
+
+//CHANGED
+rule Terminal_mod _ _ <<∘ $H ↪ Terminal_mod _ _
+with $H ∘>> Terminal_mod _ _ ↪ Terminal_mod _ _;
+
  
 /* (E) hom ========================== */
 
@@ -328,22 +471,19 @@ symbol Func_cov_hom : Π [A B A' : cat] (Z : func A A') (F : func B A) ,
  with Op_hom (Func_cov_hom $Z $F) ↪ Func_con_hom (Op_func $Z) (Op_func $F);
 
 
- rule Func_con_hom Id_func $F ↪ (Id_hom $F)
- with Func_cov_hom Id_func $F ↪ (Id_hom $F);
-
  //todo reduce Terminal_mod Terminal_cat Terminal_cat to Unit_mod ?
  constant symbol Terminal_hom : Π [A B I : cat] (F : func I A) (G : func I B),  hom F (Terminal_mod A B) G;
  
  constant symbol Tensor_hom_hom  : Π [A  X I : cat] [P : mod A I] [Q : mod I X]
  [F : func I A] [G : func I X],
- hom F P Id_func → hom Id_func Q G → hom F ((⊗) P  Q) G;
+ hom F P Id_func → hom Id_func Q G → hom F (P ⊗ Q) G;
  
  rule (Op_hom (Tensor_hom_hom $p $q)) ↪ Tensor_hom_hom (Op_hom $q) (Op_hom $p); 
 
- constant symbol Lambda_cov_transf_hom : Π [A  X A' X' : cat] [Q : mod A X] 
- [O : mod A' X']  [F : func A A'] [L : func X X'],
- transf Q  F O                     L  →
- hom                       F (Imply_cov_mod O L Q) Id_func;
+ injective symbol Lambda_cov_transf_hom : Π [A  X A'  : cat] [Q : mod A X] 
+ [O : mod A' X]  [F : func A A'] ,
+ transf Q  F O                     Id_func  →
+ hom                       F (Imply_cov_mod O Q) Id_func;
  
   //Comp_func_hom
  symbol ∘↓ : Π [I A B I' : cat] [R : mod A B] [F : func I A] 
@@ -375,52 +515,61 @@ injective symbol Op_transf :Π [X Y X' Y': cat]  [xx' : func X X'] [yy' : func Y
 // constant symbol Terminal_transf : Π [A B : cat] (R : mod A B), transf R (Terminal_func A) (Unit_mod Id_func Id_func) (Terminal_func B);
 constant symbol Terminal_transf : Π [A B : cat] (R : mod A B), transf R Id_func (Terminal_mod A B) Id_func;
 
+//TODO ERASE
 constant symbol Unit_Tensor_cov_transf : Π [A B A' X : cat] [P : mod A B] [P' : mod A' B] [F : func A A'] ,
 transf P F P' Id_func → 
-transf ((⊗) P (Unit_mod Id_func Id_func)) F P' Id_func;
+transf (P ⊗ (Unit_mod Id_func Id_func)) F P' Id_func;
 
+constant symbol coyoneda_Unit_Tensor_cov_transf : Π [A B A' B' : cat] [P : mod A B] [P' : mod A' B'] [F : func A A'] [G : func B B'] ,
+transf P F P' G → Π [J : cat] (N : func J B'),
+transf ((⊗) P (Unit_mod G N)) F (P' <<∘ N) Id_func;
  //todo eval-lambda with unit, so between hom and transf 
  //todo eval-lambda dependent over —/Γ context? or prefixed under Γ⊗— context?
- constant symbol  Eval_cov_transf : Π [A B  X A' X' : cat] [P : mod A B] [Q : mod B X] 
- [O : mod A' X']  [F : func A A'] [L : func X X'],
- transf P                       F (Imply_cov_mod O L Q) Id_func →
- transf ((⊗) P Q)  F O                     L;
+ injective symbol  Eval_cov_transf : Π [A B  X A'  : cat] [P : mod A B] [Q : mod B X] 
+ [O : mod A' X]  [F : func A A'] ,
+ transf P                       F (Imply_cov_mod O Q) Id_func →
+ transf (P ⊗ Q)  F O                     Id_func;
  
 //TODO ALLOW OVER SPAN OF FUNC, SIMILAR AS FOR DEPENDENT MORPHISM OF FIBRATIONS
 // THEREFORE TENSOR ABSORB THE SPAN WHICH WOULD REPLACE Id_func AND SOLVES EARLIER PROBLEMS
-constant symbol Lambda_cov_transf : Π [A B  X A' X' : cat] [P : mod A B] [Q : mod B X] 
- [O : mod A' X']  [F : func A A'] [L : func X X'],
- transf P                       F (Imply_cov_mod O L Q) Id_func →
- transf ((⊗) P Q)  F O                     L;
+injective symbol Lambda_cov_transf : Π [A B  X A' : cat] [P : mod A B] [Q : mod B X] 
+ [O : mod A' X]  [F : func A A'] ,
+ transf (P ⊗ Q)  F O                     Id_func →
+ transf P                       F (Imply_cov_mod O Q) Id_func;
  
- constant symbol Eval_cov_hom_transf : Π [A  X A' X' : cat] [Q : mod A X] 
- [O : mod A' X']  [F : func A A'] [L : func X X'],
- hom                       F (Imply_cov_mod O L Q) Id_func →
- transf Q  F O                     L;
+ injective symbol Eval_cov_hom_transf : Π [A  X A' : cat] [Q : mod A X] 
+ [O : mod A' X]  [F : func A A'] ,
+ hom                       F (Imply_cov_mod O Q) Id_func →
+ transf Q  F O                     Id_func;
  
- constant symbol Tensor_cov_transf : Π [A' I X' A X: cat] [P' : mod A' I] [Q' : mod I X'] 
- [P : mod A I] [Q : mod I X] [F : func A' A]  [G : func X' X],
- transf P' F P Id_func → transf Q' Id_func Q G →
- transf ((⊗) P' Q') F ((⊗) P Q) G;
+//  constant symbol Tensor_cov_transf : Π [A' I X' A X: cat] [P' : mod A' I] [Q' : mod I X'] 
+//  [P : mod A I] [Q : mod I X] [F : func A' A]  [G : func X' X],
+//  transf P' F P Id_func → transf Q' Id_func Q G →
+//  transf (P' ⊗ Q') F (P ⊗ Q) G;
+constant symbol Tensor_cov_transf : Π [A' I I' X' A X: cat] [P' : mod A' I'] [Q' : mod I' X'] 
+[P : mod A I] [Q : mod I X] [F : func A' A]  [G : func X' X] , Π (M : func I' I),
+transf P' F (P <<∘ M) Id_func →  transf ( Q') Id_func (M ∘>> Q) G →
+transf ((⊗) P' Q') F ((⊗) P Q) G;
 
-rule Op_transf (Tensor_cov_transf $rr $ss) ↪ (Tensor_cov_transf (Op_transf $ss) (Op_transf $rr)); 
- 
+//rule Op_transf (Tensor_cov_transf $rr $ss) ↪ (Tensor_cov_transf (Op_transf $ss) (Op_transf $rr)); 
+rule Op_transf (Tensor_cov_transf $M $rr $ss) ↪ (Tensor_cov_transf (Op_func $M) (Op_transf $ss) (Op_transf $rr)); 
+
  constant symbol Tensor_cov_hom_transf : Π [A' I A X: cat] [P' : mod A' I] 
  [P : mod A I] [Q : mod I X] [F : func A' A]  [G : func I X],
  transf P' F P Id_func → hom Id_func Q G →
- transf P' F ((⊗) P Q) G;
+ transf P' F (P ⊗ Q) G;
  
- constant symbol Imply_cov_transf : Π [A B A' B' C D D' : cat] [O : mod A B] [O' : mod A' B']
-  [Q : mod C D] [Q' : mod C D'] [F : func A A'] [G : func B B']  [L : func D D'],
- transf O F O' G → Π (K : func D' B), transf Q Id_func Q' L → 
- transf   (Imply_cov_mod O K Q')
-        F (Imply_cov_mod O' ((G <∘ K) <∘ L) Q) Id_func;
+ constant symbol Imply_cov_transf : Π [A B A' C  : cat] [O : mod A B] [O' : mod A' B]
+  [Q : mod C B] [Q' : mod C B] [F : func A A']  ,
+ transf O F O' Id_func → transf Q Id_func Q' Id_func → 
+ transf   (Imply_cov_mod O Q')
+        F (Imply_cov_mod O' Q) Id_func;
  
- constant symbol Imply_cov_hom_transf : Π [A B A' B' C  D' : cat] [O : mod A B] [O' : mod A' B']
-   [Q' : mod C D'] [F : func A A'] [G : func B B']  [L : func C D'],
- transf O F O' G → Π (K : func D' B), hom Id_func Q' L → 
- transf   (Imply_cov_mod O K Q')
-        F (O' <<∘ ((G <∘ K) <∘ L)) Id_func;
+ constant symbol Imply_cov_hom_transf : Π [A B A' C  : cat] [O : mod A B] [O' : mod A' B]
+   [Q' : mod C B] [F : func A A']   [L : func C B],
+ transf O F O' Id_func → hom Id_func Q' L → 
+ transf   (Imply_cov_mod O Q')
+        F O' L;
  
  
  // "J-rule" , admissible/eliminated until accumulation onto basic constructors
@@ -438,47 +587,73 @@ rule Op_transf ($r ∘>'_ ($M)) ↪ (Op_func $M) _'∘> (Op_hom $r);
 
  // (substitution) admissible/eliminated until accumulation onto basic constructors
  //Comp_hom
- symbol '∘ : Π [A' B' A B I : cat] [S : mod A' B'] [T : mod A B]
- [X : func I A'] [Y : func I B'] [F : func A' A] [G : func B' B],
- hom X S Y → transf S F T G → hom (X ∘> F) T (G <∘ Y);
+ symbol '∘ : Π [A B' B I : cat] [S : mod A B'] [T : mod A B]
+ [X : func I A] [Y : func I B']  [G : func B' B],
+ hom X S Y → transf S Id_func T G → hom X T (G <∘ Y);
  notation '∘ infix right 80;
  
- symbol ∘' [A' B' A B I : cat] [S : mod A' B'] [T : mod A B]
- [X : func I A'] [Y : func I B'] [F : func A' A] [G : func B' B] :
- transf S F T G → hom X S Y → hom (X ∘> F) T (G <∘ Y)
-  ≔ λ st s, s '∘ st;
+ symbol ∘' [A' B A I : cat] [S : mod A' B] [T : mod A B]
+ [X : func I A'] [Y : func I B] [F : func A' A] :
+ transf S F T Id_func → hom X S Y → hom (X ∘> F) T Y;
  notation ∘' infix left 80;
 
-rule Op_hom ($s '∘ $st) ↪ (Op_hom $s) '∘ (Op_transf $st);
+rule Op_hom ($s '∘ $st) ↪  (Op_transf $st) ∘' (Op_hom $s)
+with Op_hom ($st ∘' $s) ↪  (Op_hom $s) '∘ (Op_transf $st);
 
- rule ($a '∘  $t) ∘↓ $Z ↪ (($a ∘↓ $Z) '∘  $t) ; //check SIMILAR RULE below possibly in reverse and re-correct
+ rule ($a '∘  $t) ∘↓ $Z ↪ (($a ∘↓ $Z) '∘  $t)
+with ($t ∘' $a) ∘↓ $Z ↪ ($t ∘' ($a ∘↓ $Z)) ; //check SIMILAR RULE below possibly in reverse and re-correct
  
  //TODO: REVIEW no lack for Comp_transfd because it is always applied to Total_transf ? so no separate cut case analysis
  //Comp_transf
- symbol ''∘ : Π [A'' B'' A' B' A B : cat] [R : mod A'' B''] [S : mod A' B'] [T : mod A B] 
- [X : func A'' A'] [Y : func B'' B'] [F : func A' A] [G : func B' B],
- transf R X S Y → transf S F T G → transf R (X ∘> F) T (G <∘ Y);
- notation ''∘ infix right 80;
+//  symbol ''∘ : Π [A'' B'' A' B' A B : cat] [R : mod A'' B''] [S : mod A' B'] [T : mod A B] 
+//  [X : func A'' A'] [Y : func B'' B'] [F : func A' A] [G : func B' B],
+//  transf R X S Y → transf S F T G → transf R (X ∘> F) T (G <∘ Y);
+//  notation ''∘ infix right 80;
  
- symbol ∘'' [A'' B'' A' B' A B : cat] [R : mod A'' B''] [S : mod A' B'] [T : mod A B] 
- [X : func A'' A'] [Y : func B'' B'] [F : func A' A] [G : func B' B] :
- transf S F T G → transf R X S Y → transf R (X ∘> F) T (G <∘ Y)
-   ≔ λ st rs, rs ''∘ st;
- notation ∘'' infix left 80;
+//  symbol ∘'' [A'' B'' A' B' A B : cat] [R : mod A'' B''] [S : mod A' B'] [T : mod A B] 
+//  [X : func A'' A'] [Y : func B'' B'] [F : func A' A] [G : func B' B] :
+//  transf S F T G → transf R X S Y → transf R (X ∘> F) T (G <∘ Y)
+//    ≔ λ st rs, rs ''∘ st;
+//  notation ∘'' infix left 80;
  
- rule Op_transf ($rs ''∘ $st) ↪ (Op_transf $rs) ''∘ (Op_transf $st);
+
+ symbol ''∘ [ B'' B' A B : cat] [R : mod A B''] [S : mod A B'] [T : mod A B] 
+  [Y : func B'' B']  [G : func B' B] :
+  transf R Id_func S Y → transf S Id_func T G →  transf R Id_func T (G <∘ Y);
+  notation ''∘ infix right 80;
+ 
+symbol ∘'' : Π [A'' A' B A  : cat] [R : mod A'' B] [S : mod A' B] [T : mod A B] 
+[X : func A'' A'] [F : func A' A],
+transf S F T Id_func → transf R X S Id_func → transf R (X ∘> F) T Id_func;
+notation ∘'' infix left 80;
+
+rule Op_transf ($rs ''∘ $st) ↪  (Op_transf $st) ∘'' (Op_transf $rs);
+ rule Op_transf ($rs ∘'' $st) ↪  (Op_transf $st) ''∘ (Op_transf $rs);
+
+ rule  $rs ''∘ ($st ''∘ $tu) ↪ ($rs ''∘ $st) ''∘ $tu
+ with  ($tu ∘'' $st) ∘'' $rs ↪  $tu ∘'' ($st ∘'' $rs);
+
+//  //ERASE
+//  rule $rs ''∘ ($tu ∘'' $st) ↪  $tu ∘'' ($rs ''∘ $st) ;
+//  rule ($st ''∘ $tu ) ∘'' $rs ↪  ($st ∘'' $rs) ''∘ $tu ;
 
  rule  (Id_transf _) ''∘ $r'r ↪ $r'r
  with  $r'r ''∘ (Id_transf _) ↪ $r'r;
+ rule  (Id_transf _) ∘'' $r'r ↪ $r'r
+ with  $r'r ∘'' (Id_transf _) ↪ $r'r;
 
  // assoc comp_transf then comp_hom
+ //reverse?
  rule  $r '∘ ($rs ''∘ $st)
- ↪ ($r '∘ $rs) '∘ $st;
-assert [A'' B'' A' B' A B : cat] [R : mod A'' B''] [S : mod A' B'] [T : mod A B] 
-[X : func A'' A'] [Y : func B'' B'] [F : func A' A] [G : func B' B]
-(rs : transf R X S Y) (st : transf S F T G) K (M' : func K A'') N'  (r : hom M' R N') ⊢ eq_refl _ : π (
-  r '∘ (rs ''∘ st)
-   = (r '∘ rs) '∘ st  );
+ ↪ ($r '∘ $rs) '∘ $st
+ with ($st ∘'' $rs) ∘' $r
+ ↪  $st ∘' ($rs ∘' $r);
+
+// assert [A'' B'' A' B' A B : cat] [R : mod A'' B''] [S : mod A' B'] [T : mod A B] 
+// [X : func A'' A'] [Y : func B'' B'] [F : func A' A] [G : func B' B]
+// (rs : transf R X S Y) (st : transf S F T G) K (M' : func K A'') N'  (r : hom M' R N') ⊢ eq_refl _ : π (
+//   r '∘ (rs ''∘ st)
+//    = (r '∘ rs) '∘ st  );
 
 // it is a metatheorem by cases induction that the associativity propositional-equation is derivable,
 // and it must not be assumed as rewrite/conversion rule
@@ -489,6 +664,48 @@ assert [A'' B'' A' B' A B : cat] [R : mod A'' B''] [S : mod A' B'] [T : mod A B]
  π (( (( x''x'_ '∘ ( (F')_'∘> s) ) ∘>'_(G)) ∘' y'y_  ) 
    =  (x''x'_ '∘ ((F')_'∘> ( (s ∘>'_(G)) ∘' y'y_ ))));
  
+//TODO  constant symbol associativity_cov_metatheorem 
+
+
+symbol <<∘1 : Π [X Y X' : cat] [F : func X X'] [R' : mod X' Y] [R : mod X Y] (r : transf R F R' Id_func) [Z : cat] (H : func Z Y), 
+transf (R <<∘ H) F (R' <<∘ H) Id_func;
+notation <<∘1 infix left 80;
+rule  ($r ∘>'_($N)) <<∘1 $H ↪ $r ∘>'_($N <∘ $H);
+rule $t <<∘1 Id_func ↪ $t 
+with ($t <<∘1 $H) <<∘1 $K ↪ $t <<∘1 ($H <∘ $K); 
+
+symbol 1∘>> : Π [X Y Y' : cat] [G : func Y Y'] [R' : mod X Y'] [R : mod X Y] [Z : cat] (H : func Z X) (r : transf R Id_func R' G) , 
+transf (H ∘>> R) Id_func (H ∘>> R') G;
+notation 1∘>> infix right 80;
+rule  $H 1∘>> (($M) _'∘> $r ) ↪ ($H ∘> $M) _'∘> $r;
+rule Id_func 1∘>>  $t  ↪ $t 
+with $K 1∘>> ($H 1∘>> $t) ↪ ($K ∘> $H) 1∘>> $t; 
+
+rule ($F 1∘>> $t) <<∘1 $G ↪ ($F 1∘>> ($t <<∘1 $G));
+
+rule (Tensor_cov_transf $M $t $s) <<∘1 $H ↪ (Tensor_cov_transf $M $t ($s <<∘1 $H))
+with $H 1∘>> (Tensor_cov_transf $M $t $s) ↪ (Tensor_cov_transf $M ($H 1∘>> $t) $s);
+rule  (Id_transf $R) <<∘1 $K ↪ Id_transf ($R <<∘ $K) 
+with $K 1∘>> (Id_transf $R) ↪  (Id_transf ($K ∘>> $R)) ;
+
+//CHANGED
+
+//TODO replaced this by multiple equations
+ rule Func_con_hom Id_func $F ↪ (Id_hom $F)
+ with Func_cov_hom Id_func $F ↪ (Id_hom $F);
+
+rule  (Func_cov_hom _ $G ) '∘ ((_) _'∘> Id_hom $F) ↪ Id_hom ($G ∘> $F);
+rule  (Id_hom $F ∘>'_ (_) ) ∘' (Func_con_hom _ $G )  ↪ Id_hom ($G ∘> $F);
+//TODO: REVIEW NECESSITY OF ID_HOM. both cov id and con id without id_hom are ok because would never mix anyway ?
+// or maybe formulation where all converge to id noop only in applied form ?
+rule  ($f '∘ ($M)_'∘> (Id_hom Id_func) )  ↪ $f;  
+//WARNING slow in transf formulation
+//WARNING rule ($M)_'∘> (Id_hom Id_func)  ↪ (Id_transf _);
+// rule  ($f '∘ ($M)_'∘> (Func_con_hom Id_func Id_func) ) ↪ $f  ;
+// rule  ($f '∘ ($M)_'∘> (Func_cov_hom Id_func Id_func) ) ↪ $f  ;
+rule  (($M)_'∘> (Func_cov_hom $F Id_func) ) ↪ (Id_transf _)  ; 
+rule  ((Func_con_hom $F Id_func) ∘>'_($M)) ↪ (Id_transf _)  ;
+
 
  // idhom ''∘ funchom = idhom
  rule (($M)_'∘> ((Func_con_hom $F $Z)) ) ''∘ (($M ∘> $F)_'∘> (Func_con_hom $F' Id_func)) 
@@ -502,6 +719,7 @@ assert [A B : cat] (F : func B A) B' (Z : func B' B) I (M : func I B) C (F' : fu
  
 
  
+//yoneda bijection half
  // j-rule then applied to id_hom, both cov and con
  //  todo solved, erase this comment: note for confluence that already exists another rewrite that jrule of restr 
  rule (((Func_cov_hom $F $Z)) '∘ ((Id_func)_'∘> $r)) 
@@ -513,6 +731,14 @@ assert [I A B : cat] [F : func I A] [R : mod A B] [G : func I B]
    (((Func_cov_hom F Z)) '∘ ((Id_func)_'∘> r)) 
  = r ∘↓ Z  );
 
+//yoneda bijection half
+// SOLVED: now can  solve $Z ∘> $dom_t ≡ $Z
+rule (Id_func)_'∘> (((Func_cov_hom $Z Id_func)) '∘ $t) 
+  ↪ $t;
+
+  assert [B : cat] I (M : func I B) f ⊢ eq_refl _ : π ( //note as transf fail because reduction to Id_hom
+  (f '∘ (M)_'∘> (Func_con_hom Id_func Id_func) )  = f  );
+  
  //todo: derivable restr ?
  // type λ [A B : cat] (F : func B A) B' (Z : func B' B) I (M : func I B) C (F' : func A C) ,
  // ((M)_'∘> ((Func_con_hom F) ∘↓ Z) ) ;
@@ -528,21 +754,21 @@ assert [I A B : cat] [F : func I A] [R : mod A B] [G : func I B]
 /* (G) limit_cov ========================== */
 
  // inductive transf
- injective symbol Op_limit_con : Π  [B J0 J J' : cat] [K : func J J0] [W : mod J' J] [F : func J0 B] [F_⇐_W : func J' B]
- (isl : limit_cov K F W F_⇐_W), limit_con (Op_func K) (Op_func F) (Op_mod W) (Op_func F_⇐_W); 
- injective symbol Op_limit_cov : Π  [B J0 J J' : cat] [K : func J J0] [W : mod J J'] [F : func J0 B] [W_⊗_F : func J' B]
- (isl : limit_con K F W W_⊗_F), limit_cov (Op_func K) (Op_func F) (Op_mod W) (Op_func W_⊗_F);
+ injective symbol Op_limit_con : Π  [B J J' : cat] [W : mod J' J] [F : func J B] [F_⇐_W : func J' B]
+ (isl : limit_cov F W F_⇐_W), limit_con (Op_func F) (Op_mod W) (Op_func F_⇐_W); 
+ injective symbol Op_limit_cov : Π  [B J J' : cat] [W : mod J J'] [F : func J B] [W_⊗_F : func J' B]
+ (isl : limit_con F W W_⊗_F), limit_cov (Op_func F) (Op_mod W) (Op_func W_⊗_F);
 
  rule Op_limit_con (Op_limit_cov $isl) ↪ $isl
  with Op_limit_cov (Op_limit_con $isl) ↪ $isl ;
  
- constant symbol limit_cov_transf : Π  [B J0 J J' : cat] [K : func J J0] [W : mod J' J] [F : func J0 B] [F_⇐_W : func J' B]
- (isl : limit_cov K F W F_⇐_W), Π [I : cat] (M : func I B),
- transf (Imply_cov_mod ((Unit_mod M F)) K W) Id_func (Unit_mod M F_⇐_W) Id_func;
+ constant symbol limit_cov_transf : Π  [B J J' : cat] [W : mod J' J] [F : func J B] [F_⇐_W : func J' B]
+ (isl : limit_cov F W F_⇐_W), Π [I : cat] (M : func I B),
+ transf (Imply_cov_mod ((Unit_mod M F)) W) Id_func (Unit_mod M F_⇐_W) Id_func;
 
-constant symbol limit_con_transf : Π  [B J0 J J' : cat] [K : func J J0] [W : mod J J'] [F : func J0 B] [W_⊗_F : func J' B]
- (isl : limit_con K F W W_⊗_F), Π [I : cat] (M : func I B),
- transf (Imply_con_mod W K ((Unit_mod F M ))) Id_func (Unit_mod W_⊗_F M) Id_func;
+constant symbol limit_con_transf : Π  [B J J' : cat] [W : mod J J'] [F : func J B] [W_⊗_F : func J' B]
+ (isl : limit_con F W W_⊗_F), Π [I : cat] (M : func I B),
+ transf (Imply_con_mod W ((Unit_mod F M ))) Id_func (Unit_mod W_⊗_F M) Id_func;
 
 rule Op_transf (Op_transf $A) ↪ $A
 with (Op_transf (limit_cov_transf $isl $M) ) ↪ limit_con_transf (Op_limit_con $isl) (Op_func $M);
@@ -551,26 +777,37 @@ with (Op_transf (limit_cov_transf $isl $M) ) ↪ limit_con_transf (Op_limit_con 
  
  // naturality and dinaturality of evaluation
  
- rule (Tensor_cov_transf $p'p $q'q) ''∘ (Eval_cov_transf $pq_o)
-   ↪ Eval_cov_transf (($p'p ''∘ $pq_o) ''∘ (Imply_cov_transf (Id_transf _) _ $q'q)); 
+//  rule  (Eval_cov_transf $pq_o) ∘'' (Tensor_cov_transf $p'p $q'q)
+//    ↪ Eval_cov_transf ((Imply_cov_transf (Id_transf _) $q'q) ∘'' ($pq_o ∘'' $p'p)); 
+rule  (Eval_cov_transf $pq_o) ∘'' (Tensor_cov_transf $M $p'p $q'q)
+↪ Eval_cov_transf ((Imply_cov_transf (Id_transf _) $q'q) ∘'' (($pq_o <<∘1 $M) ∘'' $p'p)); 
 
- assert [A B X A' X' : cat] [P : mod A B] [Q : mod B X] 
- (O : mod A' X')  [F : func A A'] (L : func X X')
- (pq_o : transf P                       F (Imply_cov_mod O L Q) Id_func)
- A0  X0 (M: func A0 A)  (Z : func X0 X) 
- (P': mod A0 B) (Q' : mod B X0) 
- (p'p : transf P' M P Id_func) (q'q : transf Q' Id_func Q Z) ⊢ eq_refl _ : π (
- (Eval_cov_transf  pq_o)  ∘'' (Tensor_cov_transf p'p q'q)
- = Eval_cov_transf  ((pq_o ∘'' p'p) ''∘ (Imply_cov_transf (Id_transf O) L q'q)) ); 
+rule Lambda_cov_transf_hom (Eval_cov_hom_transf $t) ↪ $t;
+//beta
+rule (Eval_cov_hom_transf (Lambda_cov_transf_hom $t)) ↪ $t;
+//eta
+rule Lambda_cov_transf (Eval_cov_transf $t) ↪ $t;
+//beta
+rule (Eval_cov_transf (Lambda_cov_transf $t)) ↪ $t;
 
- type λ [A X A' X' : cat] [Q : mod A X] 
- (O : mod A' X')  [F : func A A'] (L : func X X')
- (pq_o : hom                       F (Imply_cov_mod O L Q) Id_func)
-  X0  (Z : func X0 X) 
-  (Q' : mod A X0) 
-  (q'q : transf Q' Id_func Q Z),
- (Eval_cov_hom_transf  pq_o)  ∘'' q'q
-= Eval_cov_hom_transf  (pq_o '∘ (Imply_cov_transf (Id_transf O) L q'q)); 
+//  assert [A B X A' X' : cat] [P : mod A B] [Q : mod B X] 
+//  (O : mod A' X')  [F : func A A'] (L : func X X')
+//  (pq_o : transf P                       F (Imply_cov_mod O L Q) Id_func)
+//  A0  X0 (M: func A0 A)  (Z : func X0 X) 
+//  (P': mod A0 B) (Q' : mod B X0) 
+//  (p'p : transf P' M P Id_func) (q'q : transf Q' Id_func Q Z) ⊢ eq_refl _ : π (
+//  (Eval_cov_transf  pq_o)  ∘'' (Tensor_cov_transf p'p q'q)
+//  = Eval_cov_transf  ((pq_o ∘'' p'p) ''∘ (Imply_cov_transf (Id_transf O) L q'q)) ); 
+
+//TODO as rewrite rule
+//  type λ [A X A' X' : cat] [Q : mod A X] 
+//  (O : mod A' X')  [F : func A A'] (L : func X X')
+//  (pq_o : hom                       F (Imply_cov_mod O L Q) Id_func)
+//   X0  (Z : func X0 X) 
+//   (Q' : mod A X0) 
+//   (q'q : transf Q' Id_func Q Z),
+//  (Eval_cov_hom_transf  pq_o)  ∘'' q'q
+// = Eval_cov_hom_transf  (pq_o '∘ (Imply_cov_transf (Id_transf O) L q'q)); 
  
  // evaluation of coyoneda at identity hom
  
@@ -581,6 +818,16 @@ with (Op_transf (limit_cov_transf $isl $M) ) ↪ limit_con_transf (Op_limit_con 
  // transf P (Id_func ∘> F) P' (Id_func <∘ Id_func)
  
  
+ rule (coyoneda_Unit_Tensor_cov_transf $pp _)  ∘'' (Tensor_cov_hom_transf $qq (Func_con_hom _ _))
+ ↪  $pp ∘'' $qq;
+ rule (coyoneda_Unit_Tensor_cov_transf $pp _)  ∘'' (Tensor_cov_hom_transf $qq (Id_hom _))
+ ↪  $pp ∘'' $qq;
+
+ assert [A B A' : cat] [P : mod A B] [P' : mod A' B] [F : func A A'] 
+ (pp : transf P F P' Id_func )  A0 (Q: mod A0 B) H (qq : transf Q H P Id_func ) ⊢ eq_refl _ : π(
+(coyoneda_Unit_Tensor_cov_transf pp Id_func)  ∘'' (Tensor_cov_hom_transf qq (Func_con_hom _ _))
+ =  pp ∘'' qq  ); 
+
  // functos and adjunctions 
  
  constant symbol Adj_cov_hom : Π [L R : cat] [LAdj_func : func R L] [RAdj_func : func L R]
@@ -614,7 +861,9 @@ rule (Adj_con_hom $aj $Z $N) ∘↓ $X ↪ Adj_con_hom $aj $Z ($X ∘> $N);
 //accumulation contravariant ; accumulation not really naturality, therefore can be dealt with generically
  // t∘(g) ∘X0 -  =  t∘(g ∘X0 -) 
  rule ($M)_'∘> ($g '∘ (($X0)_'∘> $t))
- ↪ (($M)_'∘> $g) ''∘ (($M ∘> $X0)_'∘> $t);
+ ↪ (($M)_'∘> $g) ''∘ (($M ∘> $X0)_'∘> $t)
+ with  (($t ∘>'_ ($X0) ∘' $g)) ∘>'_($M)
+ ↪  ($t ∘>'_($M ∘> $X0)) ∘'' ($g ∘>'_($M));
 
  assert [L R J I I' I1 : cat] [T : mod R L]
  [Y0 : func I1 R] [Y: func I' I1] [Z : func I1 L]
@@ -637,7 +886,9 @@ assert [L R : cat] [LAdj_func : func R L] [RAdj_func : func L R]
 
 //accumulation  covariant ; accumulation not really naturality, therefore can be dealt with generically
  //  - ∘X0 (g)∘t   =  (- ∘X0 g)∘t 
- rule  ($g '∘ ($t ∘>'_($X0))) ∘>'_($M)
+//  rule  ($g '∘ ($t ∘>'_($X0))) ∘>'_($M)
+//  ↪ ($t ∘>'_($X0 <∘ $M)) ∘'' ($g ∘>'_($M));
+ rule  (($t ∘>'_($X0)) ∘' $g) ∘>'_($M)
  ↪ ($t ∘>'_($X0 <∘ $M)) ∘'' ($g ∘>'_($M));
 
 assert [L R : cat] [LAdj_func : func R L] [RAdj_func : func L R]
@@ -665,32 +916,56 @@ assert [L R : cat] [LAdj_func : func R L] [RAdj_func : func L R]
 //             ''∘ ((X0)_'∘> ((Adj_con_hom_Z) ∘↓ N)) ;
 
 // naturality (unit, covariant eq),  similar with naturality (counit, contravariant eq)
-rule (( ($Y ∘> $Y0)_'∘> (Func_con_hom ($Z ∘> $LAdj_func) $N))) ''∘
-       (@'∘ _ _ _ _ _ _ _ _ $Y _ _ $g  (($X0)_'∘> ((@Adj_con_hom _ _ $LAdj_func _ $aj _ $Z _ $Y0)))) ∘>'_(Id_func)
+// rule 
+//WARNING subtle, g must be (hom Id_func _ _)
+//        (@'∘ _ _ _ _ _ _ _ $Y _ $g  (($X0)_'∘> ((@Adj_con_hom _ _ $LAdj_func _ $aj _ $Z _ $Y0)))) ∘>'_(Id_func)
+//        ∘'' (( ($Y ∘> $Y0)_'∘> (Func_con_hom ($Z ∘> $LAdj_func) $N)))
+//   ↪  (($g '∘ (($X0)_'∘> (Id_hom $Y0))) ∘>'_ ($N))
+//    ''∘ (($X0)_'∘> ((Adj_con_hom $aj $Z $N) ));
+rule
+(( ($Y ∘> $Y0)_'∘> (Func_con_hom ($Z ∘> $LAdj_func) $N))) ''∘
+((@'∘ _ _ _ _ _ _ _ $Y _ $g  (($X0)_'∘> ((@Adj_con_hom _ _ $LAdj_func _ $aj _ $Z _ $Y0)))) ∘>'_(Id_func))
+       
   ↪  (($g '∘ (($X0)_'∘> (Id_hom $Y0))) ∘>'_ ($N))
    ''∘ (($X0)_'∘> ((Adj_con_hom $aj $Z $N) ));
+type cat;
+ 
+         
+// assert [L R : cat] [LAdj_func : func R L] [RAdj_func : func L R] [aj : adj LAdj_func RAdj_func] [I] [Z : func I R]
+//  [J I1 I2 : cat] [X: func J I1] [X0: func I1 I] [Y: func J I2] [Y0 : func I2 I] 
+//  [g : hom X (Unit_mod X0 Y0) Y] [J' : cat] [N : func J' I] ⊢ eq_refl _ : π (
 
+//  (g '∘ ((X0)_'∘> (Adj_con_hom aj Z Y0))) ∘>'_(Id_func)
+//     ∘''  (( (Y ∘> Y0)_'∘> (Func_con_hom (Z ∘> LAdj_func) N)))
+//  = ((g '∘ ((X0)_'∘> (Id_hom Y0))) ∘>'_(N))
+//            ''∘ ((X0)_'∘> (Adj_con_hom aj Z N)) );
 assert [L R : cat] [LAdj_func : func R L] [RAdj_func : func L R] [aj : adj LAdj_func RAdj_func] [I] [Z : func I R]
- [J I1 I2 : cat] [X: func J I1] [X0: func I1 I] [Y: func J I2] [Y0 : func I2 I] 
- [g : hom X (Unit_mod X0 Y0) Y] [J' : cat] [N : func J' I] ⊢ eq_refl _ : π (
+ [J I2 : cat]  [X0: func J I] [Y: func J I2] [Y0 : func I2 I] 
+ [g : hom Id_func (Unit_mod X0 Y0) Y] [J' : cat] [N : func J' I] ⊢ eq_refl _ : π (
 
- (g '∘ ((X0)_'∘> (Adj_con_hom aj Z Y0))) ∘>'_(Id_func)
-    ∘''  (( (Y ∘> Y0)_'∘> (Func_con_hom (Z ∘> LAdj_func) N)))
+ (( (Y ∘> Y0)_'∘> (Func_con_hom (Z ∘> LAdj_func) N)))
+  ''∘ (g '∘ ((X0)_'∘> (Adj_con_hom aj Z Y0))) ∘>'_(Id_func)  
  = ((g '∘ ((X0)_'∘> (Id_hom Y0))) ∘>'_(N))
            ''∘ ((X0)_'∘> (Adj_con_hom aj Z N)) );
  
 //functoriality/naturality covariant     
-rule (( ($Y ∘> $Y0)_'∘> (Func_con_hom ($Z_LAdj_func) $N))) ''∘
-  (@'∘ _ _ _ _ _ _ _ _ $Y _ _ $g   (($X0)_'∘> ((Func_con_hom $Z_LAdj_func $Y0)))) ∘>'_(Id_func)
+// rule  
+//   (@'∘ _ _ _ _ _ _ _ $Y _ $g   (($X0)_'∘> ((Func_con_hom $Z_LAdj_func $Y0)))) ∘>'_(Id_func)
+//   ∘'' (( ($Y ∘> $Y0)_'∘> (Func_con_hom ($Z_LAdj_func) $N)))
+// ↪ (($g '∘ (($X0)_'∘> (Id_hom $Y0))) ∘>'_($N))
+//        ''∘ (($X0)_'∘> ((Func_con_hom $Z_LAdj_func $N))) ;
+rule  
+(( ($Y ∘> $Y0)_'∘> (Func_con_hom ($Z_LAdj_func) $N)))
+  ''∘ ((@'∘ _ _ _ _ _ _ _ $Y _ $g   (($X0)_'∘> ((Func_con_hom $Z_LAdj_func $Y0)))) ∘>'_(Id_func))
 ↪ (($g '∘ (($X0)_'∘> (Id_hom $Y0))) ∘>'_($N))
        ''∘ (($X0)_'∘> ((Func_con_hom $Z_LAdj_func $N))) ;
 
 assert  [L I : cat] [Z_LAdj_func : func I L]
-  [J I1 I2 : cat] [X: func J I1] [X0: func I1 I] [Y: func J I2] [Y0 : func I2 I] 
-  [g : hom X (Unit_mod X0 Y0) Y] [J' : cat] [N : func J' I] ⊢ eq_refl _ : π (
+  [J I1 I2 : cat] [X0: func J I] [Y: func J I2] [Y0 : func I2 I] 
+  [g : hom Id_func (Unit_mod X0 Y0) Y] [J' : cat] [N : func J' I] ⊢ eq_refl _ : π (
  
-  (g '∘ ((X0)_'∘> ((Func_con_hom Z_LAdj_func Y0)))) ∘>'_(Id_func)
-     ∘''  (( (Y ∘> Y0)_'∘> (Func_con_hom (Z_LAdj_func) N)))
+  (( (Y ∘> Y0)_'∘> (Func_con_hom (Z_LAdj_func) N)))
+  ''∘ ((g '∘ ((X0)_'∘> ((Func_con_hom Z_LAdj_func Y0)))) ∘>'_(Id_func))
  = ((g '∘ ((X0)_'∘> (Id_hom Y0))) ∘>'_(N))
             ''∘ ((X0)_'∘> ((Func_con_hom Z_LAdj_func N))) );
  
@@ -699,17 +974,40 @@ assert  [L I : cat] [Z_LAdj_func : func I L]
 
  
 // naturality (counit, covariant eq),   similar with naturality (unit, contravariant eq)
+// rule ($d '∘ (($M)_'∘> (@Adj_cov_hom _ _ $F $G $aj _ $N _ $X))) ∘>'_($L) 
+// ↪ (($d '∘ (($M)_'∘> (Func_cov_hom ($G <∘ $N) $X))) ∘>'_($L))
+//           ''∘ (($M)_'∘> (Adj_cov_hom $aj ($N <∘ $L) Id_func)) ;
 rule ($d '∘ (($M)_'∘> (@Adj_cov_hom _ _ $F $G $aj _ $N _ $X))) ∘>'_($L) 
-↪ (($d '∘ (($M)_'∘> (Func_cov_hom ($G <∘ $N) $X))) ∘>'_($L))
-          ''∘ (($M)_'∘> (Adj_cov_hom $aj ($N <∘ $L) Id_func)) ;
+↪ (($M)_'∘> (Adj_cov_hom $aj ($N <∘ $L) Id_func)) ∘''
+(($d '∘ (($M)_'∘> (Func_cov_hom ($G <∘ $N) $X))) ∘>'_($L))  ;
 
 assert [C D : cat] [F : func D C] [G : func C D] [aj : adj F G] [C'] [N : func C' C] [I] [X : func I C']
   [E] [M : func E D] [J] [Z : func J E] [Y : func J I] (d : hom Z (Unit_mod M ((G <∘ N) <∘ X)) Y)
   [C''] [L : func C'' C']   ⊢ eq_refl _ : π (
 
-(d '∘ ((M)_'∘> (Adj_cov_hom aj N X))) ∘>'_(L) 
-= ((d '∘ ((M)_'∘> (Func_cov_hom (G <∘ N) X))) ∘>'_(L))
-          ''∘ ((M)_'∘> (Adj_cov_hom aj (N <∘ L) Id_func)) );
+ (d '∘ ((M)_'∘> (Adj_cov_hom aj N X))) ∘>'_(L) 
+= ((M)_'∘> (Adj_cov_hom aj (N <∘ L) Id_func)) ∘''
+  ((d '∘ ((M)_'∘> (Func_cov_hom (G <∘ N) X))) ∘>'_(L))    );
+
+// //TODO REVIEW IF SHOULD BE THIS REVERSED DIRECTION? nope rule redex has patterns, not registered, assertion fails
+// rule (($M)_'∘> (@Adj_cov_hom _ _ $F $G $aj _ ($N <∘ $L) _ Id_func)) ∘''
+// (($d '∘ (($M)_'∘> (Func_cov_hom ($G <∘ $N) $X))) ∘>'_($L))
+// ↪ ($d '∘ (($M)_'∘> (@Adj_cov_hom _ _ $F $G $aj _ $N _ $X))) ∘>'_($L)           ;
+// assert [C D : cat] [F : func D C] [G : func C D] [aj : adj F G] [C'] [N : func C' C] [I] [X : func I C']
+//   [E] [M : func E D] [J] [Z : func J E] [Y : func J I] (d : hom Z (Unit_mod M ((G <∘ N) <∘ X)) Y)
+//   [C''] [L : func C'' C']   ⊢ eq_refl _ : π (
+// ((M)_'∘> (Adj_cov_hom aj (N <∘ L) Id_func)) ∘''
+//   ((d '∘ ((M)_'∘> (Func_cov_hom (G <∘ N) X))) ∘>'_(L))
+// = (d '∘ ((M)_'∘> (Adj_cov_hom aj N X))) ∘>'_(L)  );
+
+
+// assert [C D : cat] [F : func D C] [G : func C D] [aj : adj F G] [C'] [N : func C' C] [I] [X : func I C']
+//   [E] [M : func E D] [J] [Z : func J E] [Y : func J I] (d : hom Z (Unit_mod M ((G <∘ N) <∘ X)) Y)
+//   [C''] [L : func C'' C']   ⊢ eq_refl _ : π (
+
+// (d '∘ ((M)_'∘> (Adj_cov_hom aj N X))) ∘>'_(L) 
+// = ((d '∘ ((M)_'∘> (Func_cov_hom (G <∘ N) X))) ∘>'_(L))
+//           ''∘ ((M)_'∘> (Adj_cov_hom aj (N <∘ L) Id_func)) );
 
 
 //  /* (3) ========================== */
@@ -722,20 +1020,36 @@ assert [C D : cat] [F : func D C] [G : func C D] [aj : adj F G] [C'] [N : func C
  ''∘ (($Z)_'∘> ((Adj_cov_hom $aj $W $N)))
 ↪  (((Func_con_hom ($Z ∘> $LAdj_func) $M)) ∘>'_($N ∘> $W) ) 
   ''∘ (($Z ∘> $LAdj_func)_'∘> ((Func_cov_hom $W $N)));
-
-assert [L R I J I0 J0 : cat] [LAdj_func : func R L] [RAdj_func : func L R]
-(aj : adj LAdj_func RAdj_func) (Z : func I0 R) (M : func I I0)  (N : func J J0) (W: func J0 L) ⊢ eq_refl _ : π (
-(((Adj_con_hom aj Z M)) ∘>'_(N ∘> W)) ''∘ ((Z)_'∘> ((Adj_cov_hom aj W N)))
-= (((Func_con_hom (Z ∘> LAdj_func) M)) ∘>'_(N ∘> W) ) ''∘ ((Z ∘> LAdj_func)_'∘> ((Func_cov_hom W N)))  );
+///WARNING M must be Id_func by new ''∘
+// assert [L R I J I0 J0 : cat] [LAdj_func : func R L] [RAdj_func : func L R]
+// (aj : adj LAdj_func RAdj_func) (Z : func I0 R) (M : func I I0)  (N : func J J0) (W: func J0 L) ⊢ eq_refl _ : π (
+// (((Adj_con_hom aj Z M)) ∘>'_(N ∘> W)) ''∘ ((Z)_'∘> ((Adj_cov_hom aj W N)))
+// = (((Func_con_hom (Z ∘> LAdj_func) M)) ∘>'_(N ∘> W) ) ''∘ ((Z ∘> LAdj_func)_'∘> ((Func_cov_hom W N)))  );
+// // : transf (Unit_mod (M ∘> (Z ∘> LAdj_func)) (N ∘> W)) M (Unit_mod (Z ∘> LAdj_func) W) N
+assert [L R I J J0 : cat] [LAdj_func : func R L] [RAdj_func : func L R]
+(aj : adj LAdj_func RAdj_func) (Z : func I R) (N : func J J0) (W: func J0 L) ⊢ eq_refl _ : π (
+(((Adj_con_hom aj Z Id_func)) ∘>'_(N ∘> W)) ''∘ ((Z)_'∘> ((Adj_cov_hom aj W N)))
+= (((Func_con_hom (Z ∘> LAdj_func) Id_func)) ∘>'_(N ∘> W) ) ''∘ ((Z ∘> LAdj_func)_'∘> ((Func_cov_hom W N)))  );
 // : transf (Unit_mod (M ∘> (Z ∘> LAdj_func)) (N ∘> W)) M (Unit_mod (Z ∘> LAdj_func) W) N
 
-// // general version  SLOW HEAVY RULE - COMMENT THIS RULE DURING DEV, UNCOMMENT BEFORE COMPILATION (time lambdapi check -c test.lp)
-//  // f“ϕ∘F(“G(-)∘γ”g)”  =                  f"id∘1"( "1(-)∘F"g ) 
-// rule  (($g '∘ (($M')_'∘> (@Adj_con_hom _ _ $F $G $aj _ $M _ $Y))) ∘>'_($X' ∘> $X ∘> $N)) 
-//            ''∘ (($M' ∘> $M)_'∘> (@'∘ _ _ _ _ _ _ _ $X' _ _ _ $f ((Adj_cov_hom $aj $N $X) ∘>'_($N')) ))
-// ↪ (($g '∘ ($M')_'∘> (Func_con_hom ($M ∘> $F) $Y)) ∘>'_($N <∘ $X <∘ $X')) 
-//            ''∘ (($M' ∘> $M ∘> $F)_'∘> ((Func_cov_hom $N $X) ∘>'_($N') ∘' $f));
+// general version  SLOW HEAVY RULE - COMMENT THIS RULE DURING DEV, UNCOMMENT BEFORE COMPILATION (time lambdapi check -c test.lp)
+ // f“ϕ∘F(“G(-)∘γ”g)”  =                  f"id∘1"( "1(-)∘F"g ) 
+ //WARNING g must be (hom Id_func _ _)
+rule  (($g '∘ (($M')_'∘> (@Adj_con_hom _ _ $F $G $aj _ $M _ $Y))) ∘>'_($X' ∘> $X ∘> $N)) 
+           ''∘ (($M' ∘> $M)_'∘> (@∘' _ _ _ _ _ _ $X' _ _ ((Adj_cov_hom $aj $N $X) ∘>'_($N')) $f))
+↪ (($g '∘ ($M')_'∘> (Func_con_hom ($M ∘> $F) $Y)) ∘>'_($N <∘ $X <∘ $X')) 
+           ''∘ (($M' ∘> $M ∘> $F)_'∘> ((Func_cov_hom $N $X) ∘>'_($N') ∘' $f));
+assert [C D : cat] [F : func D C] [G : func C D] [aj : adj F G] 
+[C'] [N : func C' C] [I] [X : func I C']
+[C''] [N' : func C'' C'] [I'] [X' : func I' I] [Z : func I' C''] (f : hom X' (Unit_mod X N') Z)
+[D'] [M : func D' D] [J] [Y : func J D']
+[D''] [M' : func D'' D'] [Y' : func D'' J]  (g : hom Id_func (Unit_mod M' Y) Y')   ⊢ eq_refl _ : π (
 
+ ((g '∘ (M')_'∘> (Adj_con_hom aj M Y)) ∘>'_(N <∘ X <∘ X')) 
+      ''∘ ((M' ∘> M)_'∘> ((Adj_cov_hom aj  N X) ∘>'_(N') ∘' f))
+ =  ((g '∘ (M')_'∘> (Func_con_hom (M ∘> F) Y)) ∘>'_(N <∘ X <∘ X')) 
+      ''∘ ((M' ∘> M ∘> F)_'∘> ((Func_cov_hom N X) ∘>'_(N') ∘' f))  );
+//  : transf (Unit_mod (Y' ∘> (Y ∘> (M ∘> F))) (N <∘ X <∘ X'))  W (Unit_mod (M' ∘> M ∘> F) (N <∘ N')) Z
 // assert [C D : cat] [F : func D C] [G : func C D] [aj : adj F G] 
 // [C'] [N : func C' C] [I] [X : func I C']
 // [C''] [N' : func C'' C'] [I'] [X' : func I' I] [Z : func I' C''] (f : hom X' (Unit_mod X N') Z)
@@ -747,6 +1061,13 @@ assert [L R I J I0 J0 : cat] [LAdj_func : func R L] [RAdj_func : func L R]
 //  =  ((g '∘ (M')_'∘> (Func_con_hom (M ∘> F) Y)) ∘>'_(N <∘ X <∘ X')) 
 //       ''∘ ((M' ∘> M ∘> F)_'∘> ((Func_cov_hom N X) ∘>'_(N') ∘' f))  );
 // //  : transf (Unit_mod (Y' ∘> (Y ∘> (M ∘> F))) (N <∘ X <∘ X'))  W (Unit_mod (M' ∘> M ∘> F) (N <∘ N')) Z
+
+//TODO REVIEW THIS ALT DIRECTION ... same problem of Id_func for $f
+// rule   (($M' ∘> $M)_'∘> (@∘' _ _ _ _ _ _ $X' _ _ ((Adj_cov_hom $aj $N $X) ∘>'_($N')) $f)) ∘''
+//           (($g '∘ (($M')_'∘> (@Adj_con_hom _ _ $F $G $aj _ $M _ $Y))) ∘>'_($X' ∘> $X ∘> $N))
+// ↪   (($M' ∘> $M ∘> $F)_'∘> ((Func_cov_hom $N $X) ∘>'_($N') ∘' $f)) ∘''
+//          (($g '∘ ($M')_'∘> (Func_con_hom ($M ∘> $F) $Y)) ∘>'_($N <∘ $X <∘ $X'));
+
 
 // beta cancelation, covariant eq   (small todo: general version “(f)∘ϕ∘F(“γ∘(-)”)”)
  // “ϕ∘F(“γ∘(g)”)” =            “1∘F(g)”   
@@ -768,32 +1089,33 @@ assert [L R I J : cat] [LAdj_func : func R L] [RAdj_func : func L R]
 //  // right adjoint preserves weighted limit_covs
  
 
-  symbol righ_adjoint_preserves_limit_cov  [B J0 J J' A : cat] [K : func J J0] [W : mod J' J] [F : func J0 B] [F_⇐_W : func J' B]
-  (isl : limit_cov K F W F_⇐_W) [R : func B A] [L : func A B] (isa : adj L R) [I : cat] (M : func I A) :
-  transf (Imply_cov_mod (Unit_mod M (F ∘> R)) K W) Id_func (Unit_mod M R <<∘ F_⇐_W) Id_func
-  ≔ ((Imply_cov_transf ((M)_'∘> Adj_cov_hom isa F Id_func) K (Id_transf W)) ''∘ (limit_cov_transf isl (M ∘> L)))
-  ''∘ ((Adj_con_hom isa M Id_func) ∘>'_(F_⇐_W));
+  symbol righ_adjoint_preserves_limit_cov  [B J J' A : cat]  [W : mod J' J] [F : func J B] [F_⇐_W : func J' B]
+  (isl : limit_cov F W F_⇐_W) [R : func B A] [L : func A B] (isa : adj L R) [I : cat] (M : func I A) :
+  transf (Imply_cov_mod (Unit_mod M (F ∘> R)) W) Id_func (Unit_mod M R <<∘ F_⇐_W) Id_func
+  ≔ ((Adj_con_hom isa M Id_func) ∘>'_(F_⇐_W)) ∘''
+  ((limit_cov_transf isl (M ∘> L)) ∘'' (Imply_cov_transf ((M)_'∘> Adj_cov_hom isa F Id_func) (Id_transf W)) )
+  ;
 
 // assert [B J0 J J' A : cat] [K : func J J0] [W : mod J' J] [F : func J0 B] [F_⇐_W : func J' B]
 // (isl : limit_cov K F W F_⇐_W) [R : func B A] [L : func A B] (isa : adj L R) [I : cat] (M : func I A) ⊢
 // Op_transf (righ_adjoint_preserves_limit_cov isl isa M) :
 // transf (Imply_con_mod (Op_mod W) (Op_func K) ((Op_func F ∘> Op_func R) ∘>> (Unit_mod0 (Op_cat A) <<∘ Op_func M))) 
 //          Id_func ((Op_func F_⇐_W ∘> Op_func R) ∘>> (Unit_mod0 (Op_cat A) <<∘ Op_func M)) Id_func;
-assert [B J0 J J' A : cat] [K : func J J0] [W : mod J' J] [F : func J0 B] [F_⇐_W : func J' B]
-(isl : limit_cov K F W F_⇐_W) [R : func B A] [L : func A B] (isa : adj L R) [I : cat] (M : func I A) ⊢
+assert [B J J' A : cat] [W : mod J' J] [F : func J B] [F_⇐_W : func J' B]
+(isl : limit_cov F W F_⇐_W) [R : func B A] [L : func A B] (isa : adj L R) [I : cat] (M : func I A) ⊢
 Op_transf (righ_adjoint_preserves_limit_cov isl isa M) :
-transf (Imply_con_mod (Op_mod W) (Op_func K) ( (Unit_mod (Op_func F ∘> Op_func R) (Op_func M)))) 
+transf (Imply_con_mod (Op_mod W) ( (Unit_mod (Op_func F ∘> Op_func R) (Op_func M)))) 
          Id_func ((Unit_mod (Op_func F_⇐_W ∘> Op_func R) (Op_func M))) Id_func;
 
-assert [B J0 J J' A : cat] [K : func J J0] [W : mod J J'] [F : func J0 B] [W_⊗_F : func J' B]
-(isl : limit_con K F W W_⊗_F) [R : func A B] [L : func B A] (isa : adj L R) [I : cat] (M : func I A) ⊢
+assert [B J J' A : cat] [W : mod J J'] [F : func J B] [W_⊗_F : func J' B]
+(isl : limit_con F W W_⊗_F) [R : func A B] [L : func B A] (isa : adj L R) [I : cat] (M : func I A) ⊢
 Op_transf (righ_adjoint_preserves_limit_cov (Op_limit_cov isl) (Op_adj isa) (Op_func M)) :
-transf (Op_mod (Imply_cov_mod (Unit_mod (Op_func M) (Op_func F ∘> Op_func L)) (Op_func K) (Op_mod W)))
+transf (Op_mod (Imply_cov_mod (Unit_mod (Op_func M) (Op_func F ∘> Op_func L)) (Op_mod W)))
    (Op_func Id_func) (Op_mod (Unit_mod (Op_func M) (Op_func L) <<∘ Op_func W_⊗_F)) (Op_func Id_func) ;
 
-symbol left_adjoint_preserves_limit_con [B J0 J J' A : cat] [K : func J J0] [W : mod J J'] [F : func J0 B] [W_⊗_F : func J' B]
-(isl : limit_con K F W W_⊗_F) [R : func A B] [L : func B A] (isa : adj L R) [I : cat] (M : func I A) :
-  transf (Imply_con_mod W K (Unit_mod (F ∘> L) M)) Id_func (W_⊗_F ∘>> Unit_mod L M) Id_func
+symbol left_adjoint_preserves_limit_con [B J J' A : cat] [W : mod J J'] [F : func J B] [W_⊗_F : func J' B]
+(isl : limit_con F W W_⊗_F) [R : func A B] [L : func B A] (isa : adj L R) [I : cat] (M : func I A) :
+  transf (Imply_con_mod W (Unit_mod (F ∘> L) M)) Id_func (W_⊗_F ∘>> Unit_mod L M) Id_func
   ≔ Op_transf (righ_adjoint_preserves_limit_cov (Op_limit_cov isl) (Op_adj isa) (Op_func M));
 
 //  /* (5) ========================== */
@@ -806,7 +1128,7 @@ symbol join_fst_func : Π (A B : cat), func A (join_cat A B);
 symbol join_snd_func : Π (A B : cat), func B (join_cat A B);
 symbol join_hom :  Π (A B : cat) [I : cat] (a : func I A) (b : func I B), hom a (Unit_mod (join_fst_func A B) (join_snd_func A B)) b ;
 
-rule @'∘ _ _ _ _ _ _ _ $a' Id_func _ _ $r (( Id_func ) _'∘> (join_hom $A $B $a $b)) ↪ (join_hom $A $B $a' $b);
+rule @'∘ _ _ _ _ _ _ $a' Id_func _ $r (( Id_func ) _'∘> (join_hom $A $B $a $b)) ↪ (join_hom $A $B $a' $b);
 assert (A B : cat) [I : cat] (a : func I A) (b : func I B) [a'] (r : hom a' (Unit_mod Id_func a) Id_func) ⊢ 
         eq_refl _  : π (r  '∘ (( _ ) _'∘> (join_hom A B a b)) = (join_hom A B a' b));
 
@@ -970,6 +1292,28 @@ with $F ∘>s (Func_funcs $G) ↪ (Func_funcs ($F ∘> $G))
 with Id_func ∘>s $G ↪ $G
 with $X ∘>s ($G ∘>s $H) ↪ ($X ∘> $G) ∘>s $H;
 
+
+///--
+
+
+// constant symbol  Id_funci :  Π [X : cat] , funci (Terminal_catd X);
+// constant symbol  Funcs_funci :  Π [X Y : cat] (xy : func X Y), funcs xy (Terminal_catd Y);
+
+// symbol ∘>id: Π [X Z : cat]  [B : catd X] [C : catd Z] 
+// [G : func X Z], funci B → funcd B G C → funcs G C;
+// notation ∘>id infix left 90;
+// symbol ∘>i: Π [X Y : cat] [C : catd Y] (F : func X Y), funci C → funcs F C;
+// notation ∘>i infix left 90;
+
+// rule $X ∘>id ($G ∘>d $H) ↪ ($X ∘>id $G) ∘>sd $H;
+
+// type cat;
+// type cat cat;
+
+///---
+
+
+
 injective symbol Op_funcd : Π [X Y : cat] [A : catd X] [F : func X Y] [B : catd Y], funcd A F B → funcd (Op_catd A) (Op_func F) (Op_catd B);
 
 injective symbol Op_funcs : Π [X Y : cat] [F : func X Y] [B : catd Y], 
@@ -981,24 +1325,24 @@ with Op_funcd ($F ∘>d $G) ↪ ((Op_funcd $F) ∘>d (Op_funcd $G)) ;
 
 rule Op_funcs (Func_funcs $F) ↪ (Func_funcs (Op_func $F));
 
-symbol Terminal_funcd :  Π [X : cat] (A : catd X), funcd A Id_func (Terminal_catd X);
+injective symbol Terminal_funcd :  Π [X : cat] (A : catd X), funcd A Id_func (Terminal_catd X);
 
 rule Op_funcd (Terminal_funcd $A) ↪ (Terminal_funcd (Op_catd $A));
 rule (@∘>d _ _ _ $A $B _ Id_func _ $F (Terminal_funcd $B)) ↪ (Terminal_funcd $A) ;
 rule (Terminal_funcd (Terminal_catd _)) ↪ Id_funcd;
 
 //todo review injective?
-injective symbol Terminal_elim_funcd : Π [X Y : cat] [F : func X Y] [B : catd Y],  
+injective symbol Funcs_funcd : Π [X Y : cat] [F : func X Y] [B : catd Y],  
 funcs F B → funcd (Terminal_catd X) F B ;
 
-rule Op_funcd (Terminal_elim_funcd $FF) ↪ (Terminal_elim_funcd (Op_funcs $FF));
+rule Op_funcd (Funcs_funcd $FF) ↪ (Funcs_funcd (Op_funcs $FF));
 
-rule (Func_funcs $G) ∘>sd (Terminal_elim_funcd $FF) ↪ $G ∘>s $FF;
-// rule (Terminal_elim_funcd $FF) ∘>d $HH ↪ (Terminal_elim_funcd ($FF ∘>sd $HH));
-// rule Terminal_elim_funcd (Func_funcs Id_func ∘>sd $HH) ↪ $HH;
-//todo: review, reverse direction?
-rule (Terminal_elim_funcd ($FF ∘>sd $HH)) ↪ (Terminal_elim_funcd $FF) ∘>d $HH;
-rule Terminal_elim_funcd (Func_funcs Id_func) ↪ Id_funcd;
+rule (Func_funcs $G) ∘>sd (Funcs_funcd $FF) ↪ $G ∘>s $FF;
+// rule (Funcs_funcd $FF) ∘>d $HH ↪ (Funcs_funcd ($FF ∘>sd $HH));
+// rule Funcs_funcd (Func_funcs Id_func ∘>sd $HH) ↪ $HH;
+//todo: review, reverse direction? yes reversed, because of datatype eliminations
+rule (Funcs_funcd $FF) ∘>d $HH ↪ (Funcs_funcd ($FF ∘>sd $HH));
+rule Funcs_funcd (Func_funcs Id_func) ↪ Id_funcd;
 
 symbol Total_func : Π [X Y : cat] [A : catd X] [B : catd Y] [xy : func X Y],
 funcd A xy B → Π [X'] (x : func X' X), func (Total_cat A x) (Total_cat B (x ∘> xy));
@@ -1063,7 +1407,7 @@ rule  Op_funcs (Fibre_intro_funcs $A $x $i $FF) ↪ (Fibre_intro_funcs (Op_catd 
  // reverse direction? yes composition in contractum, 
  with (Fibre_elim_funcd /* (Fibre_catd $A $y) */ _ $x) ∘>d Fibre_elim_funcd $A $y  ↪ Fibre_elim_funcd $A ($x ∘> $y)
 // with Fibre_elim_funcd $A ($x ∘> $y) ↪ (Fibre_elim_funcd (Fibre_catd $A $y) $x) ∘>d Fibre_elim_funcd $A $y 
- with Fibre_elim_funcd (Terminal_catd _) _ ↪ Terminal_elim_funcd (Func_funcs _) ;// (Triv_funcd _);
+ with Fibre_elim_funcd (Terminal_catd _) _ ↪ Funcs_funcd (Func_funcs _) ;// (Triv_funcd _);
  
  rule Fibre_intro_funcd $A Id_func $i $FF ↪ $FF
  // reverse direction? yes composition in contractum, otherwise confluence problems with Fibre_functor_funcd
@@ -1365,6 +1709,7 @@ with Fibre_func_moddu (Terminal_moddu _) $F ↪ Terminal_moddu _;
  
  rule Fibre_transf_modd $A (Id_transf _) ↪ $A
  with Fibre_transf_modd $A ($x ''∘ $y)  ↪ Fibre_transf_modd (Fibre_transf_modd $A $y) $x
+ with Fibre_transf_modd $A ($y ∘'' $x)  ↪ Fibre_transf_modd (Fibre_transf_modd $A $y) $x
  with Fibre_transf_modd (Terminal_modd _) $F ↪ Terminal_modd _ ;
  
  
@@ -1386,7 +1731,7 @@ constant symbol  Productdt_modd : Π [A B : cat] [T : mod A B] [AA : catd A] [BB
  
  constant symbol ⊗d : Π [A B X : cat] [AA : catd A][BB : catd B][XX : catd X]
   [R :mod A B] [S :mod B X], modd AA R BB → modd BB S XX →
-  modd AA ((⊗) R S) XX;  //Tensor_modd;
+  modd AA (R ⊗ S) XX;  //Tensor_modd;
  notation ⊗d infix left 70;
  
  
@@ -1506,19 +1851,19 @@ constant symbol Id_transfd : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd
  transfd (Id_transf R) RR Id_funcd RR Id_funcd;
   
 //TODO: redo this only after def of  transfs  for sections
-// constant symbol Triv_transfduu : Π (I : cat), transfduu (Terminal_moddu I) Id_funcd (Terminal_moddu I) Id_funcd; // is Id ?
+// constant symbol Triv_transfduu : Π (I : cat), transfdu (Terminal_moddu I) Id_funcd (Terminal_moddu I) Id_funcd; // is Id ?
 //  constant symbol Triv_transfd : Π [A' B' A B: cat] [R' : mod A' B'] [F : func A' A] [R : mod A B] [G : func B' B]
 //  (r'r : transf R' F R G),  transfd r'r (Terminal_modd R') (Triv_funcd F) (Terminal_modd R) (Triv_funcd G)    ;
  
  
   //Unit_con_transfd
- constant symbol _'∘>d : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
+ symbol _'∘>d : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
   [A : catd X] [B : catd Y] [II] [FF : funcd II F A] [RR : modd A R B] [GG : funcd II G B], 
   Π [J: cat] [M : func J X] [JJ : catd J] (MM : funcd JJ M A), 
  homd r FF RR GG → transfd ((M)_'∘> r) (Unit_modd MM FF) Id_funcd (MM ∘>>d RR) GG; 
  notation _'∘>d infix right 80; 
 
- constant symbol ∘>d'_ : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
+ symbol ∘>d'_ : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
   [A : catd X] [B : catd Y] [II] [FF : funcd II F A] [RR : modd A R B] [GG : funcd II G B], 
  homd r FF RR GG → Π [J: cat] [M : func J Y] [JJ : catd J] (MM : funcd JJ M B), 
  transfd ( r ∘>'_(M) ) (Unit_modd GG MM) FF (RR d<<∘ MM ) Id_funcd;                
@@ -1534,57 +1879,108 @@ constant symbol Id_transfd : Π [X Y : cat] [A : catd X] [R : mod X Y] [B : catd
  constant symbol _'∘>du : Π [I: cat] [A : catd I] [B : catd I] [II]
  [FF : funcd II Id_func A] [RR : moddu A B] [GG : funcd II Id_func B], 
  Π [JJ : catd I] (MM : funcd JJ Id_func A),
- homdu FF RR GG → transfduu (Unit_moddu MM FF) Id_funcd (MM ∘>>du RR) GG;
+ homdu FF RR GG → transfdu (Unit_moddu MM FF) Id_funcd (MM ∘>>du RR) GG;
  notation _'∘>du infix right 80; 
  
- 
+
  //Comp_homd_transfd
- symbol '∘d : Π [A'' A' B' A B : cat] [S : mod A' B'] [T : mod A B] 
- [X : func A'' A'] [Y : func A'' B'] [F : func A' A] [G : func B' B],
- Π [AA' : catd A'] [BB' : catd B'] [AA : catd A] [BB : catd B] [SS : modd AA' S BB'] [TT : modd AA T BB] [t : transf S F T G]
- [A''A''] [XX : funcd A''A'' X AA'] [YY : funcd A''A'' Y BB'] [FF : funcd AA' F AA] [GG : funcd BB' G BB]  [s : hom X S Y],
- homd s XX SS YY → transfd t SS FF TT GG → homd (s '∘ t) (XX ∘>d FF) TT (YY ∘>d GG);
+ symbol '∘d : Π [A'' B' A B : cat] [S : mod A B'] [T : mod A B] 
+ [X : func A'' A] [Y : func A'' B'] [G : func B' B],
+ Π  [BB' : catd B'] [AA : catd A] [BB : catd B] [SS : modd AA S BB'] [TT : modd AA T BB] [t : transf S Id_func T G]
+ [A''A''] [XX : funcd A''A'' X AA] [YY : funcd A''A'' Y BB'] [GG : funcd BB' G BB]  [s : hom X S Y],
+ homd s XX SS YY → transfd t SS Id_funcd TT GG → homd (s '∘ t) XX TT (YY ∘>d GG);
  notation '∘d infix right 80;
 
- symbol ∘d' [A'' A' B' A B : cat] [S : mod A' B'] [T : mod A B] 
- [X : func A'' A'] [Y : func A'' B'] [F : func A' A] [G : func B' B]
- [AA' : catd A'] [BB' : catd B'] [AA : catd A] [BB : catd B] [SS : modd AA' S BB'] [TT : modd AA T BB] [t : transf S F T G]
- [A''A''] [XX : funcd A''A'' X AA'] [YY : funcd A''A'' Y BB'] [FF : funcd AA' F AA] [GG : funcd BB' G BB]  [s : hom X S Y]:
-transfd t SS FF TT GG →  homd s XX SS YY →  homd (s '∘ t) (XX ∘>d FF) TT (YY ∘>d GG)
-≔ λ st s, s '∘d st;
+symbol ∘d' [A'' A'  A B : cat] [S : mod A' B] [T : mod A B] 
+ [X : func A'' A'] [Y : func A'' B] [F : func A' A] 
+ [AA' : catd A'] [AA : catd A] [BB : catd B] [SS : modd AA' S BB] [TT : modd AA T BB] [t : transf S F T Id_func]
+ [A''A''] [XX : funcd A''A'' X AA'] [YY : funcd A''A'' Y BB] [FF : funcd AA' F AA]  [s : hom X S Y]:
+transfd t SS FF TT Id_funcd →  homd s XX SS YY →  homd (t ∘' s) (XX ∘>d FF) TT YY;
+
+//  symbol ∘d' [A'' A' B' A B : cat] [S : mod A' B'] [T : mod A B] 
+//  [X : func A'' A'] [Y : func A'' B'] [F : func A' A] [G : func B' B]
+//  [AA' : catd A'] [BB' : catd B'] [AA : catd A] [BB : catd B] [SS : modd AA' S BB'] [TT : modd AA T BB] [t : transf S F T G]
+//  [A''A''] [XX : funcd A''A'' X AA'] [YY : funcd A''A'' Y BB'] [FF : funcd AA' F AA] [GG : funcd BB' G BB]  [s : hom X S Y]:
+// transfd t SS FF TT GG →  homd s XX SS YY →  homd (s '∘ t) (XX ∘>d FF) TT (YY ∘>d GG)
  notation ∘d' infix left 80;
 
 
-rule Op_homd ($s '∘d $st) ↪ (Op_homd $s) '∘d (Op_transfd $st);
+rule Op_homd ($s '∘d $st) ↪ (Op_transfd $st) ∘d' (Op_homd $s)
+with Op_homd ($st ∘d' $s) ↪ (Op_homd $s) '∘d (Op_transfd $st);
 
 //TODO: REVIEW //SEE RULE somewhere in reverse. already solved..?
-rule ($a '∘d  $t) ∘↓d $Z ↪ (($a ∘↓d $Z) '∘d  $t) ; 
+//reverse?
+rule ($a '∘d  $t) ∘↓d $Z ↪ (($a ∘↓d $Z) '∘d  $t)
+with ($t ∘d' $a) ∘↓d $Z ↪ ($t ∘d' ($a ∘↓d $Z)) ; 
 
  //Comp_homdu_transfduu
- symbol '∘duduu : Π [A : cat] ,
+ symbol '∘du : Π [A : cat] ,
  Π [AA' : catd A] [BB' : catd A] [AA : catd A] [BB : catd A] [SS : moddu AA' BB'] [TT : moddu AA BB] 
  [AA0] [XX : funcd AA0 Id_func AA'] [YY : funcd AA0 Id_func BB'] [FF : funcd AA' Id_func AA] [GG : funcd BB' Id_func BB],
- homdu XX SS YY → transfduu SS FF TT GG → homdu (XX ∘>d FF) TT (YY ∘>d GG);
- notation '∘duduu infix right 80;
- 
- 
- //Comp_transfduu_transfduu
- symbol ''∘duuduu : Π [ A : cat]
- [AA'' : catd A] [BB'' : catd A] [AA' : catd A] [BB' : catd A] [AA : catd A] [BB : catd A] [RR : moddu AA'' BB''] [SS : moddu AA' BB'] [TT : moddu AA BB] 
- [XX : funcd AA'' Id_func AA'] [YY : funcd BB'' Id_func BB'] [FF : funcd AA' Id_func AA] [GG : funcd BB' Id_func BB],
- transfduu RR XX SS YY → transfduu SS FF TT GG → transfduu RR (XX ∘>d FF) TT (YY ∘>d GG);
- notation ''∘duuduu infix right 80;
- 
+ homdu XX SS YY → transfdu SS FF TT GG → homdu (XX ∘>d FF) TT (YY ∘>d GG);
+ notation '∘du infix right 80;
+
+//  //Comp_transfduu_transfduu
+//  symbol ''∘du : Π [ A : cat]
+//  [AA'' : catd A] [BB'' : catd A] [AA' : catd A] [BB' : catd A] [AA : catd A] [BB : catd A] [RR : moddu AA'' BB''] [SS : moddu AA' BB'] [TT : moddu AA BB] 
+//  [XX : funcd AA'' Id_func AA'] [YY : funcd BB'' Id_func BB'] [FF : funcd AA' Id_func AA] [GG : funcd BB' Id_func BB],
+//  transfdu RR XX SS YY → transfdu SS FF TT GG → transfdu RR (XX ∘>d FF) TT (YY ∘>d GG);
+//  notation ''∘du infix right 80;
+
+
 //Comp_transfd
-symbol ''∘d : Π [A'' B'' A' B' A B : cat] [R : mod A'' B''] [S : mod A' B'] [T : mod A B] 
-[X : func A'' A'] [Y : func B'' B'] [F : func A' A] [G : func B' B],
-Π [AA'' : catd A''] [BB'' : catd B''] [AA' : catd A'] [BB' : catd B'] [AA : catd A] [BB : catd B]  [s : transf R X S Y] [RR : modd AA'' R BB''] [t : transf S F T G] [SS : modd AA' S BB'] [TT : modd AA T BB] 
-[XX : funcd AA'' X AA'] [YY : funcd BB'' Y BB'] [FF : funcd AA' F AA] [GG : funcd BB' G BB],
-transfd s RR XX SS YY → transfd t SS FF TT GG → transfd (s ''∘ t) RR (XX ∘>d FF) TT (YY ∘>d GG);
+symbol ''∘d : Π [B'' B' A B : cat] [R : mod A B''] [S : mod A B'] [T : mod A B] 
+ [Y : func B'' B']  [G : func B' B],
+Π [BB'' : catd B'']  [BB' : catd B'] [AA : catd A] [BB : catd B]  [s : transf R Id_func S Y] [RR : modd AA R BB''] [t : transf S Id_func T G] [SS : modd AA S BB'] [TT : modd AA T BB] 
+ [YY : funcd BB'' Y BB']  [GG : funcd BB' G BB],
+transfd s RR Id_funcd SS YY → transfd t SS Id_funcd TT GG → 
+transfd (s ''∘ t) RR Id_funcd TT (YY ∘>d GG);
 notation ''∘d infix right 80;
 
-rule Op_transfd ($rs ''∘d $st) ↪ (Op_transfd $rs) ''∘d (Op_transfd $st);
+symbol ∘d'' : Π [A'' A' A B : cat] [R : mod A'' B] [S : mod A' B] [T : mod A B] 
+[X : func A'' A']  [F : func A' A] ,
+Π [AA'' : catd A'']  [AA' : catd A']  [AA : catd A] [BB : catd B]  [s : transf R X S Id_func] [RR : modd AA'' R BB] [t : transf S F T Id_func] [SS : modd AA' S BB] [TT : modd AA T BB] 
+[XX : funcd AA'' X AA'] [FF : funcd AA' F AA] ,
+transfd t SS FF TT Id_funcd → transfd s RR XX SS Id_funcd → transfd (t ∘'' s) RR (XX ∘>d FF) TT Id_funcd;
+notation ∘d'' infix left 80;
 
+rule Op_transfd ($rs ''∘d $st) ↪  (Op_transfd $st) ∘d'' (Op_transfd $rs);
+
+rule  $rs ''∘d ($st ''∘d $tu) ↪ ($rs ''∘d $st) ''∘d $tu
+with  ($tu ∘d'' $st) ∘d'' $rs ↪  $tu ∘d'' ($st ∘d'' $rs);
+
+rule  (Id_transfd _) ''∘d $r'r ↪ $r'r
+with  $r'r ''∘d (Id_transfd _) ↪ $r'r;
+rule  (Id_transfd _) ∘d'' $r'r ↪ $r'r
+with  $r'r ∘d'' (Id_transfd _) ↪ $r'r;
+
+ // assoc comp_transf then comp_hom
+ //reverse?
+ rule  $r '∘d ($rs ''∘d $st)
+ ↪ ($r '∘d $rs) '∘d $st
+ with ($st ∘d'' $rs) ∘d' $r
+ ↪  $st ∘d' ($rs ∘d' $r);
+
+ rule  (Func_cov_homd _ $G ) '∘d ((_) _'∘>d Id_homd $F) ↪ Id_homd ($G ∘>d $F);
+ rule  (Id_homd $F ∘>d'_ (_) ) ∘d' (Func_con_homd _ $G )  ↪ Id_homd ($G ∘>d $F);
+ rule  ($f '∘d ($M)_'∘>d (Id_homd Id_funcd) )  ↪ $f; 
+ rule  (($M)_'∘>d (Func_cov_homd $F Id_funcd) ) ↪ (Id_transfd _)  ; 
+ rule  ((Func_con_homd $F Id_funcd) ∘>d'_($M)) ↪ (Id_transfd _)  ;
+ 
+//yoneda bijection half
+rule (((Func_cov_homd $F $Z)) '∘d ((Id_funcd)_'∘>d $r)) 
+↪ $r ∘↓d $Z;
+
+//yoneda bijection half
+rule (Id_funcd)_'∘>d (((Func_cov_homd $Z Id_funcd)) '∘d $t) 
+↪ $t;
+
+
+ // t∘(g) ∘X0 -  =  t∘(g ∘X0 -) 
+ rule ($M)_'∘>d ($g '∘d (($X0)_'∘>d $t))
+ ↪ (($M)_'∘>d $g) ''∘d (($M ∘>d $X0)_'∘>d $t)
+ with  (($t ∘>'_ ($X0) ∘' $g)) ∘>'_($M)
+ ↪  ($t ∘>'_($M ∘> $X0)) ∘'' ($g ∘>'_($M));
 
  
 // //  /* (8) fibrations: cartesian transport / fibred yoneda ========================== */
@@ -1596,6 +1992,22 @@ constant symbol Comma_cov_homd' : Π [A B I : cat] (AA : catd A) [R : mod A B]  
 Π [K] [y' : func K I]  [K0] [G : func K0 B] [y'y : func K K0] (y'y_ : hom y' (Unit_mod y G) y'y) ,
 homd ( y'y_ ) (Fibre_elim_funcd (Fibre_catd AA x) y') (Unit_modd (Comma_cov_intro_funcd AA r) (Comma_cov_comp_funcd AA R G) ) (Comma_cov_intro_funcd AA ( (r ∘>'_(G)) ∘' y'y_ ));
 
+
+type λ [A B I : cat] [R : mod A B] (BB : catd B) [x : func I A] [y : func I B] (r : hom x R y)
+ [J] [x' : func J I]  [J0] [F : func J0 A] [x'x] (x'x_ : hom x'x (Unit_mod F x) x')
+ [J'] [x'' : func J' J]  [J0'] [F' : func J0' J0] [x''x'] (x''x'_ : hom x''x' (Unit_mod F' x'x) x''),
+  (((Comma_con_homd BB (x'x_ '∘  ((F)_'∘> r)) x''x'_) ) '∘d  (( _ ) _'∘>d  (Comma_con_homd BB r x'x_))) ;
+//Π A: cat, Π B: cat, Π I: cat, Π R: mod A B, Π BB: catd B, Π x: func I A, Π y: func I B, Π r: hom x R y, Π J: cat, Π x': func J I, Π J0: cat, Π F: func J0 A, Π x'x: func J J0, Π x'x_: hom x'x (Unit_mod F x) x', Π J': cat, Π x'': func J' J, Π J0': cat, Π F': func J0' J0, Π x''x': func J' J0', Π x''x'_: hom x''x' (Unit_mod F' x'x) x'', homd (x''x'_ '∘ (F' _'∘> x'x_)) (Comma_con_intro_funcd BB (x''x'_ '∘ (F' _'∘> (x'x_ '∘ (F _'∘> r))))) (Comma_con_comp_funcd (F ∘>> R) BB F' ∘>>d Unit_modd (Comma_con_comp_funcd R BB F) (Comma_con_intro_funcd BB r)) (Fibre_elim_funcd (Fibre_catd BB (y <∘ x')) x'' ∘>d Fibre_elim_funcd (Fibre_catd BB y) x')
+
+type λ [A B I : cat] [R : mod A B] (BB : catd B) [x : func I A] [y : func I B] (r : hom x R y)
+ [J] [x' : func J I]  [J0] [F : func J0 A] [x'x] (x'x_ : hom x'x (Unit_mod F x) x')
+ [J'] [x'' : func J' J]  [J0'] [F' : func J0' J0] [x''x'] (x''x'_ : hom x''x' (Unit_mod F' x'x) x''),
+ ((Comma_con_homd BB r (x''x'_ '∘  ((F')_'∘> x'x_ ))) ) ;
+//Π A: cat, Π B: cat, Π I: cat, Π R: mod A B, Π BB: catd B, Π x: func I A, Π y: func I B, Π r: hom x R y, Π J: cat, Π x': func J I, Π J0: cat, Π F: func J0 A, Π x'x: func J J0, Π x'x_: hom x'x (Unit_mod F x) x', Π J': cat, Π x'': func J' J, Π J0': cat, Π F': func J0' J0, Π x''x': func J' J0', Π x''x'_: hom x''x' (Unit_mod F' x'x) x'', homd (x''x'_ '∘ (F' _'∘> x'x_)) (Comma_con_intro_funcd BB ((x''x'_ '∘ (F' _'∘> x'x_)) '∘ ((F' ∘> F) _'∘> r))) (Unit_modd (Comma_con_comp_funcd R BB (F' ∘> F)) (Comma_con_intro_funcd BB r)) (Fibre_elim_funcd (Fibre_catd BB y) (x' <∘ x''))
+
+//Cannot solve x''x'_ '∘ (F' _'∘> (x'x_ '∘ (F _'∘> r))) ≡ (x''x'_ '∘ (F' _'∘> x'x_)) '∘ ((F' ∘> F) _'∘> r).
+
+//PROBLEM REVIEW  
 type λ [A B I : cat] [R : mod A B] (BB : catd B) [x : func I A] [y : func I B] (r : hom x R y)
  [J] [x' : func J I]  [J0] [F : func J0 A] [x'x] (x'x_ : hom x'x (Unit_mod F x) x')
  [J'] [x'' : func J' J]  [J0'] [F' : func J0' J0] [x''x'] (x''x'_ : hom x''x' (Unit_mod F' x'x) x''),
@@ -1806,10 +2218,10 @@ constant symbol Fibre_coveringu : Π [X Y I : cat] [A : catd X] [R : mod X Y] [B
 (Π [F : func I X] (r : hom F R G), coveringu (Fibre_hom_moddu RR r)  (Fibre_intro_funcs _ G Id_func H )) → 
  covering RR H ;
 
-constant symbol Glue_transfd : Π [X Y X' Y': cat] [A' : catd X'] [A : catd X] [B' : catd Y'] [B: catd Y] [xx' : func X X'] [yy' : func Y Y'] [R' : mod X' Y'] [R : mod X Y]
-[rr' : transf R xx' R' yy'] [RR : modd A R B] [FF : funcd A xx' A'] [RR' : modd A' R' B'] [GG : funcd B yy' B'],
+constant symbol Glue_transfd : Π [X Y Y': cat] [A' : catd X] [A : catd X] [B' : catd Y'] [B: catd Y]  [yy' : func Y Y'] [R' : mod X Y'] [R : mod X Y]
+[rr' : transf R Id_func R' yy'] [RR : modd A R B] [FF : funcd A Id_func A'] [RR' : modd A' R' B'] [GG : funcd B yy' B'],
 Π [I : cat] [G : func I Y] [H : funcs G B] , covering RR H →
-(Π [F : func I X] (r : hom F R G), transfduu  (Fibre_hom_moddu RR r) (Fibre_functor_funcd FF F)  
+(Π [F : func I X] (r : hom F R G), transfdu  (Fibre_hom_moddu RR r) (Fibre_functor_funcd FF F)  
   (Fibre_hom_moddu (Sheaf_con_modd  RR') (r '∘ rr')) (Fibre_functor_funcd GG G)) → 
 transfd rr' RR FF (Sheaf_con_modd RR') GG;
 
@@ -1859,7 +2271,7 @@ moddu A B → Π [I'] (i : func I' I) , mod (Total_cat A i) (Total_cat B i);
 //  (RR : moddu A B), Π [I'] (i : func I' I), transf (Total_moddu_mod RR i) (Total_proj_func A i Id_func) (Unit_mod0 I') (Total_proj_func B i Id_func);
 symbol Total_moddu_proj_transf : Π [I : cat] [A : catd I] [B : catd I]
 (RR : moddu A B), Π [I'] (i : func I' I), 
-transf (Total_moddu_mod RR i) (Total_proj_func A i) (Unit_mod Id_func Id_func) (Total_proj_func B i);
+transf (Total_moddu_mod RR i) Id_func (Unit_mod (Total_proj_func A i) Id_func) (Total_proj_func B i);
 
 //  symbol Total_hom : Π [X Y I: cat] [F : func I X] [R : mod X Y] [G : func I Y] [r : hom F R G]
 //   [A : catd X] [B : catd Y] [FF : funcd (Terminal_catd I) F A] [RR : modd A R B] [GG : funcd (Terminal_catd I) G B],
@@ -1892,7 +2304,7 @@ hom (Total_func FF i) (Total_moddu_mod RR i) (Total_func GG i);
 //  //com
 // //  symbol Total_transfduu_transf : Π [I : cat] [A' : catd I] [A : catd I] [B' : catd I] [B: catd I]
 // //  [RR : moddu A B] [FF : funcd A Id_func A'] [RR' : moddu A' B'] [GG : funcd B Id_func B'],
-// //  transfduu RR FF RR' GG → transf (Total_moddu_mod RR) (Total_func FF) (Total_moddu_mod RR') (Total_func GG);
+// //  transfdu RR FF RR' GG → transf (Total_moddu_mod RR) (Total_func FF) (Total_moddu_mod RR') (Total_func GG);
 
 //  rule Total_moddu_mod (Terminal_moddu $I) $i ↪ (Unit_mod0 _)
 rule Total_moddu_mod (Terminal_moddu $I) $i ↪ (Unit_mod Id_func Id_func)
@@ -1912,7 +2324,9 @@ rule @Total_mod _ _ _ _ _ (Terminal_modd $R) _ _ _ _ $S $r ↪ $S
 //with Total_mod (Unit_modd $FF $GG) ↪ (Unit_mod (Total_func $FF) (Total_func $GG))
 //with Total_mod (Unit_modd0 $AA) ↪ (Unit_mod0 (Total_cat $AA))
 //with Total_mod (Comma_modd $R) ↪ (Comma_mod $R)
-with Total_mod ($R ⊗d $S) (Tensor_cov_transf  $p $q) ↪ (Total_mod $R $p) ⊗ (Total_mod $S $q)
+
+//TODO review this generalize Id_func
+with Total_mod ($R ⊗d $S) (Tensor_cov_transf Id_func $p $q) ↪ (Total_mod $R $p) ⊗ (Total_mod $S $q)
 //with  Total_mod ($FF ∘>>d $RR) ↪ (Total_func $FF) ∘>> (Total_mod $RR)
 //with  Total_mod ($RR d<<∘ $GG ) ↪ (Total_mod $RR) <<∘ (Total_func $GG)
 ;
@@ -1956,7 +2370,7 @@ rule Total_hom (Id_homd $F) $i ↪ Id_hom (Total_func $F $i);
 //rule (@Total_homdu_hom $I _ _ _ $RR _ $rr _  $i) '∘ (Total_moddu_proj_transf $RR $i) ↪  Id_hom Id_func;//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
 
 //  rule (@Total_homdu_hom $I _ _ _ _$RR _ $rr _ $i) '∘ (Total_moddu_proj_transf $RR $i) ↪  Id_hom Id_func;//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
-rule (@Total_homdu_hom $I _ _ $II _ $RR _ $rr _ $i) '∘ (Total_moddu_proj_transf $RR $i) ↪  Id_hom (Total_proj_func $II $i);//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
+rule (@Total_homdu_hom $I _ _ $II _ $RR $GG $rr _ $i) '∘ (Total_moddu_proj_transf $RR $i) ↪  Func_con_hom _ _;//TODO: INSTEAD Id_hom or Func_con_hom or Id_hom ?
 
 rule Total_homdu_hom (Id_homdu $F)$i ↪ Id_hom (Total_func $F $i);
 
