@@ -1,3 +1,19 @@
+/* A new implementation of dependent types via Dosen's substructural categorial programming: example of the Yoneda lemma for fibrations
+
+Inductive datatypes or computation of concrete data limits via the abstract prover grammar
+https://github.com/1337777/cartier/blob/master/cartierSolution14.lp
+
+Cut-elimination in the double category of fibred profunctors with inner cut-eliminated adjunctions: 
+https://github.com/1337777/cartier/blob/master/cartierSolution13.lp
+
+the AlgebraicJulia library package is an attempt to add “functional language” features to the Julia scientific computing language, via category theory. This applied category theory on concrete data structures allows to achieve some amount of compositionality (function-based) features onto ordinary scientific computing. The AlgebraicJulia implementation essentially hacks and reimplements some pseudo-dependent-types domain-specific-language embedded within Julia. The present text claims that there is a better approach via the LambdaPi logical framework and Kosta Dosen's substructural categorial programming. This new approach allows, not only to compute with concrete data, but also to do so via a grammatical interface which is more strongly-typed and which enables the theorem proving/programming of the correctness-by-construction of the algorithms.
+
+An updated file, https://github.com/1337777/cartier/blob/master/cartierSolution14.lp, now contains the correct-by-construction concrete computation of the data of limits and colimits in the concrete category of sets and its functor categories. The goal is to demo that it is possible to do a roundtrip between the concrete data structures and the abstract prover grammar; this is very subtle. But this demo now successfully works generically, including on this silly example: the limit/equalizer of a (inductive) diagram when the (inductive-hypothesis) product cone [12;11]×[22;21]×[33;32;31] now is given an extra constant arrow [22;21] → [33;32;31] onto 31, besides its old discrete base diagram. The output is the limit cone apex object and side arrows (and its universality): 
+compute obj_category_Obj ((category_Obj_obj One) ∘>o (sigma_Fst (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram)));
+(0,13,21,31) :: (0,13,22,31) :: (0,12,21,31) :: (0,12,22,31) :: (0,11,21,31) :: (0,11,22,31) :: nil
+
+ */
+
 // require open Blanqui.Lib.Set Blanqui.Lib.Prop Blanqui.Lib.FOL Blanqui.Lib.Eq Blanqui.Lib.Bool Blanqui.Lib.Nat Blanqui.Lib.List;
 require open modos.cartierSolution13;
 
@@ -255,8 +271,6 @@ rule τ (option_Set $p) ↪ option $p;
 symbol rect_option : Π [a0 : Set], Π [p0: (option a0 → Set)], (Π x1: τ a0, τ (p0 (Some x1))) → (τ (p0 (None ))) →  Π x: option a0, τ (p0 x);
 rule rect_option $1 $2 (Some $x) ↪ $1 $x;
 rule rect_option $1 $2 (None) ↪ $2;
-
-
 
 inductive graph : TYPE ≔ | Struct_graph : Π 
 (graph_Obj : Set) 
@@ -606,75 +620,6 @@ refine Struct_diagram _ _
 }
 end;
 
-/// other data for side examples
-symbol twoverticesgraph : graph ≔ begin
-refine Struct_graph _ _ 
-{ refine listsub (/* (Base_natUniv 3) ⸬  */(Base_natUniv 2) ⸬ (Base_natUniv 1) ⸬ □);
-}
-{ refine (λ M N, empty_Set);
-}
-end; //abort;
-
-symbol twoverticesgraph_X : graph_Obj twoverticesgraph ≔ (Struct_sub (Base_natUniv 1) top);
-symbol twoverticesgraph_Y : graph_Obj twoverticesgraph ≔ (Struct_sub (Base_natUniv 2) top);
-
-
-symbol joinconstanttwobinarydiagram : diagram (@joinGraph twoverticesgraph twoverticesgraph_X twoverticesgraph_Y) liset
-≔ begin
-refine Struct_diagram _ _ 
-{ refine (λ _, ((Base_natUniv 2) ⸬ (Base_natUniv 1) ⸬ □) )
-}
-{  refine (joinGraph_Arr_elim _ _ )
-  { assume M N; simplify empty;
-    refine rect_empty
-  }
-  { refine (λ x, Base_natUniv 1)
-  }
-}
-end;
-
-symbol producttwobinary_Obj: category_Obj liset ≔
- (  Pair_natUniv (Base_natUniv 2)  (Base_natUniv 2)
- ⸬  Pair_natUniv (Base_natUniv 2)  (Base_natUniv 1)
- ⸬  Pair_natUniv (Base_natUniv 1)  (Base_natUniv 2)
- ⸬  Pair_natUniv (Base_natUniv 1)  (Base_natUniv 1) ⸬ □);
-
-symbol producttwobinary_Cone : cone producttwobinary_Obj (comp_graphMorph_diagram (joinGraph_graphMorph twoverticesgraph_X twoverticesgraph_Y) joinconstanttwobinarydiagram) ≔
-begin
-refine Struct_cone _ ; simplify;
-assume x;
-refine if (natUniv_eq (sub_Fst x) (Base_natUniv 1) ) natUniv_fst 
-(if (natUniv_eq (sub_Fst x) (Base_natUniv 2) ) natUniv_snd 
-  (λ _ , Undefined_natUniv));
-end;
-
-symbol example_liset_equalizer ≔ liset_equalizer joinconstanttwobinarydiagram producttwobinary_Cone;
-assert ⊢ (equalizing_Obj (equalizer_Equalizing example_liset_equalizer ))
-≡ Pair_natUniv (Base_natUniv 2) (Base_natUniv 1) ⸬ (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1) ⸬ □) ;
-
-symbol optionternarytwobinarydiagram : diagram (optionGraph twoverticesgraph) liset
-≔ begin
-refine Struct_diagram _ _ 
-{ refine (rect_option _ _)
-  {
-    refine (λ _, ((Base_natUniv 2) ⸬ (Base_natUniv 1) ⸬ □) )
-  }
-  {
-    refine (((Base_natUniv 9) ⸬ (Base_natUniv 8) ⸬ (Base_natUniv 7) ⸬ □) )
-  }
-}
-{ 
-   refine (optionGraph_Arr_elim _ _);
-    assume M N; simplify empty;
-    refine rect_empty
-}
-end;
-
-symbol example_liset_product ≔ liset_product optionternarytwobinarydiagram producttwobinary_Cone;
-compute (producing_Obj (product_Producing example_liset_product ));
-
-assert ⊢ (producing_Obj (product_Producing example_liset_product ))
-≡ Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1)) (Base_natUniv 9) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1)) (Base_natUniv 8) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1)) (Base_natUniv 7) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 2)) (Base_natUniv 9) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 2)) (Base_natUniv 8) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 2)) (Base_natUniv 7) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1)) (Base_natUniv 9) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1)) (Base_natUniv 8) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1)) (Base_natUniv 7) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2)) (Base_natUniv 9) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2)) (Base_natUniv 8) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2)) (Base_natUniv 7) ⸬ □)))))))))));
 
 // ---------
 
@@ -1766,41 +1711,9 @@ begin
   };
 end;
 
-symbol example_liset_iqualizer ≔ lemma_data_equalizer_iqualizer 
-(@liset_equalizer)
-(diagram_func joinconstanttwobinarydiagram)
-(terminal_weightprof _ _)
-(Lambda_cov_transf_hom (cone_transf producttwobinary_Cone)) ;
-
-//forgot this rule, had to reverse engineer from the stuck computation to discover it
-rule arr_category_Arr ($a '∘a ( (_) _'∘> Func_cov_hom $F $Z)) ↪ arr_category_Arr $a;
-
-compute (equalizing_Obj (equalizer_Equalizing example_liset_equalizer ));
-compute ((category_Obj_obj One) ∘>o (iqualizer_Func example_liset_iqualizer));
-assert ⊢ ((category_Obj_obj One) ∘>o (iqualizer_Func example_liset_iqualizer))
-≡ @category_Obj_obj liset (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1) ⸬ (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1) ⸬ □));
-assert ⊢ obj_category_Obj ((category_Obj_obj One) ∘>o (iqualizer_Func example_liset_iqualizer))
-≡ (equalizing_Obj (equalizer_Equalizing example_liset_equalizer ));
-
-
-symbol example_liset_iproduct ≔ lemma_data_product_iproduct
-(@liset_product)
-(diagram_func optionternarytwobinarydiagram)
-(terminal_weightprof _ _)
-(Lambda_cov_transf_hom (cone_transf producttwobinary_Cone)) ;
-
-compute obj_category_Obj ((category_Obj_obj One) ∘>o (iproduct_Func example_liset_iproduct));
-assert ⊢ obj_category_Obj ((category_Obj_obj One) ∘>o (iproduct_Func example_liset_iproduct))
-≡ (producing_Obj (product_Producing example_liset_product ));
-assert ⊢ obj_category_Obj ((category_Obj_obj One) ∘>o (iproduct_Func example_liset_iproduct))
-≡ Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1)) (Base_natUniv 9) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1)) (Base_natUniv 8) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1)) (Base_natUniv 7) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 2)) (Base_natUniv 9) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 2)) (Base_natUniv 8) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 1) (Base_natUniv 2)) (Base_natUniv 7) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1)) (Base_natUniv 9) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1)) (Base_natUniv 8) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1)) (Base_natUniv 7) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2)) (Base_natUniv 9) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2)) (Base_natUniv 8) ⸬ (Pair_natUniv (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2)) (Base_natUniv 7) ⸬ □)))))))))));
-
-symbol example_liset_iterminal ≔ @lemma_data_terminal_iterminal terminal_category _ (@liset_terminal) ;
-
- 
 ///////-------
 
-symbol construct_inductively_limit' : Π [J': category], Π [B: cat], 
+symbol construct_inductively_limit : Π [J': category], Π [B: cat], 
 (iterminal (category_cat J') B) → 
 (Π A: graph, 
 Π F: func (graph_cat (optionGraph A)) B, 
@@ -1859,7 +1772,7 @@ end;
 // };
 // end;
 
-symbol construct_inductively_limit'_instance : Π [J' B : category ], 
+symbol construct_inductively_limit_instance : Π [J' B : category ], 
 (terminal B) →
 (Π A: graph, Π L: category_Obj B, 
   Π F: diagram (optionGraph A) B, 
@@ -1875,19 +1788,21 @@ symbol construct_inductively_limit'_instance : Π [J' B : category ],
 ilimit_Set F (weightprof_mod W) ≔ 
 begin 
 assume J' B Hterminal Hprod Hequa;
-refine @construct_inductively_limit' J' (category_cat B)
+refine @construct_inductively_limit J' (category_cat B)
 (@lemma_data_terminal_iterminal J' B Hterminal)
 (@lemma_data_product_iproduct J' B Hprod)
  (@lemma_data_equalizer_iqualizer J' B Hequa);
 end;
 
-symbol construct_inductively_limit'_instance_liset (A: graph) (A_isf : isFiniteGraph A) (F: diagram A liset) ≔ @construct_inductively_limit'_instance (terminal_category) _ @liset_terminal @liset_product @liset_equalizer A A_isf (diagram_func F) (terminal_weightprof terminal_category A);
+symbol construct_inductively_limit_instance_liset (A: graph) (A_isf : isFiniteGraph A) (F: diagram A liset) ≔ @construct_inductively_limit_instance (terminal_category) _ @liset_terminal @liset_product @liset_equalizer A A_isf (diagram_func F) (terminal_weightprof terminal_category A);
+
+//forgot this rule, had to reverse engineer from the stuck computation to discover it
+rule arr_category_Arr ($a '∘a ( (_) _'∘> Func_cov_hom $F $Z)) ↪ arr_category_Arr $a;
 
 // limit cone apex object
-compute obj_category_Obj ((category_Obj_obj One) ∘>o (sigma_Fst (construct_inductively_limit'_instance_liset _ example_graph_isf example_diagram)));
+compute obj_category_Obj ((category_Obj_obj One) ∘>o (sigma_Fst (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram)));
 
 //Pair_natUniv (Pair_natUniv (Pair_natUniv (Base_natUniv 0) (Base_natUniv 13)) (Base_natUniv 21)) (Base_natUniv 31) ⸬ (Pair_natUniv (Pair_natUniv (Pair_natUniv (Base_natUniv 0) (Base_natUniv 13)) (Base_natUniv 22)) (Base_natUniv 31) ⸬ (Pair_natUniv (Pair_natUniv (Pair_natUniv (Base_natUniv 0) (Base_natUniv 12)) (Base_natUniv 21)) (Base_natUniv 31) ⸬ (Pair_natUniv (Pair_natUniv (Pair_natUniv (Base_natUniv 0) (Base_natUniv 12)) (Base_natUniv 22)) (Base_natUniv 31) ⸬ (Pair_natUniv (Pair_natUniv (Pair_natUniv (Base_natUniv 0) (Base_natUniv 11)) (Base_natUniv 21)) (Base_natUniv 31) ⸬ (Pair_natUniv (Pair_natUniv (Pair_natUniv (Base_natUniv 0) (Base_natUniv 11)) (Base_natUniv 22)) (Base_natUniv 31) ⸬ □)))))
-
 
 //EARLIER OUTPUT reverse engineered
 /* category_Obj_obj (if (natUniv_eq (Base_natUniv 1) 
@@ -1903,16 +1818,16 @@ compute obj_category_Obj ((category_Obj_obj One) ∘>o (sigma_Fst (construct_ind
  */
 
 //limit cone sides arrows
-compute arr_category_Arr ((Eval_cov_hom_transf ((sigma_Snd (construct_inductively_limit'_instance_liset _ example_graph_isf example_diagram))₁ ))  ∘a' ( (@weightprof_Arr_arr _ _ _ (category_Obj_obj One) (graph_Obj_obj None) One))  );
+compute arr_category_Arr ((Eval_cov_hom_transf ((sigma_Snd (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram))₁ ))  ∘a' ( (@weightprof_Arr_arr _ _ _ (category_Obj_obj One) (graph_Obj_obj None) One))  );
 // λ x, natUniv_snd x
-compute arr_category_Arr ((Eval_cov_hom_transf ((sigma_Snd (construct_inductively_limit'_instance_liset _ example_graph_isf example_diagram))₁ ))  ∘a' ( (@weightprof_Arr_arr _ _ _ (category_Obj_obj One) (graph_Obj_obj (Some (Some None))) One))  );
+compute arr_category_Arr ((Eval_cov_hom_transf ((sigma_Snd (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram))₁ ))  ∘a' ( (@weightprof_Arr_arr _ _ _ (category_Obj_obj One) (graph_Obj_obj (Some (Some None))) One))  );
 // λ x, natUniv_snd (natUniv_fst (natUniv_fst x))
 
-assert ⊢ arr_category_Arr ((Eval_cov_hom_transf ((sigma_Snd (construct_inductively_limit'_instance_liset _ example_graph_isf example_diagram))₁ ))  ∘a' ( (@weightprof_Arr_arr _ _ _ (category_Obj_obj One) (graph_Obj_obj (Some (Some None))) One))  )
+assert ⊢ arr_category_Arr ((Eval_cov_hom_transf ((sigma_Snd (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram))₁ ))  ∘a' ( (@weightprof_Arr_arr _ _ _ (category_Obj_obj One) (graph_Obj_obj (Some (Some None))) One))  )
 ≡ λ x, natUniv_snd (natUniv_fst (natUniv_fst x)) ;
 
 //limit cone universality
-type ((sigma_Snd (construct_inductively_limit'_instance_liset _ example_graph_isf example_diagram))₂ );
+type ((sigma_Snd (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram))₂ );
 
 symbol example_cone : hom (functor_func (category_Obj_functor (terminal_Obj liset_terminal))) ((Unit_mod Id_func (diagram_func example_diagram)) ⇐ (weightprof_mod (terminal_weightprof terminal_category example_graph))) Id_func ≔
 begin
@@ -1949,10 +1864,10 @@ begin
   };
 end;
 
-type arr_category_Arr (((((sigma_Snd (construct_inductively_limit'_instance_liset _ example_graph_isf example_diagram))₂ ) _ _ _ example_cone) ∘>'_ ( _ ) ) ∘a' (Id_cov_arr (category_Obj_obj One))) liset_terminal_natUniv;
+type arr_category_Arr (((((sigma_Snd (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram))₂ ) _ _ _ example_cone) ∘>'_ ( _ ) ) ∘a' (Id_cov_arr (category_Obj_obj One))) liset_terminal_natUniv;
 
 //first attempt, reverse engineer it
-compute arr_category_Arr (((((sigma_Snd (construct_inductively_limit'_instance_liset _ example_graph_isf example_diagram))₂ ) _ _ _ example_cone) ∘>'_ ( _ ) ) ∘a' (Id_cov_arr (category_Obj_obj One))) liset_terminal_natUniv;
+compute arr_category_Arr (((((sigma_Snd (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram))₂ ) _ _ _ example_cone) ∘>'_ ( _ ) ) ∘a' (Id_cov_arr (category_Obj_obj One))) liset_terminal_natUniv;
 
 //EARLIER OUTPUT reverse engineered
 /* type Pair_natUniv (Pair_natUniv (Pair_natUniv _
@@ -2006,14 +1921,15 @@ rule (@weightprof_elim_transf $A' $B' $R' $A _ $F $R Id_func $t_arr) <<∘1 @gra
 rule arr_category_Arr ( ( (@Arr_hom _ _ (Unit_mod _ _) _ (Obj_func _) $r) ∘>'_ (_)) ∘a' (Id_con_arr0 _ $F) ) ↪  arr_category_Arr $r;
 
 //second attempt, third attempt  YES
-compute arr_category_Arr (((((sigma_Snd (construct_inductively_limit'_instance_liset _ example_graph_isf example_diagram))₂ ) _ _ _ example_cone) ∘>'_ ( _ ) ) ∘a' (Id_cov_arr (category_Obj_obj One))) liset_terminal_natUniv;
-//Pair_natUniv (Pair_natUniv (Pair_natUniv (Base_natUniv 0) (Base_natUniv 12)) (Base_natUniv 22)) (Base_natUniv 31)
+compute arr_category_Arr (((((sigma_Snd (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram))₂ ) _ _ _ example_cone) ∘>'_ ( _ ) ) ∘a' (Id_cov_arr (category_Obj_obj One))) liset_terminal_natUniv;
+
+assert ⊢ arr_category_Arr (((((sigma_Snd (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram))₂ ) _ _ _ example_cone) ∘>'_ ( _ ) ) ∘a' (Id_cov_arr (category_Obj_obj One))) liset_terminal_natUniv
+≡ Pair_natUniv (Pair_natUniv (Pair_natUniv (Base_natUniv 0) (Base_natUniv 12)) (Base_natUniv 22)) (Base_natUniv 31);
 
 //EARLIER SECOND OUTPUT reverse engineered
 /*  arr_category_Arr ( (Arr_hom _ _ ( (Arr_hom _ _ ( 
    (Arr_hom _ _  (category_Arr_cov_arr0  _ ) ∘>'_ graphMorph_func _) ∘a' Id_con_arr0 _ _)  ∘>'_ graphMorph_func _ )   ∘a' Id_con_arr0 (graphMorph_func _) (graph_Obj_obj (Some None))) ∘>'_ graphMorph_func _) ∘a' Id_con_arr0 (graphMorph_func _) (graph_Obj_obj None)) 
  */
-
 
 
  /* Voila! */
