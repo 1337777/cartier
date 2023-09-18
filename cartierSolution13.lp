@@ -289,7 +289,7 @@ symbol Pullback_cat : Π [U X Y : cat] (F : func X U) (G : func Y U), cat;
 
 constant symbol Terminal_cat : cat;
 //not as datatype; and both pullback and product required...
-symbol Product_cat : Π (U : cat) (A : cat), cat; 
+constant symbol Product_cat : Π (U : cat) (A : cat), cat; 
 
 constant symbol Sigma_cat : Π [X : cat], catd X → cat;
 constant symbol Pit_cat : Π [X Y : cat] (A : catd X) (F : func X Y) (B : catd Y), cat;
@@ -297,10 +297,6 @@ constant symbol Pit_cat : Π [X Y : cat] (A : catd X) (F : func X Y) (B : catd Y
 
 rule Op_cat (Op_cat $A) ↪ $A
 with Op_cat (Terminal_cat) ↪ Terminal_cat ;
-
-rule Product_cat $A Terminal_cat ↪  $A
-with Product_cat Terminal_cat $A  ↪  $A
-with Product_cat (Product_cat $A $B ) $C  ↪  Product_cat $A (Product_cat $B $C ) ;
 
 /* (C) func ========================== */
 
@@ -327,27 +323,38 @@ symbol Pullback_snd_func : Π [U X Y : cat] (F : func X U) (G : func Y U), func 
 
 injective symbol Terminal_func :  Π (A : cat), func A Terminal_cat;
 
-constant symbol Product_intro_func : Π [T X I : cat] (F : func I T) (G : func I X),
-  func I (Product_cat T X);
-constant symbol Product_fst_func : Π [T : cat] (X : cat) [T' : cat],
-func T T' → func (Product_cat T X) T' ; 
-constant symbol Product_snd_func : Π (T : cat) [X X': cat],
-func X X' → func (Product_cat T X) X' ; 
+//no accumul for projections because ( _ ∘>  _ ) ∘>  associativity
+constant symbol Product_proj_left_func : Π (A1 A2: cat), func (Product_cat A1 A2) A1 ; 
+constant symbol Product_proj_right_func :Π (A1 A2: cat), func (Product_cat A1 A2) A2 ; 
+injective symbol Product_pair_func : Π [A1 A2 I : cat] (F : func I A1) (G : func I A2),
+  func I (Product_cat A1 A2);
 
-
-rule (Product_fst_func $T $F) ∘> $H ↪ (Product_fst_func $T ($F ∘> $H))
-with (Product_snd_func $T $F) ∘> $H ↪ (Product_snd_func $T ($F ∘> $H))
-with $H ∘> (Product_intro_func $F $G) ↪ (Product_intro_func ($H ∘> $F) ($H ∘> $G));
-
-rule (@Product_intro_func $T $X $I $F $G) ∘> (@Product_fst_func $T $X _ $H) ↪ $F ∘> $H 
-with (@Product_intro_func $T $X $I $F $G) ∘> (@Product_snd_func $T $X _ $H) ↪ $G ∘> $H ;
-//todo add extensionality? requires definable func symbols
+//natural
+rule $H ∘> (Product_pair_func $F $G) ↪ (Product_pair_func ($H ∘> $F) ($H ∘> $G))
+//beta
+with (@Product_pair_func $T $X $I $F $G) ∘> (@Product_proj_left_func $T $X ) ↪ $F 
+with (@Product_pair_func $T $X $I $F $G) ∘> (@Product_proj_right_func $T $X) ↪ $G
+//eta
+with Product_pair_func (Product_proj_left_func $A $B) (Product_proj_right_func $A $B) ↪ Id_func // review: both?
+with Product_pair_func ($F ∘> Product_proj_left_func $A $B) ($F ∘> Product_proj_right_func $A $B) ↪ $F; 
  
 //TODO: REVIEW THIS, NOT USED? ?ok semantic rule?
 rule (Pullback_fst_func $F $G) ∘> $F ↪ (Pullback_snd_func $F $G) ∘> $G ;
 symbol Pullback_func  [U X Y : cat] (F : func X U) (G : func Y U):
   func (Pullback_cat F G) U ≔ (Pullback_snd_func F G) ∘> G;
 
+///----
+injective symbol Product_pairproj_right_func : Π (A : cat) [B B' : cat] (F : func B B'), func (Product_cat A B) (Product_cat A B'); 
+
+//todo functor id?
+rule (Product_pairproj_right_func $A $F) ∘> (Product_pairproj_right_func $A $G) ↪ (Product_pairproj_right_func $A ($F ∘> $G))
+with (Product_pairproj_right_func $A Id_func) ↪ Id_func ;
+rule (Product_pairproj_right_func $A $F) ∘> (Product_proj_left_func _ _) ↪ (Product_proj_left_func _ _);
+rule (Product_pairproj_right_func $A $F) ∘> (Product_proj_right_func _ _) ↪ (Product_proj_right_func _ _) ∘> $F;
+rule (@Product_pair_func _ _ _ $F $G) ∘> (@Product_pairproj_right_func _ _ _ $K) ↪ (@Product_pair_func _ _ _  $F ($G ∘> $K));
+rule  Product_pair_func (Product_proj_left_func $A $B) (Product_proj_right_func $A $B ∘> $G) ↪ Product_pairproj_right_func _ $G; 
+
+///----
 
 // this reversal of rewrite direction and symmetric versions of rewrites are required later at Total_func of @∘>d
 // this rewrite direction will use associativity of ∘>
@@ -393,6 +400,7 @@ assert  F G H G' ⊢ Pullback_functor_func F G (H ∘> G') ≡
  
 rule (@∘> $A $B $C $F (Terminal_func $B)) ↪ (Terminal_func $A) ; 
 
+//eta
 rule (Terminal_func (Terminal_cat)) ↪ Id_func;
 
 /* (D) mod ========================== */
@@ -507,7 +515,8 @@ symbol Func_cov_hom : Π [A B A' : cat] (Z : func A A') (F : func B A) ,
  with (Func_cov_hom $Z $F) ∘↓ $H  ↪ Func_cov_hom $Z ($F <∘ $H); 
  
 rule Op_hom ($r ∘↓ $H) ↪ (Op_hom $r) ∘↓ (Op_func $H); 
- 
+
+
 /* (F) transf ========================== */
 
 injective symbol Op_transf :Π [X Y X' Y': cat]  [xx' : func X X'] [yy' : func Y Y'] [R' : mod X' Y'] [R : mod X Y], 
@@ -644,6 +653,10 @@ rule Op_transf ($rs ''∘ $st) ↪  (Op_transf $st) ∘'' (Op_transf $rs);
 //  rule $rs ''∘ ($tu ∘'' $st) ↪  $tu ∘'' ($rs ''∘ $st) ;
 //  rule ($st ''∘ $tu ) ∘'' $rs ↪  ($st ∘'' $rs) ''∘ $tu ;
 
+rule  $r'r '∘ (Id_transf _) ↪ $r'r
+with  (Id_transf _) ∘' $r'r ↪ $r'r;
+
+//TODO: REVIEW is non-aplied transf rewrites rules also necesssary?
  rule  (Id_transf _) ''∘ $r'r ↪ $r'r
  with  $r'r ''∘ (Id_transf _) ↪ $r'r;
  rule  (Id_transf _) ∘'' $r'r ↪ $r'r
@@ -717,21 +730,20 @@ end;
 
 
 //TODO replaced this by multiple equations
- rule Func_con_hom Id_func $F ↪ (Id_hom $F)
- with Func_cov_hom Id_func $F ↪ (Id_hom $F);
+rule Func_con_hom Id_func $F ↪ (Id_hom $F)
+with Func_cov_hom Id_func $F ↪ (Id_hom $F);
 
 rule  (Func_cov_hom _ $G ) '∘ ((_) _'∘> Id_hom $F) ↪ Id_hom ($G ∘> $F);
 rule  (Id_hom $F ∘>'_ (_) ) ∘' (Func_con_hom _ $G )  ↪ Id_hom ($G ∘> $F);
 //TODO: REVIEW NECESSITY OF ID_HOM. both cov id and con id without id_hom are ok because would never mix anyway ?
 // or maybe formulation where all converge to id noop only in applied form ?
-rule  ($f '∘ ($M)_'∘> (Id_hom Id_func) )  ↪ $f;  
 //WARNING slow in transf formulation
 //WARNING rule ($M)_'∘> (Id_hom Id_func)  ↪ (Id_transf _);
-// rule  ($f '∘ ($M)_'∘> (Func_con_hom Id_func Id_func) ) ↪ $f  ;
-// rule  ($f '∘ ($M)_'∘> (Func_cov_hom Id_func Id_func) ) ↪ $f  ;
-rule  (($M)_'∘> (Func_cov_hom $F Id_func) ) ↪ (Id_transf _)  ; 
-rule  ((Func_con_hom $F Id_func) ∘>'_($M)) ↪ (Id_transf _)  ;
-
+rule  ($f '∘ ($M)_'∘> (Id_hom Id_func) )  ↪ $f
+with ((Id_hom Id_func) ∘>'_ (_)) ∘' $f ↪ $f;
+//TODO review if applied form only
+rule  $f '∘ (($M)_'∘> (Func_cov_hom $F Id_func) ) ↪ $f; 
+rule  ((Func_con_hom $F Id_func) ∘>'_($M)) ∘' $f ↪ $f;
 
  // idhom ''∘ funchom = idhom
  rule (($M)_'∘> ((Func_con_hom $F $Z)) ) ''∘ (($M ∘> $F)_'∘> (Func_con_hom $F' Id_func)) 
@@ -745,11 +757,14 @@ assert [A B : cat] (F : func B A) B' (Z : func B' B) I (M : func I B) C (F' : fu
  
 
  
-//yoneda bijection half
+//yoneda bijection half 1
  // j-rule then applied to id_hom, both cov and con
  //  todo solved, erase this comment: note for confluence that already exists another rewrite that jrule of restr 
- rule (((Func_cov_hom $F $Z)) '∘ ((Id_func)_'∘> $r)) 
-  ↪ $r ∘↓ $Z;
+rule (((Func_cov_hom $F $Z)) '∘ ((Id_func)_'∘> $r)) 
+↪ $r ∘↓ $Z;
+//REVIEW: also this rule because confluence question?
+rule ($f ∘>'_(_)) ∘' Id_hom $Z ↪ $f ∘↓ $Z
+with Id_hom $Z '∘ ((_)_'∘> $f) ↪ $f ∘↓ $Z ;
 
 assert [I A B : cat] [F : func I A] [R : mod A B] [G : func I B]
  (r : hom F R G ) J (Z : func J _ ) ⊢ eq_refl _ : π (
@@ -757,7 +772,7 @@ assert [I A B : cat] [F : func I A] [R : mod A B] [G : func I B]
    (((Func_cov_hom F Z)) '∘ ((Id_func)_'∘> r)) 
  = r ∘↓ Z  );
 
-//yoneda bijection half
+//yoneda bijection half 2
 // SOLVED: now can  solve $Z ∘> $dom_t ≡ $Z
 rule (Id_func)_'∘> (((Func_cov_hom $Z Id_func)) '∘ $t) 
   ↪ $t;
@@ -776,6 +791,52 @@ rule (Id_func)_'∘> (((Func_cov_hom $Z Id_func)) '∘ $t)
 //  assert [B : cat] I (M : func I B) ⊢ eq_refl _ : π (
 //  ((M)_'∘> (Func_con_hom Id_func Id_func) )
 //  = (Id_transf (Unit_mod M Id_func))  );
+
+injective symbol Product_pair_cov_hom : Π [A1 A2 I : cat]  [J] [F' : func J A1] [G' : func J A2] [K] (X : func I K) [K'1] (M1 : func K K'1) [N1 : func K'1 A1] [K'2] (M2 : func K K'2) [N2 : func K'2 A2]  (Y : func I J) ,
+hom (X ∘> M1) (Unit_mod N1 F') Y → 
+hom (X ∘> M2) (Unit_mod N2 G') Y →
+hom X (Unit_mod (Product_pair_func (M1 ∘> N1) (M2 ∘> N2)) (Product_pair_func F' G')) Y;
+
+rule (Func_cov_hom (Product_proj_left_func _ _) _ ) ∘>'_(_) ∘' (Product_pair_cov_hom $X $M1 $M2 $Y $h1 $h2) ↪ ((Id_hom _) ∘>'_(_)) ∘' $h1; 
+rule (Func_cov_hom (Product_proj_right_func _ _) _ ) ∘>'_(_) ∘' (Product_pair_cov_hom $X $M1 $M2 $Y $h1 $h2) ↪ ((Id_hom _) ∘>'_(_)) ∘' $h2; 
+
+injective symbol Product_pair_con_hom : Π [A1 A2 I : cat]  [J] [F' : func J A1] [G' : func J A2] [K] (X : func I K) [K'1] (M1 : func K K'1) [N1 : func K'1 A1] [K'2] (M2 : func K K'2) [N2 : func K'2 A2]  (Y : func I J) ,
+hom Y (Unit_mod F' N1) (X ∘> M1) → 
+hom Y (Unit_mod G' N2) (X ∘> M2) →
+hom Y (Unit_mod (Product_pair_func F' G') (Product_pair_func (M1 ∘> N1) (M2 ∘> N2))) X;
+
+rule  (Product_pair_con_hom $X $M1 $M2 $Y $h1 $h2) '∘  (_)_'∘>  (Func_con_hom (Product_proj_left_func _ _) _ ) ↪ $h1 '∘ ((_)_'∘> (Id_hom _)); 
+rule  (Product_pair_con_hom $X $M1 $M2 $Y $h1 $h2) '∘  (_)_'∘>  (Func_con_hom (Product_proj_right_func _ _) _ ) ↪ $h2 '∘ ((_)_'∘> (Id_hom _)); 
+
+injective symbol Product_pairproj_right_cov_hom [A1 A2 I : cat] [G : func I A2] /* [J] */ [G' : func I A2] /* [Y] */
+(h : hom G (Unit_mod Id_func G') Id_func) :
+hom (Product_pairproj_right_func A1 G) (Unit_mod Id_func (Product_pairproj_right_func A1 G'))  Id_func;
+rule (Func_cov_hom (Product_proj_right_func _ _) _ ) ∘>'_(_) ∘' (Product_pairproj_right_cov_hom $h )
+    ↪ $h ∘>'_(_) ∘' (Func_cov_hom (Product_proj_right_func _ _) _ ) ;
+rule (Func_cov_hom (Product_proj_left_func _ _) _ ) ∘>'_(_) ∘' (Product_pairproj_right_cov_hom $h )
+    ↪  (Func_cov_hom (Product_proj_left_func _ _) _ ) ;
+
+symbol Product_pair_con_hom_alt [A1 A2 : cat]  [A2'] (G' : func A2' A2) [A2__] (X : func A2' A2__)  [N2 : func A2__ A2] 
+(r : hom ((Product_proj_right_func A1 A2') ∘> X) (Unit_mod N2 ((Product_proj_right_func A1 A2') ∘> G')) Id_func) :
+ hom (Product_pairproj_right_func A1 X) (Unit_mod (Product_pairproj_right_func A1 N2) (Product_pairproj_right_func A1 G')) Id_func
+≔ Product_pair_cov_hom (Product_pairproj_right_func A1 X) (Product_proj_left_func A1 A2__) (Product_proj_right_func A1 A2__) Id_func (Func_cov_hom (Product_proj_left_func A1 A2') Id_func) r ;
+
+assert [A1 A2 I : cat] [G : func I A2] /* [J] */ [G' : func I A2] /* [Y] */
+(h : hom G (Unit_mod Id_func G') Id_func) ⊢
+(Product_pair_con_hom_alt G' G (h ∘>'_(_) ∘' (Func_cov_hom (Product_proj_right_func A1 I) Id_func))) 
+: hom (Product_pairproj_right_func A1 G) (Unit_mod Id_func (Product_pairproj_right_func A1 G')) Id_func ;
+
+assert [A1 A2 I : cat]  [A2'] [G' : func A2' A2] [A2_] [A2__] (X : func A2_ A2__) [A1_] [N1 : func A1_ A1]  [N2 : func A2__ A2] (Y : func (Product_cat A1_ A2_) (Product_cat A1 A2')) 
+(l : hom (Product_proj_left_func A1_ A2_) (Unit_mod N1 (Product_proj_left_func A1 A2')) Y) 
+(r : hom ((Product_proj_right_func A1_ A2_) ∘> X) (Unit_mod N2 ((Product_proj_right_func A1 A2') ∘> G')) Y) ⊢
+Product_pair_cov_hom (Product_pairproj_right_func A1_ X) (Product_proj_left_func A1_ A2__) (Product_proj_right_func A1_ A2__) Y l r 
+: hom (Product_pairproj_right_func A1_ X) (Unit_mod (Product_pair_func (Product_proj_left_func A1_ A2__ ∘> N1) (Product_proj_right_func A1_ A2__ ∘> N2)) (Product_pairproj_right_func A1 G')) Y;
+
+//TODO REVIEW whether should be definable
+rule @Product_pair_cov_hom $A1 $A2 (Product_cat $A1 $I) (Product_cat $A1 $I) (Product_proj_left_func $A1 $I) (@∘> (Product_cat $A1 $I) $I $A2 (Product_proj_right_func $A1 $I) $G') (Product_cat $A1 $A2) (@Product_pairproj_right_func $A1 $I $A2 $G) $A1 (Product_proj_left_func $A1 $A2) (@Id_func $A1) $A2 (Product_proj_right_func $A1 $A2) (@Id_func $A2) (@Id_func (Product_cat $A1 $I)) (@Func_cov_hom (Product_cat $A1 $I) (Product_cat $A1 $I) $A1 (Product_proj_left_func $A1 $I) (@Id_func (Product_cat $A1 $I))) (@∘' $I (Product_cat $A1 $I) $A2 (Product_cat $A1 $I) (@Unit_mod $I $I (Product_cat $A1 $I) (@Id_func $I) (Product_proj_right_func $A1 $I)) (@Unit_mod $A2 $A2 (Product_cat $A1 $I) (@Id_func $A2) (@∘> (Product_cat $A1 $I) $I $A2 (Product_proj_right_func $A1 $I) $G')) (Product_proj_right_func $A1 $I) (@Id_func (Product_cat $A1 $I)) $G (@∘>'_ $I $A2 $I (Product_cat $A1 $I) $G (@Unit_mod $A2 $A2 $I (@Id_func $A2) $G') (@Id_func $I) $h (Product_proj_right_func $A1 $I)) (@Func_cov_hom (Product_cat $A1 $I) (Product_cat $A1 $I) $I (Product_proj_right_func $A1 $I) (@Id_func (Product_cat $A1 $I))))
+↪ Product_pairproj_right_cov_hom $h;
+
+
 
 /* (G) limit_cov ========================== */
 
@@ -943,7 +1004,22 @@ assert [L R : cat] [LAdj_func : func R L] [RAdj_func : func L R]
 
  /* (2') ========================== */
  
- // naturality
+ // naturality part1
+
+ //naturality (of func_cov_hom ?)  TOO REVIEW THIS
+type  λ [A B  : cat]  [R : mod A B]    [y : func A B]
+[J1] [G : func J1 B] [I] [y'y : func I J1] [y' : func I A] (y'y_ : hom y' (Unit_mod y G) y'y) 
+(s : hom Id_func R y)
+ [J] [x''x' : func J A] [x'] (x''x'_ : hom x''x' (Unit_mod Id_func y') x') ,
+(s ∘>'_(_)) ∘' (x''x'_ '∘ ((Id_func)_'∘> ( y'y_ ))) 
+=  (x''x'_ '∘ ((Id_func)_'∘> ( ((∘>'_) [_] [_] [_] [_] [Id_func] s (_)) ∘' y'y_ )))   ;
+
+rule  ($x''x'_ '∘ ((Id_func)_'∘> ( ((∘>'_) [_] [_] [_] [_] [Id_func] $s (_)) ∘' $y'y_ ))) 
+↪ ($s ∘>'_(_)) ∘' ($x''x'_ '∘ ((Id_func)_'∘> ( $y'y_ )))   ;
+//hom x''x' (F' ∘>> (R <<∘ G)) (y'y <∘ Id_func)
+
+
+ // naturality part 2
 
 //TODO: ERASE this is actual naturality where commuation occurs, not mere accumulation, therefore canNOT be dealt with generically
 //  symbol naturality2_con_cov : Π [L I : cat] [Z_LAdj_func : func I L] [Unit_mod_Z_RAdj_func : mod I L]
@@ -988,7 +1064,7 @@ assert [L R : cat] [LAdj_func : func R L] [RAdj_func : func L R] [aj : adj LAdj_
   ''∘ (g '∘ ((X0)_'∘> (Adj_con_hom aj Z Y0))) ∘>'_(Id_func)  
  = ((g '∘ ((X0)_'∘> (Id_hom Y0))) ∘>'_(N))
            ''∘ ((X0)_'∘> (Adj_con_hom aj Z N)) );
- 
+ type @hom;
 //functoriality/naturality covariant     
 // rule  
 //   (@'∘ _ _ _ _ _ _ _ $Y _ $g   (($X0)_'∘> ((Func_con_hom $Z_LAdj_func $Y0)))) ∘>'_(Id_func)
@@ -1011,7 +1087,7 @@ assert  [L I : cat] [Z_LAdj_func : func I L]
             ''∘ ((X0)_'∘> ((Func_con_hom Z_LAdj_func N))) );
  
 //small todo: functoriality/naturality contravariant
- 
+ type @func;
 
  
 // naturality (counit, covariant eq),   similar with naturality (unit, contravariant eq)
@@ -1052,15 +1128,22 @@ assert [C D : cat] [F : func D C] [G : func C D] [aj : adj F G] [C'] [N : func C
 
 
 //  /* (3) ========================== */
- 
+
  // adjunction inverses beta cancellation
 
  // simple instance version , besides general version because no eta expansion of ϕ into (1)∘ϕ ...
  // “ϕ∘F(“G(f)∘γ”)”  =                  id∘1( 1(-)∘F ) 
- rule  (((@Adj_con_hom _ _ $LAdj_func $RAdj_func $aj _ $Z _ $M)) ∘>'_($N ∘> $W)) 
+  //TODO this rule and similars shoud be in applied version only... REVIEW EIHER BOTH VERSION OR REVERSE RULE $r '∘ ($rs ''∘ $st)
+rule  ((((@Adj_con_hom _ _ $LAdj_func $RAdj_func $aj _ $Z _ $M)) ∘>'_($W)) ∘' $f) 
+'∘ (($Z)_'∘> ((Adj_cov_hom $aj $W Id_func)))
+↪  ( (((Func_con_hom ($Z ∘> $LAdj_func) $M)) ∘>'_(_) ) ∘' $f) 
+ '∘ (($Z ∘> $LAdj_func)_'∘> ((Func_cov_hom $W Id_func)));
+
+rule  (((@Adj_con_hom _ _ $LAdj_func $RAdj_func $aj _ $Z _ $M)) ∘>'_($N ∘> $W)) 
  ''∘ (($Z)_'∘> ((Adj_cov_hom $aj $W $N)))
 ↪  (((Func_con_hom ($Z ∘> $LAdj_func) $M)) ∘>'_($N ∘> $W) ) 
   ''∘ (($Z ∘> $LAdj_func)_'∘> ((Func_cov_hom $W $N)));
+
 ///WARNING M must be Id_func by new ''∘
 // assert [L R I J I0 J0 : cat] [LAdj_func : func R L] [RAdj_func : func L R]
 // (aj : adj LAdj_func RAdj_func) (Z : func I0 R) (M : func I I0)  (N : func J J0) (W: func J0 L) ⊢ eq_refl _ : π (
@@ -1289,8 +1372,8 @@ with Total_cat (Comma_cov_catd $AA ($R <<∘ $G)) $G' ↪ Total_cat (Comma_cov_c
 
 rule Total_proj_func (Fibre_catd $A $F) $G ↪ Total_proj_func $A ($G ∘> $F) // = Pullback_snd_func (Total_proj_func $A $F) $G
 with Total_proj_func (Terminal_catd $A) $F ↪ Id_func
-with @Total_proj_func _ (Cast_catd $A) $U' $F ↪ @Product_fst_func $U' $A _ Id_func 
- with Total_proj_func (Productdt_catd $UU $A) $F  ↪  (Product_fst_func $A (Total_proj_func $UU $F))
+with @Total_proj_func _ (Cast_catd $A) $U' $F ↪ @Product_proj_left_func _ _
+ with Total_proj_func (Productdt_catd $UU $A) $F  ↪  (Product_proj_left_func _ $A ∘> (Total_proj_func $UU $F))
 with Total_proj_func (Productd_catd $X $Y) $H  ↪  
 (Pullback_func (Total_proj_func $X $H) (Total_proj_func $Y $H)) 
 ;
@@ -1995,18 +2078,20 @@ with  $r'r ''∘d (Id_transfd _) ↪ $r'r;
 rule  (Id_transfd _) ∘d'' $r'r ↪ $r'r
 with  $r'r ∘d'' (Id_transfd _) ↪ $r'r;
 
- // assoc comp_transf then comp_hom
- //reverse?
- rule  $r '∘d ($rs ''∘d $st)
- ↪ ($r '∘d $rs) '∘d $st
- with ($st ∘d'' $rs) ∘d' $r
- ↪  $st ∘d' ($rs ∘d' $r);
+// assoc comp_transf then comp_hom
+//reverse?
+rule  $r '∘d ($rs ''∘d $st)
+↪ ($r '∘d $rs) '∘d $st
+with ($st ∘d'' $rs) ∘d' $r
+↪  $st ∘d' ($rs ∘d' $r);
 
- rule  (Func_cov_homd _ $G ) '∘d ((_) _'∘>d Id_homd $F) ↪ Id_homd ($G ∘>d $F);
- rule  (Id_homd $F ∘>d'_ (_) ) ∘d' (Func_con_homd _ $G )  ↪ Id_homd ($G ∘>d $F);
- rule  ($f '∘d ($M)_'∘>d (Id_homd Id_funcd) )  ↪ $f; 
- rule  (($M)_'∘>d (Func_cov_homd $F Id_funcd) ) ↪ (Id_transfd _)  ; 
- rule  ((Func_con_homd $F Id_funcd) ∘>d'_($M)) ↪ (Id_transfd _)  ;
+rule  (Func_cov_homd _ $G ) '∘d ((_) _'∘>d Id_homd $F) ↪ Id_homd ($G ∘>d $F);
+rule  (Id_homd $F ∘>d'_ (_) ) ∘d' (Func_con_homd _ $G )  ↪ Id_homd ($G ∘>d $F);
+rule  ($f '∘d ($M)_'∘>d (Id_homd Id_funcd) )  ↪ $f
+with ((Id_homd Id_funcd) ∘>d'_ (_)) ∘d' $f ↪ $f;
+//TODO review if applied form only
+rule  $f '∘d (($M)_'∘>d (Func_cov_homd $F Id_funcd) ) ↪ $f; 
+rule  ((Func_con_homd $F Id_funcd) ∘>d'_($M)) ∘d' $f ↪ $f;
  
 //yoneda bijection half
 rule (((Func_cov_homd $F $Z)) '∘d ((Id_funcd)_'∘>d $r)) 

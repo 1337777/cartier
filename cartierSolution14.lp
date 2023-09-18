@@ -1,10 +1,12 @@
 /* A new implementation of dependent types via Dosen's substructural categorial programming: example of the Yoneda lemma for fibrations
 
-Inductive datatypes or computation of concrete data limits via the abstract prover grammar
+Applications: datatypes or 1+2=3 via 3 methods: natural numbers category via types, natural numbers object via adjunctions and category of finite sets/numbers via colimits
 https://github.com/1337777/cartier/blob/master/cartierSolution14.lp
 
 Cut-elimination in the double category of fibred profunctors with inner cut-eliminated adjunctions: 
 https://github.com/1337777/cartier/blob/master/cartierSolution13.lp
+
+The goal of this section is to demo that it is possible to do a roundtrip between the concrete data structures and the abstract prover grammar; this is very subtle. The concrete application of these datatypes is the computation with the addition function of two variables that 1+2=3 via 3 different methods: the natural numbers category via intrinsic types, the natural numbers object via adjunctions/product/exponential, and the category of finite sets/numbers via limits/colimits/coproducts.
 
 the AlgebraicJulia library package is an attempt to add “functional language” features to the Julia scientific computing language, via category theory. This applied category theory on concrete data structures allows to achieve some amount of compositionality (function-based) features onto ordinary scientific computing. The AlgebraicJulia implementation essentially hacks and reimplements some pseudo-dependent-types domain-specific-language embedded within Julia. The present text claims that there is a better approach via the LambdaPi logical framework and Kosta Dosen's substructural categorial programming. This new approach allows, not only to compute with concrete data, but also to do so via a grammatical interface which is more strongly-typed and which enables the theorem proving/programming of the correctness-by-construction of the algorithms.
 
@@ -12,11 +14,253 @@ An updated file, https://github.com/1337777/cartier/blob/master/cartierSolution1
 compute obj_category_Obj ((category_Obj_obj One) ∘>o (sigma_Fst (construct_inductively_limit_instance_liset _ example_graph_isf example_diagram)));
 (0,13,21,31) :: (0,13,22,31) :: (0,12,21,31) :: (0,12,22,31) :: (0,11,21,31) :: (0,11,22,31) :: nil
 
+Also the other methods output concrete data; first via intrinsic types, then via adjunctions:
+
+compute ((Product_pair_func (Succ_inj_nat_func (Succ_inj_nat_func Zero_inj_nat_func)) (Succ_inj_nat_func Zero_inj_nat_func)) ∘> add_nat_func);
+// Succ_inj_nat_func (Succ_inj_nat_func (Succ_inj_nat_func Zero_inj_nat_func))
+
+compute λ C : cat, (iprod_pair_hom (Product_pair_func (itermin_func C) (itermin_func C)) 
+                      (Func_cov_hom (itermin_func C) Id_func) (Func_cov_hom (itermin_func C) Id_func)) '∘ (_)_'∘> 
+((Id_hom _) ∘>'_(_) ∘' 
+    ((Product_pair_cov_hom (Product_pair_func _ _) 
+          (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func
+          (Succ_inj_inat_hom C (Zero_inj_inat_hom C)) (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C))))
+      '∘ (_)_'∘> (add_inat_hom C))); 
+// λ C, Succ_inj_inat_hom C (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C)))
+
  */
 
 // require open Blanqui.Lib.Set Blanqui.Lib.Prop Blanqui.Lib.FOL Blanqui.Lib.Eq Blanqui.Lib.Bool Blanqui.Lib.Nat Blanqui.Lib.List;
 require open modos.cartierSolution13;
 
+/* OUTLINE:
+--- SECTION 1 : Natural numbers category via DATATYPES CATS/OPERATORS IN THE OUTER DOUBLECAT PROF
+--- SECTION 2 : Natural numbers object, via DATATYPES OBJECTS/FUNCTORS IN ANY INNER PARTICULAR CAT AND INTERNAL ADJUNCTIONS/PRODUCTS/EXPONENTIALS
+--- SECTION 2.1 : Alternative addition function via (encoded/non-intrinsic) multi-variable/parameter adjunction
+--- SECTION 2.2 : TODO: Addition function via intrinsic/structural multi-variable adjunction and multivariable functors/profunctors...
+--- SECTION 3 : Category of finite sets/numbers, and colimits/limits and addition/coproduct
+ */
+
+
+/* ---------------------------
+SECTION 1 : Natural numbers category via DATATYPES CATS/OPERATORS IN THE OUTER DOUBLECAT PROF
+ */
+
+//REVIEW nomenclature: projection/copairing, pairing/univ, injection/cocase, case/couniv,... instead of intro , elim 
+constant symbol FuncCat_cat : Π (A B : cat), cat ;
+constant symbol FuncCat_proj_func : Π (A B : cat) , //no lack for accumulator because align assoc
+ func (Product_cat A (FuncCat_cat A B)) B;
+injective symbol FuncCat_pair_func : Π  [A B D : cat]
+(F : func (Product_cat A D) B), func D (FuncCat_cat A B);
+//TODO hom arrows for FuncCat
+
+//naturality
+rule $K ∘> (FuncCat_pair_func $F ) ↪ (FuncCat_pair_func ((Product_pairproj_right_func _ $K) ∘> $F));
+//beta
+rule (Product_pairproj_right_func $A (FuncCat_pair_func $F )) ∘> (FuncCat_proj_func $A $B ) ↪ $F ;
+rule Product_pair_func $K (FuncCat_pair_func $F) ∘> (FuncCat_proj_func $A $B ) ↪ Product_pair_func $K Id_func ∘> $F;
+//eta
+rule (FuncCat_pair_func (FuncCat_proj_func $A $B ))  ↪ Id_func; 
+
+constant symbol nat_cat : cat;
+constant symbol Zero_inj_nat_func  : func Terminal_cat nat_cat;
+constant symbol Succ_inj_nat_func :  Π [I], func I nat_cat →  func I nat_cat;
+symbol case_nat_func [L0 : cat]
+  (L0_zero : func Terminal_cat L0)
+  (L0_succ : func L0 L0 ) :  func nat_cat L0;
+
+// accumulation
+rule $m ∘> (Succ_inj_nat_func $n) ↪ (Succ_inj_nat_func ($m ∘> $n));
+// beta
+rule (Zero_inj_nat_func) ∘> (case_nat_func $L0_zero $L0_succ) ↪ $L0_zero;
+rule (Succ_inj_nat_func $n) ∘> (case_nat_func $L0_zero $L0_succ)
+ ↪ ($n ∘> (case_nat_func $L0_zero $L0_succ)) ∘> $L0_succ;
+
+symbol add_nat_func : func (Product_cat nat_cat nat_cat) nat_cat ≔
+begin
+have add' : func nat_cat (FuncCat_cat nat_cat nat_cat)
+{ refine (case_nat_func _ _ ) 
+  { refine FuncCat_pair_func _;
+    refine (Product_proj_left_func _ _);
+  }
+  { refine FuncCat_pair_func _;
+    refine Succ_inj_nat_func _;
+    refine (FuncCat_proj_func _ _);
+  };
+};
+refine ((Product_pairproj_right_func nat_cat add' ) ∘> (FuncCat_proj_func nat_cat nat_cat)) 
+end;
+
+compute ((Product_pair_func (Succ_inj_nat_func (Succ_inj_nat_func Zero_inj_nat_func)) (Succ_inj_nat_func Zero_inj_nat_func)) ∘> add_nat_func);
+// Succ_inj_nat_func (Succ_inj_nat_func (Succ_inj_nat_func Zero_inj_nat_func))
+
+/* ---------------------------
+SECTION 2 : Natural numbers object, via DATATYPES OBJECTS/FUNCTORS IN ANY INNER PARTICULAR CAT AND INTERNAL ADJUNCTIONS/PRODUCTS/EXPONENTIALS
+ */
+
+constant symbol itermin_func (C : cat) : func (Terminal_cat) C;
+constant symbol itermin_adj (C : cat) : adj (Terminal_func C) (itermin_func C);
+symbol itermin_pair_hom [C : cat] [I] (L0 : func I C) 
+:  hom L0 (Unit_mod Id_func (itermin_func C)) (Terminal_func I)
+≔ (Adj_con_hom (itermin_adj C) Id_func L0);
+
+symbol idiag_func (C : cat) : func C (Product_cat C C) 
+≔ Product_pair_func [C] [C] [C] Id_func Id_func;
+constant symbol iprod_func (C : cat) : func (Product_cat C C) C;
+constant symbol idiag_iprod_adj (C : cat) : adj (idiag_func C) (iprod_func C);
+
+symbol iprod_proj_left_hom [C : cat] [I] (N : func I (Product_cat C C)) [J] (Z : func J I) :
+  hom ((Z ∘> N) ∘> (iprod_func C)) (Unit_mod Id_func ((Product_proj_left_func C C) <∘ N)) Z
+  ≔ Func_cov_hom (Product_proj_left_func C C) _ ∘>'_(_) ∘' (Adj_cov_hom (idiag_iprod_adj C) N Z) ;
+symbol iprod_proj_right_hom [C : cat] [I] (N : func I (Product_cat C C)) [J] (Z : func J I) :
+  hom ((Z ∘> N) ∘> (iprod_func C)) (Unit_mod Id_func ((Product_proj_right_func C C) <∘ N)) Z
+  ≔ Func_cov_hom (Product_proj_right_func C C) _ ∘>'_(_) ∘' (Adj_cov_hom (idiag_iprod_adj C) N Z) ;
+
+constant symbol iprod_ladj_proj_left_hom [C : cat] [I] [I'] (N : func I I') (N' : func I' (Product_cat C C)) [J] (Z : func J I) :
+  hom (Z ∘> N) (Unit_mod (N' /* TODO N' is Product */ ∘> (iprod_func C)) ((Product_proj_left_func C C) <∘ (N' <∘ N))) Z;
+
+rule (Id_hom _) ∘>'_(_) ∘' (iprod_ladj_proj_left_hom $N $N' $Z) ↪ (iprod_proj_left_hom ($N ∘> $N') $Z);
+
+rule (Product_pair_cov_hom (Product_pair_func _ _ ) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] $Y $f $g) '∘ ((_)_'∘> (iprod_ladj_proj_left_hom (Product_pair_func $F' $G') Id_func  Id_func)) 
+↪ (iprod_ladj_proj_left_hom _  Id_func Id_func '∘ ((_)_'∘> $f)); 
+
+symbol iprod_pair_hom [C : cat] [I] (N : func I (Product_cat C C)) [C'] [K0 : func C' C] [J] [L0 : func J C'] [M : func J I]
+ (L0_fst : hom L0 (Unit_mod (/*Z ∘>*/ K0) ((Product_proj_left_func C C) <∘ N)) M)
+ (L0_snd : hom L0 (Unit_mod (/*Z ∘>*/ K0) ((Product_proj_right_func C C) <∘ N)) M) :
+ hom (L0 /*∘> Z*/) (Unit_mod K0 ((iprod_func C) <∘ N)) M ≔ 
+ (Adj_con_hom (idiag_iprod_adj C) K0 Id_func) ∘>'_(_) ∘'  (Product_pair_cov_hom L0 Id_func Id_func M L0_fst L0_snd);
+
+symbol const_func [C : cat] I (X : func Terminal_cat C) : func I C ≔ Terminal_func I ∘> X;
+
+constant symbol iexp_func (C : cat) : func (Product_cat (Op_cat C) C) C;
+constant symbol iprod_iexp_adj (C : cat) (X : func Terminal_cat C) : 
+adj (Product_pair_func (const_func C X) Id_func ∘> (iprod_func C))
+    ((Product_pair_func (const_func C (Op_func X)) Id_func) ∘> (iexp_func C));
+
+constant symbol inat_func (C : cat) : func (Terminal_cat) C;
+constant symbol Zero_inj_inat_hom (C : cat) : hom (itermin_func C) (Unit_mod Id_func (inat_func C)) Id_func;
+constant symbol Succ_inj_inat_hom (C : cat) : Π [C0] [X0 : func C0 C] [I] [X: func I C0] [Y : func I _], 
+ hom X (Unit_mod X0 (inat_func C)) Y → hom X (Unit_mod X0 (inat_func C)) Y;
+symbol case_inat_hom [C : cat] [J] (Y : func Terminal_cat J) [L0 : func J C]  
+ (L0_zero : hom (itermin_func C) (Unit_mod Id_func L0) Y)
+ (L0_succ : /* Π (Y : func Terminal_cat J) , */  hom L0 (Unit_mod Id_func L0) Id_func):  //TODO... hmm nope, L0_succ already in context of Y
+ hom (inat_func C) (Unit_mod Id_func L0) Y;
+
+//natural
+rule ($m '∘ (_)_'∘> (Succ_inj_inat_hom $C $n)) ↪ (Succ_inj_inat_hom $C ($m '∘ (_)_'∘> $n));
+rule (Id_hom _) ∘>'_ (_) ∘' (Succ_inj_inat_hom $C $n) 
+  ↪ (Succ_inj_inat_hom $C ((Id_hom _) ∘>'_ (_) ∘' $n));
+// rule (Func_con_hom $F $G) ∘>'_ (_) ∘' (Succ_inj_inat_hom $C $n)   //not used?
+//   ↪ (Succ_inj_inat_hom $C ((Func_con_hom $F $G) ∘>'_ (_) ∘' $n));
+rule  Id_hom _ ∘>'_ (_) ∘' ($n '∘ (_)_'∘> (Zero_inj_inat_hom $C))  //TODO redo as accumulator for succ
+↪ (Id_hom _ ∘>'_ (_) ∘' $n) '∘ (_)_'∘> (Zero_inj_inat_hom $C);
+
+//beta
+rule (Zero_inj_inat_hom $C) '∘ (_)_'∘> (case_inat_hom $Y $L0_zero $L0_succ)
+  ↪ $L0_zero;
+rule (Succ_inj_inat_hom $C $n) '∘ (_)_'∘> (case_inat_hom $Y $L0_zero $L0_succ)
+  ↪ ($n '∘ (_)_'∘> (case_inat_hom $Y $L0_zero $L0_succ)) '∘ (_)_'∘> $L0_succ;
+
+symbol addParam_inat_hom C : hom (inat_func C) (Unit_mod (Product_pair_func (const_func C (inat_func C)) Id_func ∘> (iprod_func C)) (inat_func C)) Id_func ≔
+begin
+assume C;
+have add' : hom (inat_func C) (Unit_mod Id_func ((Product_pair_func (const_func C (Op_func (inat_func C))) Id_func ∘> (iexp_func C)) <∘ (inat_func C))) Id_func
+{ refine (case_inat_hom _ _ _ ) 
+  { refine ((Adj_con_hom (iprod_iexp_adj C (inat_func C))  Id_func Id_func) ∘>'_((inat_func C)) ∘' _ );
+    refine iprod_ladj_proj_left_hom _ (Product_pair_func (const_func C (inat_func C)) Id_func) _;
+  }
+  { refine ((Adj_con_hom (iprod_iexp_adj C (inat_func C))  Id_func Id_func) ∘>'_((inat_func C)) ∘' _ );
+    refine (Succ_inj_inat_hom C _);
+    refine ( (Adj_cov_hom (iprod_iexp_adj C (inat_func C)) (inat_func C) Id_func) );
+  };
+};
+refine (add' '∘ (_)_'∘> (Adj_cov_hom (iprod_iexp_adj C (inat_func C)) (inat_func C) Id_func));
+end;
+
+compute λ C : cat, ((Adj_con_hom (idiag_iprod_adj C) Id_func Id_func) ∘>'_(_) ∘' 
+                    (Product_pair_cov_hom _ (Id_func) [Id_func] (Id_func) [Id_func] Id_func
+                          (Succ_inj_inat_hom C (Zero_inj_inat_hom C))
+                          (Func_cov_hom (itermin_func C) Id_func))) 
+    '∘ (_)_'∘> ((Id_hom _) ∘>'_(_) ∘'  
+                          ((Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C)))
+                                  '∘ (_)_'∘> (addParam_inat_hom C)));
+// λ C, Succ_inj_inat_hom C (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C)))
+
+// TODO REVIEW obviously stuck computation, ?should be able to connect the two because action of adjoint functor is definabe from unit operationss, together with functoriality...
+// compute λ C : cat, ((Adj_con_hom (idiag_iprod_adj C) Id_func Id_func) ∘>'_(_) ∘' 
+//                     (Product_pair_cov_hom _ (Id_func) [Id_func] (Id_func) [Id_func] Id_func
+//                           (Succ_inj_inat_hom C (Zero_inj_inat_hom C))
+//                           (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C))))) 
+//     '∘ (_)_'∘> ((Id_hom _) ∘>'_(_) ∘' (addParam_inat_hom C));
+// compute λ C : cat, Product_pair_cov_hom (Product_pair_func _ _) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func
+// (Succ_inj_inat_hom C (Zero_inj_inat_hom C))
+// (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C)))
+// '∘ (_)_'∘> ((Func_con_hom (iprod_func C) (Product_pair_func (const_func C (inat_func C)) Id_func)) ∘>'_(_) ∘' addParam_inat_hom C);
+
+/* --- SECTION 2.1 : Alternative dddition function via (encoded/non-intrinsic) multi-variable/parameter adjunction
+ */
+
+constant symbol exp2_func (C : cat) : func (Product_cat (Op_cat C) C) C;
+injective symbol adjProdExp2_lambda_hom [C : cat] : let I ≔ Terminal_cat in Π [X : func I C] [J] (P : func J C) [Z : func I J] [J'] (Q : func J' C) [Y : func I J'],
+ hom ((Product_pair_func X Y)) (Unit_mod (Product_pairproj_right_func _ Q ∘> (iprod_func C)) P) Z
+→ hom Y (Unit_mod Q (Product_pairproj_right_func _ P ∘> (exp2_func C))) (Product_pair_func (Op_func X) Z);
+symbol adjProdExp2_eval_hom [C : cat] : let I ≔ Terminal_cat in Π [X : func I C] [J] (P : func J C) [Z : func I J] [J'] (Q : func J' C) [Y : func I J'],
+hom Y (Unit_mod Q (Product_pairproj_right_func (Op_cat C) P ∘> (exp2_func C))) (Product_pair_func (Op_func X) Z)
+→ hom ((Product_pair_func X Y)) (Unit_mod (Product_pairproj_right_func C Q ∘> (iprod_func C)) P) Z;
+
+//beta
+rule (adjProdExp2_eval_hom $P $Q (adjProdExp2_lambda_hom $P $Q $h)) ↪ $h;
+//eta, 
+//TODO: REVIEW slow, warning unjoinable with beta rule, note the loop with beta rule
+// rule (adjProdExp2_lambda_hom $P $Q (adjProdExp2_eval_hom $P $Q  $h)) ↪ $h;
+
+//TODO: REVIEW WHY: NOTE THAT MUST ASSOCIATE ON LEFT IN THE RESULT .. NOTE THAT THIS ASSOCIATIVITY IS NON-COMPUTATIONAL BUT ONLY PROPOSITIONAL
+rule  (Product_pair_cov_hom (Product_pair_func _ _) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func $f $g) '∘ (_)_'∘> (adjProdExp2_eval_hom $P $Q  $h)
+↪  (adjProdExp2_eval_hom $P $Q  (($g '∘ (_)_'∘> $h) ∘>'_(_) ∘' (Product_pair_con_hom (Product_pair_func _ _) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func (Op_hom $f) (Func_con_hom _ _) )  ));
+
+rule adjProdExp2_lambda_hom $P $Q $h '∘ ((_)_'∘> ((Func_cov_hom (exp2_func $C) _ ∘>'_(_)) ∘' Product_pairproj_right_cov_hom [_] [_] [_] [$P] [$P'] $p))
+↪ adjProdExp2_lambda_hom $P' $Q ($h '∘ ((_)_'∘> $p)) ;
+
+rule  (adjProdExp2_lambda_hom $P $Q $h ∘>'_(_)) ∘' (Product_pair_con_hom (Product_pair_func _ _) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func $x $z)
+↪ adjProdExp2_lambda_hom $P $Q ((Product_pair_cov_hom (Product_pair_func _ _) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func (Op_hom $x) (Func_cov_hom _ Id_func)) '∘ (_)_'∘>
+              ($h  ∘>'_(_) ∘' $z));
+
+symbol add_inat_hom C : hom (Product_pair_func (inat_func C) (inat_func C)) (Unit_mod (iprod_func C) (inat_func C)) Id_func ≔
+begin
+assume C; refine adjProdExp2_eval_hom _ Id_func _;
+refine  case_inat_hom _  _ _ 
+{ refine adjProdExp2_lambda_hom [_] [inat_func C] (inat_func C) _ _ ;
+  refine iprod_ladj_proj_left_hom _ Id_func _;
+}
+{ refine (Func_cov_hom (exp2_func C) _ ∘>'_(_) ∘' (Product_pairproj_right_cov_hom (Succ_inj_inat_hom C (Func_cov_hom _ Id_func))));
+}
+end;
+
+//NOTE: this uses the naturality conversion ($x''x'_ '∘ ((Id_func)_'∘> ( ($s ∘>'_(_)) ∘' $y'y_ )))
+// ↪ ($s ∘>'_(_)) ∘' ($x''x'_ '∘ ((Id_func)_'∘> ( $y'y_ ))) 
+// to move out (Func_cov_hom (Product_proj_left_func C C) (Product_pair_func Id_func Id_func) ∘>'_(_) ∘'
+compute λ C : cat, (iprod_pair_hom (Product_pair_func (itermin_func C) (itermin_func C)) 
+                      (Func_cov_hom (itermin_func C) Id_func) (Func_cov_hom (itermin_func C) Id_func)) '∘ (_)_'∘> 
+((Id_hom _) ∘>'_(_) ∘' 
+    ((Product_pair_cov_hom (Product_pair_func _ _) 
+          (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func
+          (Succ_inj_inat_hom C (Zero_inj_inat_hom C)) (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C))))
+      '∘ (_)_'∘> (add_inat_hom C))); 
+// λ C, Succ_inj_inat_hom C (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C)))
+
+// MEMO: REVERSE DEBUGGED: λ C, (((          ((Adj_con_hom (idiag_iprod_adj C) Id_func Id_func ∘>'_ Product_pair_func (itermin_func C) (itermin_func C)) ∘' Product_pair_cov_hom (itermin_func C) Id_func Id_func Id_func (Func_cov_hom (itermin_func C) Id_func) (Func_cov_hom (itermin_func C) Id_func) )           '∘ (Id_func _'∘> (  (Func_cov_hom (Product_proj_left_func C C) (Product_pair_func Id_func Id_func) ∘>'_ Product_pair_func (itermin_func C) (itermin_func C)) ∘' Adj_cov_hom (idiag_iprod_adj C) (Product_pair_func (itermin_func C) (itermin_func C)) Id_func)) )         '∘ (Id_func _'∘> Zero_inj_inat_hom C)) '∘ (Id_func _'∘> Succ_inj_inat_hom C)) '∘ (Id_func _'∘> Succ_inj_inat_hom C)
+
+/* ---------------------------
+SECTION 2.2 : TODO: Addition function via intrinsic/structural multi-variable adjunction and multivariable functors/profunctors...
+ */
+
+ ///// TODO:
+
+
+/* ---------------------------
+ SECTION 3 : Category of finite sets/numbers, and colimits/limits and addition/coproduct
+ */
+ 
 inductive one : TYPE ≔ One : one;
 constant symbol one_Set : Set;
 rule τ one_Set ↪ one;
@@ -638,9 +882,10 @@ hom X (((Unit_mod M F)) ⇐ W) Id_func → hom X (Unit_mod M F_⇐_W) Id_func;
 // ↪  ( (_)_'∘> $f ) ''∘ (limit_cov_univ' $isl );
 rule @'∘ _ _ _ _ _ _ _ Id_func _ $f  (($Z)_'∘> (ilimit_cov_univ $isl $c)) 
 ↪  ilimit_cov_univ $isl ($f '∘ ($Z)_'∘> $c);
+type @transf;
+//TODO: review slow? 5 minutes
 rule (@∘>'_ _ _ _ _ _ (Unit_mod _ Id_func) _  $f _) ∘' (ilimit_cov_univ $isl $c)  
 ↪  ilimit_cov_univ $isl ((comp_Imply_cov_mod $f) ∘' $c);
-
 
 injective symbol ilimit_cov_cone : Π  [B J J' : cat]  [W : mod J' J] [F : func J B] [F_⇐_W : func J' B] (isl : limit_cov F W F_⇐_W),
 hom F_⇐_W (((Unit_mod Id_func F)) ⇐ W) Id_func;
