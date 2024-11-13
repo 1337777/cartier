@@ -883,9 +883,15 @@ hom X (((Unit_mod M F)) ⇐ W) Id_func → hom X (Unit_mod M F_⇐_W) Id_func;
 rule @'∘ _ _ _ _ _ _ _ Id_func _ $f  (($Z)_'∘> (ilimit_cov_univ $isl $c)) 
 ↪  ilimit_cov_univ $isl ($f '∘ ($Z)_'∘> $c);
 type @transf;
+
+/// ======================================================
+// /!\ WARNING REVIEW THIS SLOW /!\ UNCOMMENT FOR DEV OR TEST COMPILE
 //TODO: review slow? 5 minutes
-rule (@∘>'_ _ _ _ _ _ (Unit_mod _ Id_func) _  $f _) ∘' (ilimit_cov_univ $isl $c)  
-↪  ilimit_cov_univ $isl ((comp_Imply_cov_mod $f) ∘' $c);
+//UNCOMMENT
+// rule (@∘>'_ _ _ _ _ _ (Unit_mod _ Id_func) _  $f _) ∘' (ilimit_cov_univ $isl $c)  
+// ↪  ilimit_cov_univ $isl ((comp_Imply_cov_mod $f) ∘' $c);
+/// ======================================================
+
 
 injective symbol ilimit_cov_cone : Π  [B J J' : cat]  [W : mod J' J] [F : func J B] [F_⇐_W : func J' B] (isl : limit_cov F W F_⇐_W),
 hom F_⇐_W (((Unit_mod Id_func F)) ⇐ W) Id_func;

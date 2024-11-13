@@ -8,8 +8,6 @@ Kosta Dosen's functorial programming:
 
 OUTLINE:
 
-# PRELIMINARIES, ADDITIONS, AND ERRATAS TO cartierSolution13.lp 
-
 # CONTEXT EXTENSION
 ## CONTEXT EXTENSION FOR CATEGORIES
 
@@ -61,112 +59,6 @@ flag "print_contexts" on; flag "print_domains" on; flag "print_meta_types" on;
 // debug +a; //debug +acdeghiklmoprsyuvxyz;
 print unif_rule; print coerce_rule; 
 // search "spine = (cartierSolution13.cat → cartierSolution13.cat) , hyp = cartierSolution13.cat";
-
-
-// --------------------------------------------
-// # PRELIMINARIES, ADDITIONS, AND ERRATAS TO cartierSolution13.lp 
-// ## SKIP THIS SECTION
-
-
-//TODO: replace former with this one
-injective symbol Terminal_funcd :  Π [X Y: cat] (A : catd X) (xy : func X Y), funcd A xy (Terminal_catd Y);
-
-rule Op_funcd (Terminal_funcd $A $xy) ↪ (Terminal_funcd (Op_catd $A) (Op_func $xy) );
-rule ($FF ∘>d (Terminal_funcd $B $xy)) ↪ (Terminal_funcd _ _) ;
-rule (Terminal_funcd (Terminal_catd _) Id_func) ↪ Id_funcd;
-
-//REVIEW  THIS
-rule (Terminal_funcd (Terminal_catd _) $xy) ↪ Fibre_elim_funcd (Terminal_catd _) $xy; //reverse this conversion?
-// rule Fibre_elim_funcd (Terminal_catd _) $xy ↪  (Terminal_funcd (Terminal_catd _) $xy) ; // FOR THIS CHOICE: MUST ERASE EARLIER  Fibre_elim_funcd (Terminal_catd _) _ ↪ Funcs_funcd (Func_funcs _) ;// (Triv_funcd _);
-
-constant symbol Terminal_transf : Π [A B B': cat] (R : mod A B) (G : func B B'), transf R Id_func (Terminal_mod A B') G;
-
-injective symbol Terminal_transfd: Π [X Y  Y': cat] [yy' : func Y Y'] [R' : mod X Y'] [R : mod X Y] (RR : modd (Terminal_catd X) R (Terminal_catd Y))
-(t : transf R Id_func R' yy' ),
- transfd t RR Id_funcd (Terminal_modd R') (Terminal_funcd _ _);
-
-// errata abouts pullbacks of modules (presheaves)
-
-//TODO: REVIEW WHY BOTH ∘' AND '∘ WAS NECESSARY BETTER THAN ALLOWING EXPLICIT 'OVER'-ARGUMENTS
-//TODO: ?WHETER CAN REDEFINE 1∘>>  IN TERMS OF ∘>>_proj AND ∘>>_intro  OR IS IT MORE GENERAL? .. NOTE THAT 1∘>> IS NON-CONSTANT
-constant symbol ∘>>_proj : Π [X Y X' : cat] (F : func X' X) (R : mod X Y), 
-transf (F ∘>> R) F R Id_func; 
-constant symbol ∘>>_intro : Π [X Y X' X'' Y': cat] (F : func X' X) (R : mod X Y) (F' : func X'' X') [G : func Y' Y] [S : mod X'' Y'], 
-transf S (F' ∘> F) R G  →
-/* G requires general '∘' ? or actual use will have one of F' id or G id */
-transf S F' (F ∘>> R) G /* G */;
-// constant symbol ∘>>_intro : Π [X Y X' X'' : cat] (F : func X' X) (R : mod X Y) (F' : func X'' X') [S : mod X'' Y], 
-// transf S (F' ∘> F) R Id_func  →
-// transf S F' (F ∘>> R) Id_func /* G */;
-
-//TODO: DO THIS AND ADD A RULE that    intro (proj o> f) = funt f    where funt is  now non-constant defined 
-// .symbol 1∘>>_def  [X Y Y' : cat] [G : func Y Y'] [R' : mod X Y'] [R : mod X Y] [Z : cat] (H : func Z X) (r : transf R Id_func R' G): 
-// transf (H ∘>> R) Id_func (H ∘>> R') G
-// ≔  (∘>>_proj H R ∘' x) '∘ r ;
-
-//extensional... there are reasons for this... (in particular, trying to mix non-id cov and non-id con will require extensional as there is none op composing mixed transf)
-rule ( ∘>>_proj $F $R ) ∘' (( ∘>>_intro $F $R $F' $r_ ) ∘' $x) ↪ $r_ ∘' $x ;
-// rule ( ∘>>_proj $F $R ) ∘'' ( ∘>>_intro $F $R $F' $r_ ) ↪ $r_ ;
-
-rule ( ∘>>_proj $H $R' )  ∘' ($x '∘ ( @1∘>> _ _ _ $G $R' $R $Z $H  $r_ ))
- ↪ (( ∘>>_proj $H $R )  ∘' $x ) '∘  $r_ ;
-
-// cast a profunctor as a fibred profunctor over the terminal profunctor
-
-constant symbol Cast_intro_funcd : Π [U A : cat]  (G : func U A), 
-funcd (Terminal_catd U) (Terminal_func U) (Cast_catd A);
-
-constant symbol Cast_modd : Π [A B :  cat] (R : mod A B ), modd (Terminal_catd A) (Terminal_mod _ _) (Terminal_catd B);
-constant symbol Cast_intro_transfd : Π [A B B' :  cat] [R' : mod A B']  [R : mod A B] [G : func B' B], transf R' Id_func R G → 
-transfd (Terminal_transf R' G) (Terminal_modd R') Id_funcd  (Cast_modd R) (Terminal_funcd _ G );
-
-// fibres of fibred profunctors 
-
-//TODO: complete, todo: version for covariant (copresheaves)
-symbol Fibre_modd : Π [X Y Y' : cat] [A : catd X] [R : mod X Y] [B : catd Y]
-(RR : modd A R B) [S : mod X Y']  [y : func Y' Y], transf S Id_func R y → 
- modd A S (Fibre_catd B y);
-
-rule Fibre_modd $A (Id_transf _) ↪ $A
-with Fibre_modd $A ($x ''∘ $y)  ↪ Fibre_modd (Fibre_modd $A $y) $x
-with Fibre_modd (Terminal_modd _) $F ↪ Terminal_modd _ ;
-// rule  Op_modd ( Fibre_cov_modd $RR $sr ) ↪   Fibre_con_modd (Op_modd $RR) (Op_transf $sr) ;
-
-injective symbol Fibre_modd_elim_transfd : Π [X Y Y' : cat] [A : catd X] [R : mod X Y] [B : catd Y]
-(RR : modd A R B) [S : mod X Y']  [y : func Y' Y] (t: transf S Id_func R y) ,
-transfd t (Fibre_modd RR t) Id_funcd RR (Fibre_elim_funcd B y);
-
- injective symbol Fibre_modd_intro_transfd : Π [X Y Y' : cat] [A : catd X] [R : mod X Y] [B : catd Y]
-(RR : modd A R B) [S : mod X Y']  [y : func Y' Y] (t: transf S Id_func R y) ,
-Π [Y0] [y0 : func Y0 Y'] [B0 : catd Y0] [R0 : mod X Y0]  (t0: transf R0 Id_func S y0) [RR0 : modd A R0 B0] [GG] , 
-transfd (t0 ''∘ t) RR0 Id_funcd RR GG 
-→ transfd t0 RR0 Id_funcd (Fibre_modd RR t) (Fibre_intro_funcd B y y0 GG) ;
-
-rule (Fibre_modd_intro_transfd $RR $t $t0 $rr) ''∘d (Fibre_modd_elim_transfd $RR $t) ↪ $rr ;
-
-// product of fibred profunctors
-
-//TODO: complete
-constant symbol product_modd : Π [A B :  cat] [AA : catd A] [BB : catd B] [S : mod A B] (R R' : modd AA S BB ), modd AA S BB;
-constant symbol product_projL_transfd : Π [A B :  cat] [AA : catd A] [BB : catd B] [S : mod A B] (R R' : modd AA S BB ), transfd (Id_transf _) (product_modd R R') Id_funcd R Id_funcd ;
-
-// product of profunctors 
-
-constant symbol product_mod : Π [A B :  cat] (R R' : mod A B ), mod A B;
-constant symbol product_projL_transf : Π [A B :  cat] (R R' : mod A B ), transf (product_mod R R') Id_func R Id_func ;
-constant symbol product_projR_transf : Π [A B :  cat] (R R' : mod A B ), transf (product_mod R R') Id_func R' Id_func ;
-constant symbol product_pairing_transf : Π [A B :  cat] [R R' : mod A B] [S],
-transf S Id_func R Id_func → transf S Id_func R' Id_func → transf S Id_func (product_mod R R') Id_func ;
-rule product_pairing_transf $l $r ''∘  product_projL_transf _ _ ↪ $l
-with product_pairing_transf $l $r ''∘  product_projR_transf _ _ ↪ $r;
-
-//todo: is this version sufficient? update previous file
-constant symbol Comma_con_homd_v2 : Π [A B I : cat] [R : mod A B] (BB : catd B) [x : func I A] [y : func I B] (r : hom x R y),
-Π [J] [x' : func J I]   [x'x : func J A] (x'x_ : hom x'x (Unit_mod Id_func x) x') , 
-homd ( x'x_ ) (Comma_con_intro_funcd BB ( x'x_ '∘  ((Id_func)_'∘> r) )) (Unit_modd Id_funcd (Comma_con_intro_funcd BB r)) (Fibre_elim_funcd (Fibre_catd BB y) x');
-
-//todo: review previous file for this rule 
-// rule (($M)_'∘> (Func_cov_hom $F Id_func) ) ↪ Id_transf _; 
 
 
 // --------------------------------------------
