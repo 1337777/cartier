@@ -1,30 +1,26 @@
-/* https://github.com/1337777/cartier/blob/master/cartierSolution16.lp
+/* https://github.com/1337777/cartier/blob/master/cartierSolution16.lp 
+https://github.com/1337777/cartier/blob/master/Kosta_Dosen_outline_alt.pdf
+
+Kosta Dosen's functorial programming: « m— » (read as « emdash » or « modos »), a new proof assistant for schemes.
+  A computational logic (co-inductive) interface for algebraic geometry schemes.
+
+  (A short description at the end of this file.)
+
+cartierSolution13.lp : DOSEN'S FUNCTORIAL PROGRAMMING
+cartierSolution14.lp : 1+2=3 VIA 3 METHODS: HIGHER DATA TYPE, ADJUNCTION, COLIMIT
+cartierSolution15.lp : POLYNOMIAL FUNCTORS AND CATEGORIES AS POLYNOMIAL COMONOIDS
+cartierSolution16.lp : COMPUTATIONAL LOGIC (CO-INDUCTIVE) INTERFACE FOR SHEAVES AND SCHEMES
+
+https://github.com/1337777/cartier/blob/master/cartierSolution13.lp 
+https://github.com/1337777/cartier/blob/master/cartierSolution14.lp 
+https://github.com/1337777/cartier/blob/master/cartierSolution15.lp 
+https://github.com/1337777/cartier/blob/master/cartierSolution16.lp 
+https://github.com/1337777/cartier/blob/master/Kosta_Dosen_outline_alt.pdf 
+https://github.com/1337777/cartier/blob/master/Kosta_Dosen_outline_alt.docx 
+
 https://github.com/1337777/cartier/blob/master/Kosta_Dosen_2pages.pdf
 
-Kosta Dosen's functorial programming:
-  A computational logic (coinductive) interface for schemes in algebraic geometry.
-
-    (A detailed description at the end of this file.)
-
-OUTLINE:
-
-# CONTEXT EXTENSION
-## CONTEXT EXTENSION FOR CATEGORIES
-
-# SIGMA-SUM: PART 1
-## SIGMA-SUM FOR CATEGORIES
-
-# PI-PRODUCT: PART 1
-## PI-PRODUCT FOR CATEGORIES
-
-# CONTEXT EXTENSION
-## CONTEXT EXTENSION FOR PROFUNCTORS
-
-# SIGMA-SUM: PART 2
-## SIGMA-SUM OF PROFUNCTORS
-
-# PI-PRODUCT: PART 2
-## FULLY GENERAL SIGMA/PI CONSTRUCTIONS ON FIBRED PROFUNCTORS
+OUTLINE OF cartierSolution16.lp :
 
 # SIEVES
 ## SIEVES CLASSIFIER
@@ -49,6 +45,27 @@ OUTLINE:
 
 # COMMENTS
 
+
+GOTO cartierSolution13.lp FOR:
+
+# CONTEXT EXTENSION
+## CONTEXT EXTENSION FOR CATEGORIES
+
+# SIGMA-SUM: PART 1
+## SIGMA-SUM FOR CATEGORIES
+
+# PI-PRODUCT: PART 1
+## PI-PRODUCT FOR CATEGORIES
+
+# CONTEXT EXTENSION
+## CONTEXT EXTENSION FOR PROFUNCTORS
+
+# SIGMA-SUM: PART 2
+## SIGMA-SUM OF PROFUNCTORS
+
+# PI-PRODUCT: PART 2
+## FULLY GENERAL SIGMA/PI CONSTRUCTIONS ON FIBRED PROFUNCTORS
+
 */
 
 require open modos.cartierSolution13;
@@ -57,225 +74,14 @@ verbose 10;
 flag "print_contexts" on; flag "print_domains" on; flag "print_meta_types" on; 
 // flag "print_implicits" on; 
 // debug +a; //debug +acdeghiklmoprsyuvxyz;
-print unif_rule; print coerce_rule; 
+print coerce_rule; // /!\ BUG, DONT USE, ONLY CONSOLE print unif_rule;
 // search "spine = (cartierSolution13.cat → cartierSolution13.cat) , hyp = cartierSolution13.cat";
 
 
-// --------------------------------------------
-// # CONTEXT EXTENSION
-// ## CONTEXT EXTENSION FOR CATEGORIES
-
-
-/* constant */ injective symbol Context_cat : Π [X : cat], catd X → cat;
-/* constant */ injective symbol Context_proj_func /*TODO: rename elim */ : Π [X : cat] (A : catd X), func (Context_cat A) X;
-/* constant */ injective symbol Context_intro_func : Π [Y : cat] [B : catd Y] [X] (xy : func X Y),
-funcd (Terminal_catd X) xy B → func X (Context_cat B);
-/* constant */ injective symbol Context_func : Π [X Y : cat] [A : catd X] [B : catd Y] [xy : func X Y],
-funcd A xy B → func (Context_cat A) (Context_cat B); //lose info on the codomain
-
-rule @Context_intro_func _ $A _ $xy $FF ∘> Context_proj_func $A ↪ $xy;
-
-rule (@Context_func _ _ $A $B $F $FF) ∘> (Context_proj_func $B) 
-↪ (Context_proj_func $A) ∘> $F;
-
-rule @Context_intro_func _ $A _ $xy $GG ∘> (@Context_func _ _ $A $B $F $FF) 
-↪ Context_intro_func _ ($GG ∘>d $FF);
-
-rule (@Context_func $X $Y $A $B $F $FF) ∘> (@Context_func $Y $Z $B $C $G $GG)
- ↪  Context_func ($FF ∘>d $GG);
-
-rule Context_cat (Terminal_catd $A) ↪ $A
-with Context_cat (Cast_catd $A)  ↪  $A;
-
-rule Context_proj_func (Terminal_catd $A) ↪ Id_func
-with Context_proj_func (Cast_catd $A) ↪ Terminal_func _ ;
-
-rule Context_intro_func $xy (Terminal_funcd _ _) ↪ $xy;
-
-rule Context_func (Id_funcd)  ↪ Id_func
-with  Context_func (Cast_intro_funcd $G)  ↪ $G;
-
-
-// --------------------------------------------
-// # SIGMA-SUM: PART 1
-// ## SIGMA-SUM FOR CATEGORIES
-
-
-injective symbol Sigma_catd : Π [X : cat] (F : catd X) (Z : catd (Context_cat F)), catd X;
-
-// ... beck-chevalley
-rule Fibre_catd (Sigma_catd $F $Z) $G 
-↪ Sigma_catd (Fibre_catd $F $G) (Fibre_catd $Z (Context_func (Fibre_elim_funcd $F $G))) ;
-
-injective symbol Sigma_intro_funcd : Π [X : cat] (F : catd X) (Z : catd (Context_cat F)), 
-    funcd Z (Context_proj_func F) (Sigma_catd F Z);
-
-injective symbol Sigma_elim_funcd : Π [X : cat] (F : catd X) [Z : catd (Context_cat F)] [X'] (G : func X X') [C : catd X'], 
-    funcd Z ((Context_proj_func F) ∘> G) C → funcd (Sigma_catd F Z) G C;
-
-// naturality
-rule (Sigma_elim_funcd $F $G $CC) ∘>d $DD ↪ (Sigma_elim_funcd $F _ ($CC ∘>d $DD));
-// beta
-rule (Sigma_intro_funcd $F $Z) ∘>d (Sigma_elim_funcd $F $G $CC) ↪ $CC;
-
-
-// --------------------------------------------
-// # PI-PRODUCT: PART 1
-// ## PI-PRODUCT FOR CATEGORIES
-
-
-injective symbol Pi_catd : Π [X : cat] (F : catd X) (Z : catd (Context_cat F)), catd X;
-
-// ... beck-chevalley
-rule Fibre_catd (Pi_catd $F $Z) $G 
-↪ Pi_catd (Fibre_catd $F $G) (Fibre_catd $Z (Context_func (Fibre_elim_funcd $F $G))) ;
-
-injective symbol Pi_elim_funcd : Π [X : cat] [F : catd X] [Z : catd (Context_cat F)] [X'] [x : func X' X] [E : catd X'],
-funcd E x (Pi_catd F Z) →
-funcd (Fibre_catd E (Context_proj_func (Fibre_catd F x))) (Context_func (Fibre_elim_funcd F x)) Z;
-
-// over  general  G required for naturality
-injective symbol Pi_intro_funcd : Π [X' : cat] (C : catd X') [X : cat] (G : func X' X) (F : catd X) [Z : catd (Context_cat F)] 
-(CC : funcd (Fibre_catd C (Context_proj_func (Fibre_catd F G))) (Context_func (Fibre_elim_funcd F G)) Z), 
-funcd C G (Pi_catd F Z);
-
-rule Pi_elim_funcd (Pi_intro_funcd $C $G $F $CC ) ↪ $CC;
-
-assert [X' : cat] (C : catd X') [X : cat] (G : func X' X) (F : catd X) [Z : catd (Context_cat F)] 
-(CC : funcd (Fibre_catd C (Context_proj_func (Fibre_catd F G))) (Context_func (Fibre_elim_funcd F G)) Z) ⊢
-Pi_elim_funcd (Pi_intro_funcd C G F CC ) ≡ CC;
-
-// //this alternative version has problems to express the rewrite rule (bad, slow)
-// constant symbol Pi_elim_funcd_v0 : Π [X : cat] (F : catd X) (Z : catd (Context_cat F)),
-// funcd (Fibre_catd (Pi_catd F Z) (Context_proj_func F)) Id_func Z;
-// type λ [X' : cat] (C : catd X') [X : cat] (G : func X' X) (F : catd X) [Z : catd (Context_cat F)] 
-// (CC : funcd (Fibre_catd C (Context_proj_func (Fibre_catd F G))) (Context_func (Fibre_elim_funcd F G)) Z)
-// [X''] [x' : func X'' X'] [C' : catd X''] [DD : funcd C' x' C] , 
-// (Fibre_intro_funcd (Pi_catd F Z) (Context_proj_func F) (Context_func (Fibre_elim_funcd F G)) 
-//       ((Fibre_elim_funcd C (Context_proj_func  ((Fibre_catd F G) )))  ∘>d (Pi_intro_funcd C G F CC)))
-//       ∘>d  (Pi_elim_funcd_v0 F Z) 
-// = CC;
-
-//naturality
-
-rule @∘>d  _ _ _  $C' $C _  $x' $G $DD (Pi_intro_funcd $C $G $F $CC)
-↪ Pi_intro_funcd $C' ($x' ∘> $G) $F 
- ((Fibre_intro_funcd $C (Context_proj_func (Fibre_catd $F $G)) (Context_func (Fibre_elim_funcd (Fibre_catd $F $G) $x')) 
-      ((Fibre_elim_funcd $C' (Context_proj_func  ((Fibre_catd (Fibre_catd $F $G)) $x'))) ∘>d $DD))
-      ∘>d $CC);
-
-assert [X' : cat] (C : catd X') [X : cat] (G : func X' X) (F : catd X) [Z : catd (Context_cat F)] 
-(CC : funcd (Fibre_catd C (Context_proj_func (Fibre_catd F G))) (Context_func (Fibre_elim_funcd F G)) Z)
-[X''] [x' : func X'' X'] [C' : catd X''] [DD : funcd C' x' C] ⊢
-@∘>d _ _ _  C' C _  x' G DD (Pi_intro_funcd C G F CC)
-≡ Pi_intro_funcd C' (x' ∘> G) F 
- ((Fibre_intro_funcd C (Context_proj_func (Fibre_catd F G)) (Context_func (Fibre_elim_funcd (Fibre_catd F G) x')) 
-      ((Fibre_elim_funcd C' (Context_proj_func  ((Fibre_catd (Fibre_catd F G)) x'))) ∘>d DD))
-      ∘>d CC);
-
-//TODO: redo naturality for Pi_elim_funcd 
-// rule $DD ∘>d (Pi_elim_funcd_v0 $C $G $F $CC) ↪ (Pi_elim_funcd_v0 _ _ $F ($DD ∘>d $CC));
-
-
-// --------------------------------------------
-// # CONTEXT EXTENSION
-// ## CONTEXT EXTENSION FOR PROFUNCTORS
-
-
-/// /!\ SIMPLIFIED VERSION THE FIBRATION OF CATEGORIES PART IS TRIVIAL
-/// simpler version possible where both cov and con are terminal
-//using opaque keyword, can start with defined symbol then switch to constant after the file
-injective symbol Context_mod : Π [X Y : cat] [R : mod X Y] ,
-modd (Terminal_catd X) R (Terminal_catd Y) →
-mod X Y;
-
-injective symbol Context_mod_proj_transf : Π [X Y : cat] [R : mod X Y]
-(RR : modd (Terminal_catd X) R (Terminal_catd Y)), 
-transf (Context_mod RR) Id_func R Id_func;
-
-//TODO: later more general alternatives
-injective symbol Context_mod_intro_transf: Π [X Y  Y': cat] [yy' : func Y Y'] [R' : mod X Y'] [R : mod X Y]
-(t : transf R Id_func R' yy' )   [RR' : modd (Terminal_catd X) R' (Terminal_catd Y')]  ,
-transfd t (Terminal_modd R) Id_funcd RR' (Terminal_funcd _ _ )
- → transf R Id_func (Context_mod RR') yy';
-
-injective symbol Context_mod_transf : Π [X Y Y': cat]  [G : func Y Y'] [R' : mod X Y'] [R : mod X Y]
-(r : transf R Id_func R' G) [RR: modd (Terminal_catd X) R (Terminal_catd Y)]  [RR' : modd (Terminal_catd X) R' (Terminal_catd Y')],
-transfd r RR Id_funcd RR' (Terminal_funcd _ _)
- → transf (Context_mod RR) Id_func (Context_mod RR') G;
-
- rule Context_mod_intro_transf $t $TT ''∘ Context_mod_proj_transf _ ↪ $t;
- //is extensional version necessary?
-//  rule ($x '∘ Context_mod_intro_transf $t $TT) '∘ Context_mod_proj_transf _ ↪ $x '∘ $t;
-
-rule (Context_mod_transf $r $rr) ''∘ (Context_mod_proj_transf $RR) 
-↪ (Context_mod_proj_transf _) ''∘ $r;
-
-rule Context_mod_intro_transf _ $tt ''∘ (Context_mod_transf $r $rr) 
-↪ Context_mod_intro_transf _ ($tt ''∘d $rr);
-
-rule (Context_mod_transf $t  $tt)  ''∘ (Context_mod_transf $r $rr) 
-↪ Context_mod_transf _ ($tt ''∘d $rr);
- 
-rule Context_mod (Terminal_modd $R)  ↪ $R
-with Context_mod (Unit_modd $FF $GG) ↪ (Unit_mod (Context_func $FF) (Context_func $GG));
-
-rule Context_mod_proj_transf (Terminal_modd $R) ↪ (Id_transf _);
-rule Context_mod_transf _ (Id_transfd _) ↪ (Id_transf _);
-
-rule Context_mod (Cast_modd $RR)  ↪ $RR;
-rule Context_mod_transf _ (Cast_intro_transfd $T_ ) ↪ $T_;
-
-//REVIEW: was the problem of a general version of naturality for any transf solved or is it required to add instances?
-// rule $x '∘ ( (Id_func)_'∘> ($g '∘ Context_mod_proj_transf _))
-// ↪ $x '∘ (((Id_func)_'∘> $g) ''∘ Context_mod_proj_transf _ );
-
-// generalize first before this
-// rule  (Context_func $FF) ∘>> (Context_mod $RR) ↪ Context_mod ($FF ∘>>d $RR) 
-// with  (Context_mod $RR) <<∘ (Context_func $GG) ↪ Context_mod ($RR d<<∘ $GG ) ;
-// with Context_mod ($R ⊗d $S)  ↪ (Context_mod $R) ⊗ (Context_mod $S);
-
-
-// --------------------------------------------
-// # SIGMA-SUM: PART 2
-// ## SIGMA-SUM OF PROFUNCTORS
-
-
-// ... SIMPLIFIED version
-injective symbol Sigma_modd : Π [X Y : cat] [R : mod X Y] (RR : modd (Terminal_catd X) R (Terminal_catd Y)) (ZZ : modd (Terminal_catd X) (Context_mod RR) (Terminal_catd Y)), modd (Terminal_catd X) R (Terminal_catd Y);
-
-constant symbol Sigma_intro_transfd : Π [X Y : cat] [R : mod X Y] (RR : modd (Terminal_catd X) R (Terminal_catd Y)) (ZZ : modd (Terminal_catd X) (Context_mod RR) (Terminal_catd Y)),
-    transfd (Context_mod_proj_transf RR) ZZ Id_funcd (Sigma_modd RR ZZ) Id_funcd /* (Terminal_funcd _ _) */ ;
-
-constant symbol Sigma_elim_transfd : Π [X Y : cat] [R : mod X Y] (RR : modd (Terminal_catd X) R (Terminal_catd Y)) [ZZ : modd (Terminal_catd X) (Context_mod RR) (Terminal_catd Y)], Π [R'] (t : transf R Id_func R' Id_func) [RR' : modd (Terminal_catd X) R' (Terminal_catd Y)],
-transfd ((Context_mod_proj_transf RR) ''∘ t) ZZ Id_funcd RR' Id_funcd 
-→ transfd t (Sigma_modd RR ZZ) Id_funcd RR' Id_funcd ;
-
-rule (Sigma_intro_transfd $RR $ZZ) ''∘d (Sigma_elim_transfd $RR $t $rr') ↪ $rr';
-
-
-// --------------------------------------------
-// # PI-PRODUCT: PART 2
-// ## FULLY GENERAL SIGMA/PI CONSTRUCTIONS ON FIBRED PROFUNCTORS
-
-
-//TODO: MORE GENERAL VERSIONS...
-injective symbol Context_mod' : Π [X Y : cat] [R : mod X Y] [B : catd Y],
-modd (Terminal_catd X) R B → mod X (Context_cat B);
-injective symbol Context_mod_proj_transf' : Π [X Y : cat] [R : mod X Y] [B : catd Y] (RR : modd (Terminal_catd X) R B), 
-transf (Context_mod' RR) Id_func R (Context_proj_func B);
-injective symbol Context_mod_intro_transf': Π [X Y  Y': cat]   [B' : catd Y']  [yy' : func Y Y'] [R' : mod X Y'] [R : mod X Y]
- (t : transf R Id_func R' yy' )   [RR' : modd (Terminal_catd X) R' B'] [GG : funcd (Terminal_catd Y) yy' B'] ,
- transfd t (Terminal_modd R) Id_funcd RR' GG → transf R Id_func (Context_mod' RR') (Context_intro_func _ GG);
-rule Context_mod_intro_transf' $t $TT ''∘ Context_mod_proj_transf' _ ↪ $t;
-// Note that it is not using sigma of categories, it is more general
-injective symbol Sigma_modd' : Π [X Y : cat] [R : mod X Y] [YY : catd Y] (RR : modd (Terminal_catd X) R YY) [YY0 : catd (Context_cat YY)] (ZZ : modd (Terminal_catd X) (Context_mod' RR) YY0) [YY1 : catd Y] (GG : funcd YY0 (Context_proj_func YY) YY1) , modd (Terminal_catd X) R YY1;
-
-
-// --------------------------------------------
-// # SIEVES
-// ## SIEVES CLASSIFIER
-
+/*****************************************
+* # SIEVES
+* ## SIEVES CLASSIFIER
+******************************************/
 
 // Subprofunctor classifier
 
@@ -292,7 +98,7 @@ injective symbol sieve_mod  [S : cat] [I] [F : func I S] [D] [K : func I D] (ff 
 injective symbol sieve_mod_proj_transf  [A : cat]  [I] [F : func I A] 
 [D] [K : func I D] (ff : hom F (sieve A D) K)
 : transf (sieve_mod ff) Id_func (Unit_mod Id_func F) Id_func
-≔ Context_mod_proj_transf (sieve_modd ff);
+≔ Context_elimMod_transf (sieve_modd ff);
 
 // pullback of sieve, defined symbol, could eventually compute to concrete sieve
 symbol pullback_sieve  [S : cat] [I] [F : func I S] [D] [K : func I D]
@@ -318,16 +124,16 @@ injective symbol subclassifier_modd_intro_transf  [S : cat]
 [I ] [E : mod S I ]  [D] [K : func I D] (ff : transf E Id_func (sieve S D) K)
 [J] [G  : func J S] [i : func J I] (e : hom G E i )
 : transf (sieve_mod (e '∘ ff)) Id_func (Context_mod (subclassifier_modd ff)) i 
-≔ Context_mod_transf _ (subclassifier_modd_intro_transfd ff e) ; 
+≔ Context_intro_transf (subclassifier_modd_intro_transfd ff e) ; 
 
-rule Fibre_modd (subclassifier_modd $ff) ($t)
+rule @Fibre_modd _ _ _ _ _ _ _ (subclassifier_modd $ff) _ Id_func _ ($t)
 ↪ (subclassifier_modd ($t ''∘ $ff));
 
 // shortcuts, not necessary
 rule subclassifier_modd ((Id_func)_'∘> $ff)
 ↪ sieve_modd $ff;
 rule subclassifier_modd_intro_transfd ((Id_func)_'∘> $ff) $e
-↪ Fibre_modd_elim_transfd (sieve_modd $ff) ((Id_func)_'∘> $e) ;
+↪ Fibre_elim_transfd (sieve_modd $ff) ((Id_func)_'∘> $e) ;
 
 
 // --------------------------------------------
@@ -361,7 +167,7 @@ rule sieve_modd (maximal_sieve $F $K)
 
 injective symbol maximal_sieve_intro_transf [S : cat] [I] (F : func I S) [D] (K : func I D)
 : transf (Unit_mod Id_func F) Id_func (sieve_mod (maximal_sieve F K)) Id_func
-≔ Context_mod_intro_transf ( (Id_func) _'∘> (Func_cov_hom F Id_func) ) (Terminal_transfd (Terminal_modd (Unit_mod Id_func F)) ( (Id_func) _'∘> (Func_cov_hom F Id_func) ));
+≔ Context_intro_transf /*( (Id_func) _'∘> (Func_cov_hom F Id_func) ) */(Terminal_transfd (Terminal_modd (Unit_mod Id_func F)) ( (Id_func) _'∘> (Func_cov_hom F Id_func) ));
 
 // intersection sieve
 
@@ -387,7 +193,7 @@ symbol sub_sieve_intro_transf [S : cat] [I] [F : func I S][D] [K : func I D]
 (ff : hom F (sieve S D) K) [D'] [H : func I D'] (T_ : transf (sieve_mod ff) Id_func (sieve S D') H)
 [J] [G : func J S] [f_i: func J I] (f : hom G (sieve_mod ff) f_i)
 : transf (sieve_mod (f '∘ T_)) Id_func (sieve_mod (sub_sieve ff T_)) f_i
-≔ Context_mod_transf _ 
+≔ Context_intro_transf
 (subclassifier_modd_intro_transfd  T_ f 
 ''∘d Sigma_intro_transfd (sieve_modd ff) (subclassifier_modd T_));
 
@@ -405,14 +211,14 @@ symbol intersection_as_sub_sieve_of_pullbacking [S : cat] [I] [F : func I S]
 
 
 constant symbol site : cat → TYPE ; 
-constant symbol site_Set : cat → Set;
-rule τ (site_Set $C) ↪ site $C;
+constant symbol site_type : cat → Type;
+rule τ (site_type $C) ↪ site $C;
 
 // classifier for sheaves, not internalized
 
 constant symbol smod : Π [S : cat] (S_site : site S) (I : cat), TYPE ;
-constant symbol smod_Set : Π [S : cat] (S_site : site S) (I : cat), Set ;
-rule τ (@smod_Set $S $A $B) ↪ @smod $S $A $B;
+constant symbol smod_type : Π [S : cat] (S_site : site S) (I : cat), Type ;
+rule τ (@smod_type $S $A $B) ↪ @smod $S $A $B;
 
 injective symbol smod_mod : Π [S : cat] [S_site : site S] [I : cat], smod S_site I → mod S I ;
 
@@ -600,40 +406,40 @@ rule (ssieve_sieve $S_site (sub_ssieve $S_site $ff $gg_))
 
 
 // rings 
-constant symbol ring : Set → TYPE ; 
-symbol ring_type [R_set : Set] (R : ring R_set) : TYPE ≔ τ R_set;
+constant symbol ring : Type → TYPE ; 
+symbol ring_type [R_type : Type] (R : ring R_type) : TYPE ≔ τ R_type;
 
-symbol ring_one : Π [R_set : Set] (R : ring R_set), ring_type R;
-symbol ring_mult : Π [R_set : Set] (R : ring R_set) (r s : ring_type R), ring_type R;
-symbol ring_inv [R_set : Set] (R : ring R_set) (r : ring_type R): TYPE 
- ≔ τsub_ (λ r_inv, ring_mult R r r_inv = ring_one R);
+symbol ring_one : Π [R_type : Type] (R : ring R_type), ring_type R;
+symbol ring_mult : Π [R_type : Type] (R : ring R_type) (r s : ring_type R), ring_type R;
+symbol ring_inv [R_type : Type] (R : ring R_type) (r : ring_type R): TYPE 
+ ≔ τΣ_ (λ r_inv, ring_mult R r r_inv = ring_one R);
 
 // role appear only later, for unimodular sieve
-symbol ring_add : Π [R_set : Set] (R : ring R_set) (r s : ring_type R), ring_type R;
+symbol ring_add : Π [R_type : Type] (R : ring R_type) (r s : ring_type R), ring_type R;
 
 // morphisms of rings
-constant symbol ring_morph : Π [R_set : Set] (R : ring R_set) [T_Set : Set] (T : ring T_Set), TYPE;
-constant symbol ring_morph_Set : Π [R_set : Set] (R : ring R_set) [T_Set : Set] (T : ring T_Set), Set;
-rule τ (ring_morph_Set $R $T) ↪ ring_morph $R $T;
+constant symbol ring_morph : Π [R_type : Type] (R : ring R_type) [T_type : Type] (T : ring T_type), TYPE;
+constant symbol ring_morph_type : Π [R_type : Type] (R : ring R_type) [T_type : Type] (T : ring T_type), Type;
+rule τ (ring_morph_type $R $T) ↪ ring_morph $R $T;
 
-symbol ring_morph_fun : Π [R_set : Set] [R : ring R_set] [T_Set : Set] [T : ring T_Set], ring_morph R T → ring_type R → ring_type T;
+symbol ring_morph_fun : Π [R_type : Type] [R : ring R_type] [T_type : Type] [T : ring T_type], ring_morph R T → ring_type R → ring_type T;
 
 // some very minimal preliminary details of algebra
 
-// inductive ℕ : TYPE ≔  .. natural numbers defined in another file 
+// inductive nat : TYPE ≔  .. natural numbers defined in another file 
 //REVIEW: QUESTION: must use actual compuations or only the logical interface of nat numbers?
-symbol + : ℕ → ℕ → ℕ; notation + infix left 20;
+symbol + : nat → nat → nat; notation + infix left 20;
 rule 0 + $y ↪ $y
-with (s $x) + $y ↪ s ($x + $y) ;
+with ($x +1) + $y ↪ ($x + $y) +1 ;
 
-constant symbol ring_eq_mult_oneR : Π [R_set : Set] (R : ring R_set), Π (f : ring_type R),
-  π (ring_mult R f (ring_one R) = f);
-constant symbol ring_eq_mult_oneL : Π [R_set : Set] (R : ring R_set), Π (f : ring_type R),
-  π (ring_mult R (ring_one R) f = f);
+constant symbol ring_eq_mult_oneR : Π [R_type : Type] (R : ring R_type), Π (f : ring_type R),
+  τ (ring_mult R f (ring_one R) = f);
+constant symbol ring_eq_mult_oneL : Π [R_type : Type] (R : ring R_type), Π (f : ring_type R),
+  τ (ring_mult R (ring_one R) f = f);
 
 // defined symbol, not part of the structure
-symbol ring_exp : Π [R_set : Set] (R : ring R_set) (r : ring_type R) (n : ℕ), ring_type R;
-rule ring_exp $R $r (s $n) ↪ ring_mult $R (ring_exp $R $r $n) $r
+symbol ring_exp : Π [R_type : Type] (R : ring R_type) (r : ring_type R) (n : nat), ring_type R;
+rule ring_exp $R $r ($n +1) ↪ ring_mult $R (ring_exp $R $r $n) $r
 with ring_exp $R $r 0 ↪ ring_one $R;
 
 
@@ -644,20 +450,20 @@ with ring_exp $R $r 0 ↪ ring_one $R;
 
 // interface for localization of rings
 
-constant symbol ring_loc : Π [R_set : Set] (R : ring R_set) (f : ring_type R) [Rf_set : Set] (Rf : ring Rf_set), TYPE;
+constant symbol ring_loc : Π [R_type : Type] (R : ring R_type) (f : ring_type R) [Rf_type : Type] (Rf : ring Rf_type), TYPE;
 
-constant symbol ring_loc_intro : Π [R_set : Set] [R : ring R_set] [f : ring_type R] [Rf_set : Set] [Rf : ring Rf_set], ring_loc R f Rf → 
-ring_type R →  ℕ → ring_type Rf;
+constant symbol ring_loc_intro : Π [R_type : Type] [R : ring R_type] [f : ring_type R] [Rf_type : Type] [Rf : ring Rf_type], ring_loc R f Rf → 
+ring_type R →  nat → ring_type Rf;
 
-constant symbol ring_loc_intro_rel : Π [R_set : Set] [R : ring R_set] [f : ring_type R] [Rf_set : Set] [Rf : ring Rf_set] (Rf_ring_loc : ring_loc R f Rf), 
-Π (r : ring_type R) (n : ℕ) (s : ring_type R) (m : ℕ) (k : ℕ), 
-π ( ring_mult R (ring_exp R f k) (ring_mult R (ring_exp R f m) r) 
+constant symbol ring_loc_intro_rel : Π [R_type : Type] [R : ring R_type] [f : ring_type R] [Rf_type : Type] [Rf : ring Rf_type] (Rf_ring_loc : ring_loc R f Rf), 
+Π (r : ring_type R) (n : nat) (s : ring_type R) (m : nat) (k : nat), 
+τ ( ring_mult R (ring_exp R f k) (ring_mult R (ring_exp R f m) r) 
    = ring_mult R (ring_exp R f k) (ring_mult R (ring_exp R f n) s)) → 
-π (ring_loc_intro Rf_ring_loc r n = ring_loc_intro Rf_ring_loc s m);
+τ (ring_loc_intro Rf_ring_loc r n = ring_loc_intro Rf_ring_loc s m);
 
 // ?should skip inductive-set elimination and go directly to univ algebra? and should be univ formulation for rings or for  R-algebras?
-constant symbol ring_loc_elim : Π [R_set : Set] [R : ring R_set] [f : ring_type R] [Rf_set : Set] [Rf : ring Rf_set], ring_loc R f Rf → 
-Π [T_Set : Set] [T :  ring T_Set],
+constant symbol ring_loc_elim : Π [R_type : Type] [R : ring R_type] [f : ring_type R] [Rf_type : Type] [Rf : ring Rf_type], ring_loc R f Rf → 
+Π [T_type : Type] [T :  ring T_type],
 /* ring map (by the way making T into R-alg), not present when univ for R-algebras */
 Π (m :  ring_morph R T),
 // witness that f is indeed invertible
@@ -668,25 +474,25 @@ ring_inv T (ring_morph_fun m f)
 rule ring_morph_fun (ring_loc_elim $Rf_loc $m $mf_inv) (ring_loc_intro $Rf_loc $r 0)
 ↪ ring_morph_fun $m $r;
 rule ring_morph_fun (ring_loc_elim $Rf_loc $m $mf_inv) (@ring_loc_intro _ $R _ _ _ $Rf_loc (ring_one $R) 1)
-↪ sub_Fst $mf_inv;
+↪ sigma_Fst $mf_inv;
 
 // rest of the interface specification
 
-constant symbol ring_loc_ring_mult: Π [R_set : Set] [R : ring R_set] [f : ring_type R] [Rf_set : Set] [Rf : ring Rf_set] (Rf_loc : ring_loc R f Rf),
-Π (r : ring_type R) (n : ℕ) (s : ring_type R) (m : ℕ),
-π (ring_mult Rf (ring_loc_intro Rf_loc r n) (ring_loc_intro Rf_loc s m) 
+constant symbol ring_loc_ring_mult: Π [R_type : Type] [R : ring R_type] [f : ring_type R] [Rf_type : Type] [Rf : ring Rf_type] (Rf_loc : ring_loc R f Rf),
+Π (r : ring_type R) (n : nat) (s : ring_type R) (m : nat),
+τ (ring_mult Rf (ring_loc_intro Rf_loc r n) (ring_loc_intro Rf_loc s m) 
   = (ring_loc_intro Rf_loc (ring_mult R r s) (n + m)));
 
-constant symbol ring_loc_ring_one: Π [R_set : Set] [R : ring R_set] [f : ring_type R] [Rf_set : Set] [Rf : ring Rf_set] (Rf_loc : ring_loc R f Rf),
-π (ring_one Rf = (ring_loc_intro Rf_loc (ring_one R) 0));
+constant symbol ring_loc_ring_one: Π [R_type : Type] [R : ring R_type] [f : ring_type R] [Rf_type : Type] [Rf : ring Rf_type] (Rf_loc : ring_loc R f Rf),
+τ (ring_one Rf = (ring_loc_intro Rf_loc (ring_one R) 0));
 
 // sanity check
 // derived proof that the ring element f becomes indeed invertible in the localization away from f
-opaque symbol ring_loc_ring_inv [R_set : Set] [R : ring R_set] [f : ring_type R] [Rf_set : Set] [Rf : ring Rf_set] (Rf_loc : ring_loc R f Rf) (v : π (ring_mult Rf (ring_loc_intro Rf_loc f 0) (ring_loc_intro Rf_loc (ring_one R) 1) = ring_one Rf) ) 
+opaque symbol ring_loc_ring_inv [R_type : Type] [R : ring R_type] [f : ring_type R] [Rf_type : Type] [Rf : ring Rf_type] (Rf_loc : ring_loc R f Rf) (v : τ (ring_mult Rf (ring_loc_intro Rf_loc f 0) (ring_loc_intro Rf_loc (ring_one R) 1) = ring_one Rf) ) 
 : ring_inv Rf (ring_loc_intro Rf_loc f 0) ≔
 begin
-  assume R_set R f Rf_set Rf Rf_loc v;
-  refine (Struct_sub (ring_loc_intro Rf_loc (ring_one R) 1) _);
+  assume R_type R f Rf_type Rf Rf_loc v;
+  refine (Struct_sigma (ring_loc_intro Rf_loc (ring_one R) 1) _);
   rewrite (ring_loc_ring_mult Rf_loc); simplify;
   rewrite ring_eq_mult_oneR R; rewrite ring_loc_ring_one Rf_loc;
   apply ring_loc_intro_rel Rf_loc _ _ _ _ 0; simplify;
@@ -702,11 +508,11 @@ end;
 
  
 constant symbol mod_ring : Π [A B : cat]  (M : mod A B), TYPE ;
-constant symbol mod_ring_Set : Π [A B : cat] (M : mod A B), Set ;
-rule τ (mod_ring_Set $M) ↪ mod_ring $M;
+constant symbol mod_ring_type : Π [A B : cat] (M : mod A B), Type ;
+rule τ (mod_ring_type $M) ↪ mod_ring $M;
 
 
-symbol mod_ring_ring : Π [A B A' : cat] [I] (U : func I A') (F : func A' A) [M_mod : mod A B] (M : mod_ring M_mod) (G : func I B), ring (hom_Set U (F ∘>> M_mod) G);
+symbol mod_ring_ring : Π [A B A' : cat] [I] (U : func I A') (F : func A' A) [M_mod : mod A B] (M : mod_ring M_mod) (G : func I B), ring (hom_type U (F ∘>> M_mod) G);
 
 symbol mod_ring_con_ring_morph : Π [A B A' : cat] [I] [U : func I A']  
 [V : func I A'] (v : hom V (Unit_mod Id_func /* H ? */ U) Id_func /* x */ ) (F : func A' A) [M_mod : mod A B] (M : mod_ring M_mod) (G : func I B), ring_morph (mod_ring_ring U F M G) (mod_ring_ring V F M G) ;
@@ -761,7 +567,7 @@ hom V (sieve_mod (mod_loc_sieve D F f)) Id_func;
 //  ( compat family = ) lim_V_a (O_X(V_a : DD(f))) =  O_X(U)[1/f]    
 symbol mod_loc_elim : Π [S : cat] [O : mod S Terminal_cat] [O_ring : mod_ring O] (D : mod_loc O_ring),
 Π [S'] (F : func S' S) [I] [U : func I S'] (f : hom U (F ∘>> O) (Terminal_func _)), 
-Π [OU_f_Set : Set] [OU_f : ring OU_f_Set] (Of_loc : ring_loc (mod_ring_ring U F O_ring (Terminal_func _)) f OU_f),
+Π [OU_f_type : Type] [OU_f : ring OU_f_type] (Of_loc : ring_loc (mod_ring_ring U F O_ring (Terminal_func _)) f OU_f),
 // 1. TODO: ?should be ring morphisms? how? make transf a ring when target is a mod_ring
 // 2. ?should instead generalize to any target where f is inv?
 transf (sieve_mod (mod_loc_sieve D F f)) Id_func (F ∘>> O) (Terminal_func _)
@@ -773,7 +579,7 @@ transf (sieve_mod (mod_loc_sieve D F f)) Id_func (F ∘>> O) (Terminal_func _)
 rule ring_morph_fun (ring_loc_elim $Of_loc (mod_ring_con_ring_morph $v $F $O_ring $Id_func) $f_inv) (@mod_loc_elim _ _ $O_ring $D _ $F _ _ $f _ _ $Of_loc $g_ )
 ↪ (mod_loc_sieve_intro_hom $D $F $f $v $f_inv) '∘ $g_ ; 
 
-assert [S : cat] [O : mod S Terminal_cat]  [O_ring : mod_ring O] (D : mod_loc O_ring) [S'] (F : func S' S) [U : func Terminal_cat S'] (f : hom U (F ∘>> O) Id_func) [OU_f_Set : Set] [OU_f : ring OU_f_Set] (Of_loc : ring_loc (mod_ring_ring U F O_ring Id_func) f OU_f)
+assert [S : cat] [O : mod S Terminal_cat]  [O_ring : mod_ring O] (D : mod_loc O_ring) [S'] (F : func S' S) [U : func Terminal_cat S'] (f : hom U (F ∘>> O) Id_func) [OU_f_type : Type] [OU_f : ring OU_f_type] (Of_loc : ring_loc (mod_ring_ring U F O_ring Id_func) f OU_f)
 (g_ : transf (sieve_mod (mod_loc_sieve D F f)) Id_func (F ∘>> O) Id_func )
 // instead? (v : hom V (sieve_mod (mod_loc_sieve D f)) Id_func)
 [V : func Terminal_cat S'] (v : hom V (Unit_mod Id_func U) Id_func) (f_inv : ring_inv (mod_ring_ring V F O_ring Id_func) (v '∘ (_)_'∘> f )) ⊢
@@ -799,7 +605,7 @@ rule (mod_loc_elim (mod_pullb_mod_loc $D $F0) $F $f $Of_loc)
 injective symbol slice_cat [S : cat] [I] (U : func I S) : cat
 ≔  Context_cat  (Comma_con_catd (Unit_mod Id_func U) (Terminal_catd _) );
 injective symbol slice_proj_func [S : cat] [I] (U : func I S) : func (slice_cat U) S
-≔  Context_proj_func (Comma_con_catd (Unit_mod Id_func U) (Terminal_catd _) );
+≔  Context_elimCat_func (Comma_con_catd (Unit_mod Id_func U) (Terminal_catd _) );
 constant symbol slice_site : Π [S : cat] (S_site : site S) [I] (U : func I S), 
 site (slice_cat U);
 
@@ -946,7 +752,7 @@ rule mod_loc_smod (@Struct_mod_loc $Ml_cat $Ml_site $Ml_smod $Ml_mod_ring $Ml_mo
 rule mod_loc_mod_ring (@Struct_mod_loc $Ml_cat $Ml_site $Ml_smod $Ml_mod_ring $Ml_mod_loc) ↪ $Ml_mod_ring;
 rule mod_loc_mod_loc (@Struct_mod_loc $Ml_cat $Ml_site $Ml_smod $Ml_mod_ring $Ml_mod_loc) ↪ $Ml_mod_loc;
 
-injective symbol mod_loc_ring (Ml : struct_mod_loc) [I] (U : func I (mod_loc_cat Ml)) : ring (hom_Set U (smod_mod (mod_loc_smod Ml)) (Terminal_func _)) 
+injective symbol mod_loc_ring (Ml : struct_mod_loc) [I] (U : func I (mod_loc_cat Ml)) : ring (hom_type U (smod_mod (mod_loc_smod Ml)) (Terminal_func _)) 
 ≔ mod_ring_ring U Id_func (mod_loc_mod_ring Ml) (Terminal_func _);
 
 // affine schmes
@@ -960,7 +766,7 @@ constant symbol ascheme_inv_func : Π [Ml : struct_mod_loc] (Af : ascheme Ml),
 //TODO: TO COMPLETE: all constructors must be relativized, have versions (witnesses) in the slice
 constant symbol ascheme_inv_slice_func : Π [Ml : struct_mod_loc] (Af : ascheme Ml),
 Π [I] [U : func I (mod_loc_cat Ml)] (r : hom U (smod_mod (mod_loc_smod Ml)) (Terminal_func _)), func I (slice_cat U);
-rule ascheme_inv_slice_func $Af $r ∘> Context_proj_func _ 
+rule ascheme_inv_slice_func $Af $r ∘> Context_elimCat_func _ 
 ↪ ascheme_inv_func $Af $r;
 
 ///extensional (non intrinsically-manifest) truncation. question: truncate only in the base subcat?
@@ -968,7 +774,7 @@ rule ascheme_inv_slice_func $Af $r ∘> Context_proj_func _
 constant symbol ascheme_poset_truncate : Π [Ml : struct_mod_loc] (Af : ascheme Ml),
 Π [I] [U : func I _] [r s : hom U (smod_mod (mod_loc_smod Ml)) (Terminal_func _)]
 (f f' : hom (ascheme_inv_func Af r) (Unit_mod Id_func (ascheme_inv_func Af s)) Id_func),
- π  (f = f');
+ τ  (f = f');
 
 //todo: review the best version of possible formulations; combine the radicals and multiplication?
 
@@ -982,7 +788,7 @@ hom (ascheme_inv_func Af (ring_mult (mod_loc_ring Ml U) s r)) (Unit_mod Id_func 
 
 // radical
 constant symbol ascheme_radical_hom : Π [Ml : struct_mod_loc] (Af : ascheme Ml),
-Π [I] [U : func I _] (r : hom U (smod_mod (mod_loc_smod Ml)) (Terminal_func _)) (n : ℕ), 
+Π [I] [U : func I _] (r : hom U (smod_mod (mod_loc_smod Ml)) (Terminal_func _)) (n : nat), 
 hom (ascheme_inv_func Af r) (Unit_mod Id_func (ascheme_inv_func Af (ring_exp (mod_loc_ring Ml U) r n))) Id_func;
 
 // this congruent/relativized version don't seem necessary anymore because everything is intrinsically relative under a slice
@@ -1027,7 +833,7 @@ rule (ascheme_mod_loc_sieve_intro_hom $Af $r) '∘ ascheme_mod_loc_sieve_elim_tr
 symbol ascheme_mod_loc_sieve_intro_cat_hom [Ml : struct_mod_loc] (Af : ascheme Ml)
  [I] [U : func I _] (r : hom U (smod_mod (mod_loc_smod Ml)) (Terminal_func _)):
 hom (ascheme_inv_func Af r) (Unit_mod Id_func U) Id_func
-≔ (ascheme_mod_loc_sieve_intro_hom Af r) '∘ Context_mod_proj_transf (sieve_modd (mod_loc_sieve (mod_loc_mod_loc Ml) Id_func r)) ;
+≔ (ascheme_mod_loc_sieve_intro_hom Af r) '∘ Context_elimMod_transf (sieve_modd (mod_loc_sieve (mod_loc_mod_loc Ml) Id_func r)) ;
 
 // this is the product/pullback operation in the site
 
@@ -1185,8 +991,8 @@ transf (sieve_mod (ascheme_join_sieve Af W r)) Id_func (smod_mod T) G;
 
 // NOTE: USED SLICE CATEGORY TO REQUIRE THAT THIS EQUATION CONDITION BE DEFINITIONAL/COMPUTATIONAL 
 // BUT THEREAFTER EVEM WITH A (METAFRAMEWORK's) PROPOSITIONAL EQUALITY IT IS STILL POSSIBLE TO BUILD A SLICE CONE (WITH TRANSPORTED GROUNDING) BUT WITHOUT GUARANTY OF COMPUTATION 
-// π ( ((ascheme_bottomJoin_elimL_hom U r) '∘ (_)_'∘> t_l) = t_m )  →
-// π ( ((ascheme_bottomJoin_elimR_hom U r) '∘ (_)_'∘> t_r) = t_m )  →
+// τ ( ((ascheme_bottomJoin_elimL_hom U r) '∘ (_)_'∘> t_l) = t_m )  →
+// τ ( ((ascheme_bottomJoin_elimR_hom U r) '∘ (_)_'∘> t_r) = t_m )  →
 /// NOTE: simpler version is possible because site is poset...
 
 rule  (ascheme_join_sieve_introM_hom $Af $W $r) '∘ (@ascheme_join_sieve_induction _ $Af  _ $U $W $r _ _ _ $t_l $t_m $t_r _ _) ↪ $t_m;
@@ -1213,10 +1019,10 @@ hom (ascheme_inv_func Af (ring_mult (mod_loc_ring Ml U) r1 (ring_add (mod_loc_ri
 constant symbol ascheme_unimodular_sieve_intro2_hom : Π [Ml : struct_mod_loc] (Af : ascheme Ml) [I] [U : func I (mod_loc_cat Ml)] (r1 r2 : hom U (smod_mod (mod_loc_smod Ml)) (Terminal_func _)) /* here parameter j for r_j */,
 hom (ascheme_inv_func Af (ring_mult (mod_loc_ring Ml U) r2 (ring_add (mod_loc_ring Ml U) r1 r2))) (sieve_mod (ascheme_unimodular_sieve Af r1 r2)) Id_func ;
 
-rule (@ascheme_unimodular_sieve_intro1_hom $Ml $Af _ $U $r1 $r2) '∘ Context_mod_proj_transf (sieve_modd(ascheme_unimodular_sieve $Af $r1 $r2))
+rule (@ascheme_unimodular_sieve_intro1_hom $Ml $Af _ $U $r1 $r2) '∘ Context_elimMod_transf (sieve_modd(ascheme_unimodular_sieve $Af $r1 $r2))
 ↪ (ascheme_multL_hom $Af $r1 (ring_add (mod_loc_ring $Ml $U) $r1 $r2) )  ;
 
-rule (@ascheme_unimodular_sieve_intro2_hom $Ml $Af _ $U $r1 $r2) '∘ Context_mod_proj_transf (sieve_modd(ascheme_unimodular_sieve $Af $r1 $r2))
+rule (@ascheme_unimodular_sieve_intro2_hom $Ml $Af _ $U $r1 $r2) '∘ Context_elimMod_transf (sieve_modd(ascheme_unimodular_sieve $Af $r1 $r2))
 ↪ (ascheme_multL_hom $Af $r2 (ring_add (mod_loc_ring $Ml $U) $r1 $r2) ) ;
 
 //TODO: finish this map which implements the computation in the unimodular localization isomorphisms
@@ -1233,7 +1039,7 @@ type λ [Ml : struct_mod_loc] (Af : ascheme Ml) [I] [U : func I (mod_loc_cat Ml)
 // 2. (smod_mod (mod_smod (mod_loc_site Ml) (sieve_mod (ascheme_unimodular_sieve Af r1 r2)))) 
 
 
-print unif_rule; print coerce_rule;
+print coerce_rule; // /!\ BUG, DONT USE, ONLY CONSOLE print unif_rule;
 
 
 // --------------------------------------------
@@ -1271,15 +1077,15 @@ Next, there are also (substructural) versions of this story in the presence of c
 For dependent-type contexts, the answer lies in a (computational) implementation of the (usually semantic) context-extension operation:
 
     injective symbol Context_cat : Π [X : cat], catd X → cat;
-injective symbol Context_proj_func : Π [X : cat] (A : catd X), func (Context_cat A) X;
-injective symbol Context_intro_func : Π [Y : cat] [B : catd Y] [X : cat] (xy : func X Y), funcd (Terminal_catd X) xy B → func X (Context_cat B);
-injective symbol Context_func : Π [X Y : cat] [A : catd X] [B : catd Y] [xy : func X Y], funcd A xy B → func (Context_cat A) (Context_cat B);
+injective symbol Context_elimCat_func : Π [X : cat] (A : catd X), func (Context_cat A) X;
+injective symbol Context_intro_single_func : Π [Y : cat] [B : catd Y] [X : cat] (xy : func X Y), funcd (Terminal_catd X) xy B → func X (Context_cat B);
+injective symbol Context_intro_func : Π [X Y : cat] [A : catd X] [B : catd Y] [xy : func X Y], funcd A xy B → func (Context_cat A) (Context_cat B);
 
 For subtype contexts, the answer already lies in an implementation of sieves/subobject classifiers/universes as explained in the preceding paragraphs, and in the implementation of the Sigma-sum (along fibrations) and the Pi-product (along opfibrations …) of fibred categories/profunctors (with beck-chevalley-commutation along fibres):
 
     injective symbol Sigma_catd : Π [X : cat] (F : catd X) (Z : catd (Context_cat F)), catd X;
-injective symbol Sigma_elim_funcd : Π [X : cat] (F : catd X) [Z : catd (Context_cat F)] [X'] (G : func X X') [C : catd X'], funcd Z ((Context_proj_func F) ∘> G) C → funcd (Sigma_catd F Z) G C;
-injective symbol Pi_elim_funcd : Π [X : cat] [F : catd X] [Z : catd (Context_cat F)] [X'] [x : func X' X] [E : catd X'], funcd E x (Pi_catd F Z) → funcd (Fibre_catd E (Context_proj_func (Fibre_catd F x))) (Context_func (Fibre_elim_funcd F x)) Z;
+injective symbol Sigma_elim_funcd : Π [X : cat] (F : catd X) [Z : catd (Context_cat F)] [X'] (G : func X X') [C : catd X'], funcd Z ((Context_elimCat_func F) ∘> G) C → funcd (Sigma_catd F Z) G C;
+injective symbol Pi_elim_funcd : Π [X : cat] [F : catd X] [Z : catd (Context_cat F)] [X'] [x : func X' X] [E : catd X'], funcd E x (Pi_catd F Z) → funcd (Fibre_catd E (Context_elimCat_func (Fibre_catd F x))) (Context_intro_func (Fibre_elim_funcd F x)) Z;
 
 For tensor-product contexts, the answer lies in reformulating the elimination rule for the tensor product in multi-categories which says: if a:A, b:B ⊢ C then A⊗B ⊢ C. Each time that this rule would be used, instead its intention can be simulated by the Lambdapi end-user by manually (via macros …) adding a rewrite rule which outputs the intended body content of A⊗B ⊢ C when applied to a constructor ⟨a, b⟩. In short: multi-categories are to help the dummy end-user.
 

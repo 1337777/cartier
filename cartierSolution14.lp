@@ -1,4 +1,38 @@
-/* A new implementation of dependent types via Dosen's substructural categorial programming: example of the Yoneda lemma for fibrations
+/* https://github.com/1337777/cartier/blob/master/cartierSolution14.lp 
+https://github.com/1337777/cartier/blob/master/Kosta_Dosen_outline_alt.pdf
+
+Kosta Dosen's functorial programming: « m— » (read as « emdash » or « modos »), a new proof assistant for schemes.
+  A computational logic (co-inductive) interface for algebraic geometry schemes.
+
+cartierSolution13.lp : DOSEN'S FUNCTORIAL PROGRAMMING
+cartierSolution14.lp : 1+2=3 VIA 3 METHODS: HIGHER DATA TYPE, ADJUNCTION, COLIMIT
+cartierSolution15.lp : POLYNOMIAL FUNCTORS AND CATEGORIES AS POLYNOMIAL COMONOIDS
+cartierSolution16.lp : COMPUTATIONAL LOGIC (CO-INDUCTIVE) INTERFACE FOR SHEAVES AND SCHEMES
+
+https://github.com/1337777/cartier/blob/master/cartierSolution13.lp 
+https://github.com/1337777/cartier/blob/master/cartierSolution14.lp 
+https://github.com/1337777/cartier/blob/master/cartierSolution15.lp 
+https://github.com/1337777/cartier/blob/master/cartierSolution16.lp 
+https://github.com/1337777/cartier/blob/master/Kosta_Dosen_outline_alt.pdf 
+https://github.com/1337777/cartier/blob/master/Kosta_Dosen_outline_alt.docx 
+
+OUTLINE OF cartierSolution14.lp :
+
+# SECTION 1 : Natural numbers category via DATATYPES CATS/OPERATORS IN THE OUTER DOUBLECAT PROF
+
+# SECTION 2 : Natural numbers object, via DATATYPES OBJECTS/FUNCTORS IN ANY INNER PARTICULAR CAT AND INTERNAL ADJUNCTIONS/PRODUCTS/EXPONENTIALS
+
+# SECTION 2.1 : Alternative addition function via (encoded/non-intrinsic) multi-variable/parameter adjunction
+
+# SECTION 2.2 : TODO: Addition function via intrinsic/structural multi-variable adjunction and multivariable functors/profunctors...
+
+# SECTION 3 : Category of finite sets/numbers, and colimits/limits and addition/coproduct
+
+*/
+
+/* Short description (possibly outdated):
+
+ A new implementation of dependent types via Dosen's substructural categorial programming: example of the Yoneda lemma for fibrations
 
 Applications: datatypes or 1+2=3 via 3 methods: natural numbers category via types, natural numbers object via adjunctions and category of finite sets/numbers via colimits
 https://github.com/1337777/cartier/blob/master/cartierSolution14.lp
@@ -23,27 +57,34 @@ compute λ C : cat, (iprod_pair_hom (Product_pair_func (itermin_func C) (itermin
                       (Func_cov_hom (itermin_func C) Id_func) (Func_cov_hom (itermin_func C) Id_func)) '∘ (_)_'∘> 
 ((Id_hom _) ∘>'_(_) ∘' 
     ((Product_pair_cov_hom (Product_pair_func _ _) 
-          (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func
+          (Product_projL_func Id_func) [Id_func] (Product_projR_func Id_func) [Id_func] Id_func
           (Succ_inj_inat_hom C (Zero_inj_inat_hom C)) (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C))))
       '∘ (_)_'∘> (add_inat_hom C))); 
 // λ C, Succ_inj_inat_hom C (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C)))
 
  */
 
+/*
+> lambdapi --version  
+2.5.0 # https://github.com/Deducteam/lambdapi https://github.com/Deducteam/lambdapi-stdlib
+> cat lambdapi.pkg
+package_name = modos
+root_path    = modos
+*/
+
 // require open Blanqui.Lib.Set Blanqui.Lib.Prop Blanqui.Lib.FOL Blanqui.Lib.Eq Blanqui.Lib.Bool Blanqui.Lib.Nat Blanqui.Lib.List;
 require open modos.cartierSolution13;
 
-/* OUTLINE:
---- SECTION 1 : Natural numbers category via DATATYPES CATS/OPERATORS IN THE OUTER DOUBLECAT PROF
---- SECTION 2 : Natural numbers object, via DATATYPES OBJECTS/FUNCTORS IN ANY INNER PARTICULAR CAT AND INTERNAL ADJUNCTIONS/PRODUCTS/EXPONENTIALS
---- SECTION 2.1 : Alternative addition function via (encoded/non-intrinsic) multi-variable/parameter adjunction
---- SECTION 2.2 : TODO: Addition function via intrinsic/structural multi-variable adjunction and multivariable functors/profunctors...
---- SECTION 3 : Category of finite sets/numbers, and colimits/limits and addition/coproduct
- */
+verbose 10;
+flag "print_contexts" on; flag "print_domains" on; flag "print_meta_types" on;
+// flag "print_implicits" on;
+// debug +a; //debug +acdeghiklmoprsyuvxyz;
+print coerce_rule; // /!\ only for console mode: print unif_rule;
+// search "spine = (cartierSolution13.cat → cartierSolution13.cat) , hyp = cartierSolution13.cat";
 
 
 /* ---------------------------
-SECTION 1 : Natural numbers category via DATATYPES CATS/OPERATORS IN THE OUTER DOUBLECAT PROF
+* # SECTION 1 : Natural numbers category via DATATYPES CATS/OPERATORS IN THE OUTER DOUBLECAT PROF
  */
 
 //REVIEW nomenclature: projection/copairing, pairing/univ, injection/cocase, case/couniv,... instead of intro , elim 
@@ -55,9 +96,9 @@ injective symbol FuncCat_pair_func : Π  [A B D : cat]
 //TODO hom arrows for FuncCat
 
 //naturality
-rule $K ∘> (FuncCat_pair_func $F ) ↪ (FuncCat_pair_func ((Product_pairproj_right_func _ $K) ∘> $F));
+rule $K ∘> (FuncCat_pair_func $F ) ↪ (FuncCat_pair_func ((Product_mapR_func _ $K) ∘> $F));
 //beta
-rule (Product_pairproj_right_func $A (FuncCat_pair_func $F )) ∘> (FuncCat_proj_func $A $B ) ↪ $F ;
+rule (Product_mapR_func $A (FuncCat_pair_func $F )) ∘> (FuncCat_proj_func $A $B ) ↪ $F ;
 rule Product_pair_func $K (FuncCat_pair_func $F) ∘> (FuncCat_proj_func $A $B ) ↪ Product_pair_func $K Id_func ∘> $F;
 //eta
 rule (FuncCat_pair_func (FuncCat_proj_func $A $B ))  ↪ Id_func; 
@@ -81,21 +122,21 @@ begin
 have add' : func nat_cat (FuncCat_cat nat_cat nat_cat)
 { refine (case_nat_func _ _ ) 
   { refine FuncCat_pair_func _;
-    refine (Product_proj_left_func _ _);
+    refine (Product_projL_func Id_func);
   }
   { refine FuncCat_pair_func _;
     refine Succ_inj_nat_func _;
     refine (FuncCat_proj_func _ _);
   };
 };
-refine ((Product_pairproj_right_func nat_cat add' ) ∘> (FuncCat_proj_func nat_cat nat_cat)) 
+refine ((Product_mapR_func nat_cat add' ) ∘> (FuncCat_proj_func nat_cat nat_cat)) 
 end;
 
 compute ((Product_pair_func (Succ_inj_nat_func (Succ_inj_nat_func Zero_inj_nat_func)) (Succ_inj_nat_func Zero_inj_nat_func)) ∘> add_nat_func);
 // Succ_inj_nat_func (Succ_inj_nat_func (Succ_inj_nat_func Zero_inj_nat_func))
 
 /* ---------------------------
-SECTION 2 : Natural numbers object, via DATATYPES OBJECTS/FUNCTORS IN ANY INNER PARTICULAR CAT AND INTERNAL ADJUNCTIONS/PRODUCTS/EXPONENTIALS
+* # SECTION 2 : Natural numbers object, via DATATYPES OBJECTS/FUNCTORS IN ANY INNER PARTICULAR CAT AND INTERNAL ADJUNCTIONS/PRODUCTS/EXPONENTIALS
  */
 
 constant symbol itermin_func (C : cat) : func (Terminal_cat) C;
@@ -110,23 +151,23 @@ constant symbol iprod_func (C : cat) : func (Product_cat C C) C;
 constant symbol idiag_iprod_adj (C : cat) : adj (idiag_func C) (iprod_func C);
 
 symbol iprod_proj_left_hom [C : cat] [I] (N : func I (Product_cat C C)) [J] (Z : func J I) :
-  hom ((Z ∘> N) ∘> (iprod_func C)) (Unit_mod Id_func ((Product_proj_left_func C C) <∘ N)) Z
-  ≔ Func_cov_hom (Product_proj_left_func C C) _ ∘>'_(_) ∘' (Adj_cov_hom (idiag_iprod_adj C) N Z) ;
+  hom ((Z ∘> N) ∘> (iprod_func C)) (Unit_mod Id_func ((Product_projL_func N))) Z
+  ≔ Func_cov_hom (Product_projL_func Id_func) _ ∘>'_(_) ∘' (Adj_cov_hom (idiag_iprod_adj C) N Z) ;
 symbol iprod_proj_right_hom [C : cat] [I] (N : func I (Product_cat C C)) [J] (Z : func J I) :
-  hom ((Z ∘> N) ∘> (iprod_func C)) (Unit_mod Id_func ((Product_proj_right_func C C) <∘ N)) Z
-  ≔ Func_cov_hom (Product_proj_right_func C C) _ ∘>'_(_) ∘' (Adj_cov_hom (idiag_iprod_adj C) N Z) ;
+  hom ((Z ∘> N) ∘> (iprod_func C)) (Unit_mod Id_func ((Product_projR_func N))) Z
+  ≔ Func_cov_hom (Product_projR_func Id_func) _ ∘>'_(_) ∘' (Adj_cov_hom (idiag_iprod_adj C) N Z) ;
 
 constant symbol iprod_ladj_proj_left_hom [C : cat] [I] [I'] (N : func I I') (N' : func I' (Product_cat C C)) [J] (Z : func J I) :
-  hom (Z ∘> N) (Unit_mod (N' /* TODO N' is Product */ ∘> (iprod_func C)) ((Product_proj_left_func C C) <∘ (N' <∘ N))) Z;
+  hom (Z ∘> N) (Unit_mod (N' /* TODO N' is Product */ ∘> (iprod_func C)) ((Product_projL_func (N' <∘ N)))) Z;
 
 rule (Id_hom _) ∘>'_(_) ∘' (iprod_ladj_proj_left_hom $N $N' $Z) ↪ (iprod_proj_left_hom ($N ∘> $N') $Z);
 
-rule (Product_pair_cov_hom (Product_pair_func _ _ ) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] $Y $f $g) '∘ ((_)_'∘> (iprod_ladj_proj_left_hom (Product_pair_func $F' $G') Id_func  Id_func)) 
+rule (Product_pair_cov_hom (Product_pair_func _ _ ) (Product_projL_func Id_func) [Id_func] (Product_projR_func Id_func) [Id_func] $Y $f $g) '∘ ((_)_'∘> (iprod_ladj_proj_left_hom (Product_pair_func $F' $G') Id_func  Id_func)) 
 ↪ (iprod_ladj_proj_left_hom _  Id_func Id_func '∘ ((_)_'∘> $f)); 
 
 symbol iprod_pair_hom [C : cat] [I] (N : func I (Product_cat C C)) [C'] [K0 : func C' C] [J] [L0 : func J C'] [M : func J I]
- (L0_fst : hom L0 (Unit_mod (/*Z ∘>*/ K0) ((Product_proj_left_func C C) <∘ N)) M)
- (L0_snd : hom L0 (Unit_mod (/*Z ∘>*/ K0) ((Product_proj_right_func C C) <∘ N)) M) :
+ (L0_fst : hom L0 (Unit_mod (/*Z ∘>*/ K0) ((Product_projL_func N))) M)
+ (L0_snd : hom L0 (Unit_mod (/*Z ∘>*/ K0) ((Product_projR_func N))) M) :
  hom (L0 /*∘> Z*/) (Unit_mod K0 ((iprod_func C) <∘ N)) M ≔ 
  (Adj_con_hom (idiag_iprod_adj C) K0 Id_func) ∘>'_(_) ∘'  (Product_pair_cov_hom L0 Id_func Id_func M L0_fst L0_snd);
 
@@ -192,21 +233,21 @@ compute λ C : cat, ((Adj_con_hom (idiag_iprod_adj C) Id_func Id_func) ∘>'_(_)
 //                           (Succ_inj_inat_hom C (Zero_inj_inat_hom C))
 //                           (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C))))) 
 //     '∘ (_)_'∘> ((Id_hom _) ∘>'_(_) ∘' (addParam_inat_hom C));
-// compute λ C : cat, Product_pair_cov_hom (Product_pair_func _ _) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func
+// compute λ C : cat, Product_pair_cov_hom (Product_pair_func _ _) (Product_projL_func _ _) [Id_func] (Product_projR_func _ _) [Id_func] Id_func
 // (Succ_inj_inat_hom C (Zero_inj_inat_hom C))
 // (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C)))
 // '∘ (_)_'∘> ((Func_con_hom (iprod_func C) (Product_pair_func (const_func C (inat_func C)) Id_func)) ∘>'_(_) ∘' addParam_inat_hom C);
 
-/* --- SECTION 2.1 : Alternative dddition function via (encoded/non-intrinsic) multi-variable/parameter adjunction
+/* * # SECTION 2.1 : Alternative dddition function via (encoded/non-intrinsic) multi-variable/parameter adjunction
  */
 
 constant symbol exp2_func (C : cat) : func (Product_cat (Op_cat C) C) C;
 injective symbol adjProdExp2_lambda_hom [C : cat] : let I ≔ Terminal_cat in Π [X : func I C] [J] (P : func J C) [Z : func I J] [J'] (Q : func J' C) [Y : func I J'],
- hom ((Product_pair_func X Y)) (Unit_mod (Product_pairproj_right_func _ Q ∘> (iprod_func C)) P) Z
-→ hom Y (Unit_mod Q (Product_pairproj_right_func _ P ∘> (exp2_func C))) (Product_pair_func (Op_func X) Z);
+ hom ((Product_pair_func X Y)) (Unit_mod (Product_mapR_func _ Q ∘> (iprod_func C)) P) Z
+→ hom Y (Unit_mod Q (Product_mapR_func _ P ∘> (exp2_func C))) (Product_pair_func (Op_func X) Z);
 symbol adjProdExp2_eval_hom [C : cat] : let I ≔ Terminal_cat in Π [X : func I C] [J] (P : func J C) [Z : func I J] [J'] (Q : func J' C) [Y : func I J'],
-hom Y (Unit_mod Q (Product_pairproj_right_func (Op_cat C) P ∘> (exp2_func C))) (Product_pair_func (Op_func X) Z)
-→ hom ((Product_pair_func X Y)) (Unit_mod (Product_pairproj_right_func C Q ∘> (iprod_func C)) P) Z;
+hom Y (Unit_mod Q (Product_mapR_func (Op_cat C) P ∘> (exp2_func C))) (Product_pair_func (Op_func X) Z)
+→ hom ((Product_pair_func X Y)) (Unit_mod (Product_mapR_func C Q ∘> (iprod_func C)) P) Z;
 
 //beta
 rule (adjProdExp2_eval_hom $P $Q (adjProdExp2_lambda_hom $P $Q $h)) ↪ $h;
@@ -215,14 +256,14 @@ rule (adjProdExp2_eval_hom $P $Q (adjProdExp2_lambda_hom $P $Q $h)) ↪ $h;
 // rule (adjProdExp2_lambda_hom $P $Q (adjProdExp2_eval_hom $P $Q  $h)) ↪ $h;
 
 //TODO: REVIEW WHY: NOTE THAT MUST ASSOCIATE ON LEFT IN THE RESULT .. NOTE THAT THIS ASSOCIATIVITY IS NON-COMPUTATIONAL BUT ONLY PROPOSITIONAL
-rule  (Product_pair_cov_hom (Product_pair_func _ _) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func $f $g) '∘ (_)_'∘> (adjProdExp2_eval_hom $P $Q  $h)
-↪  (adjProdExp2_eval_hom $P $Q  (($g '∘ (_)_'∘> $h) ∘>'_(_) ∘' (Product_pair_con_hom (Product_pair_func _ _) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func (Op_hom $f) (Func_con_hom _ _) )  ));
+rule  (Product_pair_cov_hom (Product_pair_func _ _) (Product_projL_func Id_func) [Id_func] (Product_projR_func Id_func) [Id_func] Id_func $f $g) '∘ (_)_'∘> (adjProdExp2_eval_hom $P $Q  $h)
+↪  (adjProdExp2_eval_hom $P $Q  (($g '∘ (_)_'∘> $h) ∘>'_(_) ∘' (Product_pair_con_hom (Product_pair_func _ _) (Product_projL_func Id_func) [Id_func] (Product_projR_func Id_func) [Id_func] Id_func (Op_hom $f) (Func_con_hom _ _) )  ));
 
-rule adjProdExp2_lambda_hom $P $Q $h '∘ ((_)_'∘> ((Func_cov_hom (exp2_func $C) _ ∘>'_(_)) ∘' Product_pairproj_right_cov_hom [_] [_] [_] [$P] [$P'] $p))
+rule adjProdExp2_lambda_hom $P $Q $h '∘ ((_)_'∘> ((Func_cov_hom (exp2_func $C) _ ∘>'_(_)) ∘' Product_mapR_con_hom [_] [_] [_] [$P] [$P'] $p))
 ↪ adjProdExp2_lambda_hom $P' $Q ($h '∘ ((_)_'∘> $p)) ;
 
-rule  (adjProdExp2_lambda_hom $P $Q $h ∘>'_(_)) ∘' (Product_pair_con_hom (Product_pair_func _ _) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func $x $z)
-↪ adjProdExp2_lambda_hom $P $Q ((Product_pair_cov_hom (Product_pair_func _ _) (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func (Op_hom $x) (Func_cov_hom _ Id_func)) '∘ (_)_'∘>
+rule  (adjProdExp2_lambda_hom $P $Q $h ∘>'_(_)) ∘' (Product_pair_con_hom (Product_pair_func _ _) (Product_projL_func Id_func) [Id_func] (Product_projR_func Id_func) [Id_func] Id_func $x $z)
+↪ adjProdExp2_lambda_hom $P $Q ((Product_pair_cov_hom (Product_pair_func _ _) (Product_projL_func Id_func) [Id_func] (Product_projR_func Id_func) [Id_func] Id_func (Op_hom $x) (Func_cov_hom _ Id_func)) '∘ (_)_'∘>
               ($h  ∘>'_(_) ∘' $z));
 
 symbol add_inat_hom C : hom (Product_pair_func (inat_func C) (inat_func C)) (Unit_mod (iprod_func C) (inat_func C)) Id_func ≔
@@ -232,42 +273,42 @@ refine  case_inat_hom _  _ _
 { refine adjProdExp2_lambda_hom [_] [inat_func C] (inat_func C) _ _ ;
   refine iprod_ladj_proj_left_hom _ Id_func _;
 }
-{ refine (Func_cov_hom (exp2_func C) _ ∘>'_(_) ∘' (Product_pairproj_right_cov_hom (Succ_inj_inat_hom C (Func_cov_hom _ Id_func))));
+{ refine (Func_cov_hom (exp2_func C) _ ∘>'_(_) ∘' (Product_mapR_con_hom (Succ_inj_inat_hom C (Func_cov_hom _ Id_func))));
 }
 end;
 
 //NOTE: this uses the naturality conversion ($x''x'_ '∘ ((Id_func)_'∘> ( ($s ∘>'_(_)) ∘' $y'y_ )))
 // ↪ ($s ∘>'_(_)) ∘' ($x''x'_ '∘ ((Id_func)_'∘> ( $y'y_ ))) 
-// to move out (Func_cov_hom (Product_proj_left_func C C) (Product_pair_func Id_func Id_func) ∘>'_(_) ∘'
+// to move out (Func_cov_hom (Product_projL_func C C) (Product_pair_func Id_func Id_func) ∘>'_(_) ∘'
 compute λ C : cat, (iprod_pair_hom (Product_pair_func (itermin_func C) (itermin_func C)) 
                       (Func_cov_hom (itermin_func C) Id_func) (Func_cov_hom (itermin_func C) Id_func)) '∘ (_)_'∘> 
 ((Id_hom _) ∘>'_(_) ∘' 
     ((Product_pair_cov_hom (Product_pair_func _ _) 
-          (Product_proj_left_func _ _) [Id_func] (Product_proj_right_func _ _) [Id_func] Id_func
+          (Product_projL_func Id_func) [Id_func] (Product_projR_func Id_func) [Id_func] Id_func
           (Succ_inj_inat_hom C (Zero_inj_inat_hom C)) (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C))))
       '∘ (_)_'∘> (add_inat_hom C))); 
 // λ C, Succ_inj_inat_hom C (Succ_inj_inat_hom C (Succ_inj_inat_hom C (Zero_inj_inat_hom C)))
 
-// MEMO: REVERSE DEBUGGED: λ C, (((          ((Adj_con_hom (idiag_iprod_adj C) Id_func Id_func ∘>'_ Product_pair_func (itermin_func C) (itermin_func C)) ∘' Product_pair_cov_hom (itermin_func C) Id_func Id_func Id_func (Func_cov_hom (itermin_func C) Id_func) (Func_cov_hom (itermin_func C) Id_func) )           '∘ (Id_func _'∘> (  (Func_cov_hom (Product_proj_left_func C C) (Product_pair_func Id_func Id_func) ∘>'_ Product_pair_func (itermin_func C) (itermin_func C)) ∘' Adj_cov_hom (idiag_iprod_adj C) (Product_pair_func (itermin_func C) (itermin_func C)) Id_func)) )         '∘ (Id_func _'∘> Zero_inj_inat_hom C)) '∘ (Id_func _'∘> Succ_inj_inat_hom C)) '∘ (Id_func _'∘> Succ_inj_inat_hom C)
+// MEMO: REVERSE DEBUGGED: λ C, (((          ((Adj_con_hom (idiag_iprod_adj C) Id_func Id_func ∘>'_ Product_pair_func (itermin_func C) (itermin_func C)) ∘' Product_pair_cov_hom (itermin_func C) Id_func Id_func Id_func (Func_cov_hom (itermin_func C) Id_func) (Func_cov_hom (itermin_func C) Id_func) )           '∘ (Id_func _'∘> (  (Func_cov_hom (Product_projL_func Id_func) (Product_pair_func Id_func Id_func) ∘>'_ Product_pair_func (itermin_func C) (itermin_func C)) ∘' Adj_cov_hom (idiag_iprod_adj C) (Product_pair_func (itermin_func C) (itermin_func C)) Id_func)) )         '∘ (Id_func _'∘> Zero_inj_inat_hom C)) '∘ (Id_func _'∘> Succ_inj_inat_hom C)) '∘ (Id_func _'∘> Succ_inj_inat_hom C)
 
 /* ---------------------------
-SECTION 2.2 : TODO: Addition function via intrinsic/structural multi-variable adjunction and multivariable functors/profunctors...
+* # SECTION 2.2 : TODO: Addition function via intrinsic/structural multi-variable adjunction and multivariable functors/profunctors...
  */
 
  ///// TODO:
 
 
 /* ---------------------------
- SECTION 3 : Category of finite sets/numbers, and colimits/limits and addition/coproduct
+ * # SECTION 3 : Category of finite sets/numbers, and colimits/limits and addition/coproduct
  */
  
 inductive one : TYPE ≔ One : one;
-constant symbol one_Set : Set;
-rule τ one_Set ↪ one;
+constant symbol one_type : Type;
+rule τ one_type ↪ one;
   
 constant symbol obj : Π C : cat, TYPE;
-constant symbol obj_Set : Π C : cat, Set;
-rule τ (obj_Set $C) ↪ obj $C;
+constant symbol obj_type : Π C : cat, Type;
+rule τ (obj_type $C) ↪ obj $C;
 
 symbol ∘>o: Π [Y Z : cat], obj Y → func Y Z → obj Z;
 notation ∘>o infix left 90;
@@ -294,8 +335,8 @@ rule Op_obj ($F ∘>o $G) ↪ (Op_obj $F) ∘>o (Op_func $G); //or reverse?
 rule Obj_func (Terminal_obj) ↪ Id_func; //as usual this causes non-constant symbol
 
 constant symbol arr: Π [A B : cat], obj A → mod A B → obj B →  TYPE ;
-constant symbol arr_Set: Π [A B : cat], obj A → mod A B → obj B → Set ;
-rule τ (@arr_Set $A $B $F $R $G) ↪ (@arr $A $B $F $R $G);
+constant symbol arr_type: Π [A B : cat], obj A → mod A B → obj B → Type ;
+rule τ (@arr_type $A $B $F $R $G) ↪ (@arr $A $B $F $R $G);
 
 //todo erase Id condition?
 symbol '∘a : Π [A B' B : cat] [S : mod A B'] [T : mod A B]
@@ -379,11 +420,11 @@ with (Func_cov_hom $Z $F) ∘↓o $H  ↪ Func_cov_arr $Z ($H ∘>o $F);
 
 //TODO MEMO LATER... get complex
 constant symbol presh : Π C : cat, TYPE;
-constant symbol presh_Set : Π C : cat, Set;
-rule τ (presh_Set $C) ↪ presh $C;
+constant symbol presh_type : Π C : cat, Type;
+rule τ (presh_type $C) ↪ presh $C;
 constant symbol copresh : Π C : cat, TYPE;
-constant symbol copresh_Set : Π C : cat, Set;
-rule τ (copresh_Set $C) ↪ copresh $C;
+constant symbol copresh_type : Π C : cat, Type;
+rule τ (copresh_type $C) ↪ copresh $C;
 constant symbol ⊗o : Π [A B : cat], mod A B → presh B → presh A ; //Tensor_mod;
 notation ⊗o infix left 70;
 constant symbol o⊗ : Π [A B: cat], copresh A → mod A B →  copresh B ; //Tensor_mod;
@@ -401,17 +442,17 @@ rule (Presh_mod $F) o<<∘ $M ↪ $F;
  ////-----------
 
 inductive category : TYPE ≔ | Struct_category : Π 
-(category_Obj : Set) 
-(category_Arr : τ category_Obj → τ category_Obj → Set)
+(category_Obj : Type) 
+(category_Arr : τ category_Obj → τ category_Obj → Type)
 (category_Comp : Π [M N L : τ category_Obj] (f : τ (category_Arr M N)) (g : τ (category_Arr N L)), τ (category_Arr M L)) 
 (category_Iden : Π (M: τ category_Obj), τ (category_Arr M M)), category;
 
-injective symbol category_Obj_Set (C : category) : Set;
-rule category_Obj_Set (Struct_category $category_Obj $category_Arr $category_Comp $category_Iden) ↪ $category_Obj;
-injective symbol category_Obj (C : category) : TYPE ≔ τ (category_Obj_Set C);
-injective symbol category_Arr_Set [C : category]  : (category_Obj C) → (category_Obj C) → Set;
-rule @category_Arr_Set (Struct_category $category_Obj $category_Arr $category_Comp $category_Iden) ↪ $category_Arr;
-injective symbol category_Arr [C : category]  : (category_Obj C) → (category_Obj C) → TYPE ≔ λ M N, τ (category_Arr_Set M N);
+injective symbol category_Obj_type (C : category) : Type;
+rule category_Obj_type (Struct_category $category_Obj $category_Arr $category_Comp $category_Iden) ↪ $category_Obj;
+injective symbol category_Obj (C : category) : TYPE ≔ τ (category_Obj_type C);
+injective symbol category_Arr_type [C : category]  : (category_Obj C) → (category_Obj C) → Type;
+rule @category_Arr_type (Struct_category $category_Obj $category_Arr $category_Comp $category_Iden) ↪ $category_Arr;
+injective symbol category_Arr [C : category]  : (category_Obj C) → (category_Obj C) → TYPE ≔ λ M N, τ (category_Arr_type M N);
 symbol category_Comp [C : category] : Π [M N L : (category_Obj C)] (f : category_Arr M N) (g : (category_Arr N L)), (category_Arr M L);
 rule @category_Comp (Struct_category $category_Obj $category_Arr $category_Comp $category_Iden) ↪ $category_Comp;
 symbol category_Iden [C : category] : Π (M:  (category_Obj C)), (category_Arr M M);
@@ -454,7 +495,7 @@ symbol tensor_cov_transformation [C D E : category] [F G : functor C D] (h : tra
  ≔ Struct_transformation (λ M : category_Obj C, a);
 
 
-symbol terminal_category : category ≔ Struct_category one_Set (λ F G, one_Set) (λ F G H f g, One) (λ F, One);
+symbol terminal_category : category ≔ Struct_category one_type (λ F G, one_type) (λ F G H f g, One) (λ F, One);
 symbol terminal_intro_functor (C : category) : functor C terminal_category ≔ constant_functor C One;
 
 injective symbol category_Obj_functor [C : category] (M : category_Obj C) : functor terminal_category C
@@ -463,13 +504,13 @@ injective symbol category_Arr_transformation [C : category] [M N : category_Obj 
 ≔ Struct_transformation (λ _, a);
 
 inductive natUniv  : TYPE ≔ 
-| Base_natUniv : ℕ → natUniv 
+| Base_natUniv : nat → natUniv 
 | Pair_natUniv : natUniv → natUniv → natUniv
 // | InLeft_natUniv : natUniv →  natUniv
 // | InRight_natUniv : natUniv →  natUniv
 | Undefined_natUniv : natUniv;
-symbol natUniv_Set : Set; rule τ natUniv_Set ↪ natUniv;
-symbol natUniv_eq : natUniv → natUniv → 𝔹;
+symbol natUniv_type : Type; rule τ natUniv_type ↪ natUniv;
+symbol natUniv_eq : natUniv → natUniv → bool;
 rule  natUniv_eq (Base_natUniv $x) (Base_natUniv $y) ↪ eqn $x $y 
 with natUniv_eq (Base_natUniv $x) (Pair_natUniv $y1 $y2) ↪ false
 with natUniv_eq (Base_natUniv $x) (Undefined_natUniv) ↪ false
@@ -487,50 +528,50 @@ symbol natUniv_snd : natUniv → natUniv;
 rule natUniv_fst (Pair_natUniv $1 $2) ↪ $1;
 rule natUniv_snd (Pair_natUniv $1 $2) ↪ $2;
 
-injective symbol listsub  (l : 𝕃 natUniv_Set) ≔  (`sub_ x : natUniv, istrue(∈ natUniv_eq x l));
+injective symbol listsub  (l : list natUniv_type) ≔  (`Σ_ x : natUniv, istrue(∈ natUniv_eq x l));
 
-injective symbol liset_Arr_Set  (M : 𝕃 natUniv_Set) (N : 𝕃 natUniv_Set) : Set
-≔ natUniv_Set →_ natUniv_Set;
-injective symbol liset_Arr  (M : 𝕃 natUniv_Set) (N : 𝕃 natUniv_Set) ≔ τ (liset_Arr_Set M N);
+injective symbol liset_Arr_type  (M : list natUniv_type) (N : list natUniv_type) : Type
+≔ natUniv_type →_ natUniv_type;
+injective symbol liset_Arr  (M : list natUniv_type) (N : list natUniv_type) ≔ τ (liset_Arr_type M N);
 
-symbol liset_Comp  [M N L : 𝕃 natUniv_Set]  (f :  (liset_Arr M N)) (g : (liset_Arr N L)) : (liset_Arr M L)
+symbol liset_Comp  [M N L : list natUniv_type]  (f :  (liset_Arr M N)) (g : (liset_Arr N L)) : (liset_Arr M L)
 ≔ λ x, (g (f x));
 
 injective symbol liset_Iden  M : (liset_Arr M M) ≔ λ x, x;
 
-symbol liset ≔ Struct_category (list natUniv_Set)  (liset_Arr_Set) (@liset_Comp) (liset_Iden);
+symbol liset ≔ Struct_category (list_type natUniv_type)  (liset_Arr_type) (@liset_Comp) (liset_Iden);
 
 /// _______________
 
 inductive empty : TYPE ≔ ;
-constant symbol empty_Set : Set;
-rule τ (empty_Set) ↪ empty;
-symbol rect_empty : Π [p0: (empty → Set)], Π x: empty, τ (p0 x);
+constant symbol empty_type : Type;
+rule τ (empty_type) ↪ empty;
+symbol rect_empty : Π [p0: (empty → Type)], Π x: empty, τ (p0 x);
 
-(p : Set) inductive option : TYPE ≔
+(p : Type) inductive option : TYPE ≔
 | Some : τ p → option p
 | None : option p;
-constant symbol option_Set : Set → Set;
-rule τ (option_Set $p) ↪ option $p;
-symbol rect_option : Π [a0 : Set], Π [p0: (option a0 → Set)], (Π x1: τ a0, τ (p0 (Some x1))) → (τ (p0 (None ))) →  Π x: option a0, τ (p0 x);
+constant symbol option_type : Type → Type;
+rule τ (option_type $p) ↪ option $p;
+symbol rect_option : Π [a0 : Type], Π [p0: (option a0 → Type)], (Π x1: τ a0, τ (p0 (Some x1))) → (τ (p0 (None ))) →  Π x: option a0, τ (p0 x);
 rule rect_option $1 $2 (Some $x) ↪ $1 $x;
 rule rect_option $1 $2 (None) ↪ $2;
 
 inductive graph : TYPE ≔ | Struct_graph : Π 
-(graph_Obj : Set) 
-(graph_Arr : τ graph_Obj → τ graph_Obj → Set), graph;
+(graph_Obj : Type) 
+(graph_Arr : τ graph_Obj → τ graph_Obj → Type), graph;
 
-injective symbol graph_Obj_Set (C : graph) : Set;
-rule graph_Obj_Set (Struct_graph $graph_Obj $graph_Arr) ↪ $graph_Obj;
-/* injective */ symbol graph_Obj (C : graph) : TYPE ≔ τ (graph_Obj_Set C);
-injective symbol graph_Arr_Set [C : graph]  : (graph_Obj C) → (graph_Obj C) → Set;
-rule @graph_Arr_Set (Struct_graph $graph_Obj $graph_Arr) ↪ $graph_Arr;
-symbol graph_Arr [C : graph]  : (graph_Obj C) → (graph_Obj C) → TYPE ≔ λ M N, τ (graph_Arr_Set M N);
+injective symbol graph_Obj_type (C : graph) : Type;
+rule graph_Obj_type (Struct_graph $graph_Obj $graph_Arr) ↪ $graph_Obj;
+/* injective */ symbol graph_Obj (C : graph) : TYPE ≔ τ (graph_Obj_type C);
+injective symbol graph_Arr_type [C : graph]  : (graph_Obj C) → (graph_Obj C) → Type;
+rule @graph_Arr_type (Struct_graph $graph_Obj $graph_Arr) ↪ $graph_Arr;
+symbol graph_Arr [C : graph]  : (graph_Obj C) → (graph_Obj C) → TYPE ≔ λ M N, τ (graph_Arr_type M N);
 
 
 //TODO quotient by assoc iden... this quotient is harrder to explain than expected because no way to remember that it is now a free category
 // hmm in fact whole "concrete freely_category" is a bad idea, should directly do abstract (freely-)cat datatype on graph...
-// injective symbol freely_category (C : graph) : category ≔ Struct_category (graph_Obj_Set C) (@freely_category_Arr_Set C) (@freely_category_Comp C) (@freely_category_Iden C);
+// injective symbol freely_category (C : graph) : category ≔ Struct_category (graph_Obj_type C) (@freely_category_Arr_type C) (@freely_category_Comp C) (@freely_category_Iden C);
 
 (C : graph) inductive diagram (D : category) : TYPE ≔ | Struct_diagram [D] : Π 
 (diagram_Obj : graph_Obj C → category_Obj D) 
@@ -553,11 +594,11 @@ rule @graphMorph_Arr _ _ (Struct_graphMorph $graphMorph_Obj $graphMorph_Arr) ↪
 symbol comp_graphMorph_diagram [C' : graph] [C : graph] (F : graphMorph C' C) [D : category] (G : diagram C D) : diagram C' D
 ≔ Struct_diagram (λ M : graph_Obj C', diagram_Obj G (graphMorph_Obj F M)) (λ (M N : graph_Obj C') a, (diagram_Arr G (graphMorph_Arr F a)));
 
-/* injective */ symbol joinGraph_Obj [C : graph] (X Y : graph_Obj C) : Set ≔ (graph_Obj_Set C) ;
-injective symbol joinGraph_Arr [C : graph] (X Y : graph_Obj C) : Π (M N : τ (joinGraph_Obj X Y)), Set;
+/* injective */ symbol joinGraph_Obj [C : graph] (X Y : graph_Obj C) : Type ≔ (graph_Obj_type C) ;
+injective symbol joinGraph_Arr [C : graph] (X Y : graph_Obj C) : Π (M N : τ (joinGraph_Obj X Y)), Type;
 constant symbol joinGraph_Arr_introOld [C : graph] (X Y : graph_Obj C) : Π [M N : graph_Obj C], graph_Arr M N → τ (joinGraph_Arr X Y M N);
 constant symbol joinGraph_Arr_introNew [C : graph] (X Y : graph_Obj C) : τ (joinGraph_Arr X Y X Y);
-symbol joinGraph_Arr_elim [C : graph] [X Y : graph_Obj C] : Π [E : τ (joinGraph_Obj X Y) → τ (joinGraph_Obj X Y) → Set]
+symbol joinGraph_Arr_elim [C : graph] [X Y : graph_Obj C] : Π [E : τ (joinGraph_Obj X Y) → τ (joinGraph_Obj X Y) → Type]
  (first : Π [M N : graph_Obj C], graph_Arr M N → τ (E M N)) (second: τ (E X Y)),
   Π (M N : graph_Obj C), τ (joinGraph_Arr X Y M N) → τ (E M N);
 rule (@joinGraph_Arr_elim $C $X $Y $E $oldarr $newarr _ _ (@joinGraph_Arr_introOld $C $X $Y _ _ $a)) ↪ ($oldarr _ _ $a);
@@ -605,9 +646,9 @@ inductive equalizing [C : graph] [X Y : graph_Obj C] [D : category] [M : categor
 (equalizing_Arr : category_Arr (equalizing_Obj) M)
 (equalizing_Cone : cone (equalizing_Obj) F), @equalizing C X Y D M F t;
 
-constant symbol equalizing_Set [C : graph] [X Y : graph_Obj C] [D : category] [M : category_Obj D] (F : diagram (joinGraph X Y) D)
-(t : cone M (comp_graphMorph_diagram (joinGraph_graphMorph X Y) F)): Set;
-rule τ (@equalizing_Set $C $X $Y $D $M $F $t) ↪ @equalizing $C $X $Y $D $M $F $t;
+constant symbol equalizing_type [C : graph] [X Y : graph_Obj C] [D : category] [M : category_Obj D] (F : diagram (joinGraph X Y) D)
+(t : cone M (comp_graphMorph_diagram (joinGraph_graphMorph X Y) F)): Type;
+rule τ (@equalizing_type $C $X $Y $D $M $F $t) ↪ @equalizing $C $X $Y $D $M $F $t;
 injective symbol equalizing_Obj [C X Y D M F t] (L : @equalizing C X Y D M F t): category_Obj D;
 rule equalizing_Obj (Struct_equalizing $1 $2 $3) ↪ $1;
 injective symbol equalizing_Arr [C X Y D M F t] (L : @equalizing C X Y D M F t): category_Arr (@equalizing_Obj C X Y D M F t L) M;
@@ -620,21 +661,21 @@ inductive equalizer [C : graph] [X Y : graph_Obj C] [D : category] [M : category
 Π (equalizer_Equalizing : @equalizing C X Y D M F t) 
 (equalizer_Univ : Π L : @equalizing C X Y D M F t, category_Arr (equalizing_Obj L) (equalizing_Obj equalizer_Equalizing)), @equalizer C X Y D M F t;
 
-//TODO equalizer_Set
+//TODO equalizer_type
 injective symbol equalizer_Equalizing [C X Y D M F t] (L : @equalizer C X Y D M F t): @equalizing C X Y D M F t;
 rule equalizer_Equalizing (Struct_equalizer $1 $2) ↪ $1;
 injective symbol equalizer_Univ [C X Y D M F t] (L : @equalizer C X Y D M F t): Π L0 : @equalizing C X Y D M F t, category_Arr (@equalizing_Obj C X Y D M F t L0) (@equalizing_Obj C X Y D M F t (@equalizer_Equalizing C X Y D M F t L));
 rule equalizer_Univ (Struct_equalizer $1 $2) ↪ $2;
 
 ///---
-symbol emptyGraph  : graph ≔ Struct_graph (empty_Set ) (λ _ _, empty_Set);
+symbol emptyGraph  : graph ≔ Struct_graph (empty_type ) (λ _ _, empty_type);
 
 ///---
 
-/* injective */ symbol optionGraph_Obj (C : graph) : Set ≔  option_Set (graph_Obj_Set C);
-injective symbol optionGraph_Arr (C : graph) : Π (M N : τ (optionGraph_Obj C)), Set;
+/* injective */ symbol optionGraph_Obj (C : graph) : Type ≔  option_type (graph_Obj_type C);
+injective symbol optionGraph_Arr (C : graph) : Π (M N : τ (optionGraph_Obj C)), Type;
 constant symbol optionGraph_Arr_intro (C : graph) : Π [M N : graph_Obj C], graph_Arr M N → τ (optionGraph_Arr C (Some M) (Some N));
-symbol optionGraph_Arr_elim (C : graph) : Π [E : τ (optionGraph_Obj C) → τ (optionGraph_Obj C) → Set]
+symbol optionGraph_Arr_elim (C : graph) : Π [E : τ (optionGraph_Obj C) → τ (optionGraph_Obj C) → Type]
  (E_left : Π [M N : graph_Obj C], graph_Arr M N → τ (E (Some M) (Some N)))  ,
   Π (M N : τ (optionGraph_Obj C)), τ (optionGraph_Arr C M N) → τ (E M N);
 rule (@optionGraph_Arr_elim $C $E $E_left  _ _ (@optionGraph_Arr_intro $C _ _ $a)) ↪ ($E_left _ _ $a);
@@ -666,9 +707,9 @@ inductive producing [C : graph]  [D : category] [M : category_Obj D] (F : diagra
 (producing_Arr : category_Arr (producing_Obj) M)
 (producing_Cone : cone (producing_Obj) F), @producing C D M F t;
 
-constant symbol producing_Set [C : graph]  [D : category] [M : category_Obj D] (F : diagram (optionGraph C) D)
-(t : cone M (comp_graphMorph_diagram (optionGraph_graphMorph C) F)): Set;
-rule τ (@producing_Set $C $D $M $F $t) ↪ @producing $C $D $M $F $t;
+constant symbol producing_type [C : graph]  [D : category] [M : category_Obj D] (F : diagram (optionGraph C) D)
+(t : cone M (comp_graphMorph_diagram (optionGraph_graphMorph C) F)): Type;
+rule τ (@producing_type $C $D $M $F $t) ↪ @producing $C $D $M $F $t;
 injective symbol producing_Obj [C D M F t] (L : @producing C D M F t): category_Obj D;
 rule producing_Obj (Struct_producing $1 $2 $3) ↪ $1;
 injective symbol producing_Arr [C D M F t] (L : @producing C D M F t): category_Arr (@producing_Obj C D M F t L) M;
@@ -681,7 +722,7 @@ inductive product [C : graph]  [D : category] [M : category_Obj D] (F : diagram 
 Π (product_Producing : @producing C D M F t) 
 (product_Univ : Π L : @producing C D M F t, category_Arr (producing_Obj L) (producing_Obj product_Producing)), @product C D M F t;
 
-//TODO product_Set
+//TODO product_type
 injective symbol product_Producing [C D M F t] (L : @product C D M F t): @producing C D M F t;
 rule product_Producing (Struct_product $1 $2) ↪ $1;
 injective symbol product_Univ [C D M F t] (L : @product C D M F t): Π L0 : @producing C D M F t, category_Arr (@producing_Obj C D M F t L0) (@producing_Obj C D M F t (@product_Producing C D M F t L));
@@ -694,7 +735,7 @@ inductive isFiniteGraph : graph → TYPE ≔
 | OptionGraph_isFiniteGraph [C : graph] : isFiniteGraph C → isFiniteGraph (optionGraph C)
 | JoinGraph_isFiniteGraph [C : graph]: isFiniteGraph C → Π (X Y : graph_Obj C), isFiniteGraph (joinGraph X Y) ;
 
-symbol rect_isFiniteGraph : Π p0: (Π x0: graph, isFiniteGraph x0 → Set), 
+symbol rect_isFiniteGraph : Π p0: (Π x0: graph, isFiniteGraph x0 → Type), 
 τ (p0 emptyGraph EmptyGraph_isFiniteGraph) → 
 (Π C: graph, Π x1: isFiniteGraph C, τ (p0 C x1) → τ (p0 (optionGraph C) (OptionGraph_isFiniteGraph x1))) → 
 (Π C: graph, Π x3: isFiniteGraph C, Π X: graph_Obj C, Π Y: graph_Obj C, τ (p0 C x3) → τ (p0 (joinGraph X Y) (JoinGraph_isFiniteGraph x3 X Y ))) → 
@@ -746,12 +787,12 @@ refine Struct_terminal _ _
 };
 end;
 
-symbol foldl [b] [a] (f : τ b → τ a →  τ b) (i : τ b) : 𝕃 a → τ b;
+symbol foldl [b] [a] (f : τ b → τ a →  τ b) (i : τ b) : list a → τ b;
 
 rule foldl $f $i □  ↪ $i
 with foldl $f $i ($x ⸬ $l) ↪ $f (foldl $f $i $l) $x ;
 compute foldl (⋅) □ ((1 ⸬ 2 ⸬ □) ⸬ (5 ⸬ 6 ⸬ □) ⸬ □);
-symbol flatten [a] : 𝕃 (list a) → 𝕃 a ≔ foldl (⋅) □; //rev
+symbol flatten [a] : list (list_type a) → list a ≔ foldl (⋅) □; //rev
 
 symbol liset_product : 
 Π [A: graph], Π [K: category_Obj liset], 
@@ -904,13 +945,19 @@ rule (ilimit_cov_univ $isl $c) '∘ (_)_'∘> (ilimit_cov_cone $isl) ↪ $c;
 // rule  ((_)_'∘> (ilimit_cov_cone $isl)) ''∘  (limit_cov_univ' $isl) ↪ Id_transf _;
 rule (ilimit_cov_univ $isl (ilimit_cov_cone $isl))   ↪ Func_cov_hom _ _;
 
+
+/*-----
+* That cat is Type is only required for ilimit_type */
+constant symbol cat_Type : Type ;
+rule τ (cat_Type) ↪ cat;
+
 //universality is in extensional formulation, as compared to intensional intrinsic formulation for limit_cov projection limit_cov_transf
-injective symbol ilimit_Set [J' B : cat]  [J : cat] (F : func J B) (W : mod J' J) : Set ≔
+injective symbol ilimit_type [J' B : cat]  [J : cat] (F : func J B) (W : mod J' J) : Type ≔
 `Σ_ (F_⇐_W : func J' B),
-        (hom_Set F_⇐_W (((Unit_mod Id_func F)) ⇐ W) Id_func)
+        (hom_type F_⇐_W (((Unit_mod Id_func F)) ⇐ W) Id_func)
     ×    (`Π_ [I : cat], `Π_ [M : func I B], `Π_ [S : func J' I],   /* TODO: T should Id_func ? */
-    hom_Set S (((Unit_mod M F)) ⇐ W) Id_func →_ hom_Set S (Unit_mod M F_⇐_W) Id_func);
-injective symbol ilimit [J' B : cat]  [J : cat] (F : func J B) (W : mod J' J) : TYPE ≔ τ (ilimit_Set F W);
+    hom_type S (((Unit_mod M F)) ⇐ W) Id_func →_ hom_type S (Unit_mod M F_⇐_W) Id_func);
+injective symbol ilimit [J' B : cat]  [J : cat] (F : func J B) (W : mod J' J) : TYPE ≔ τ (ilimit_type F W);
 
 injective symbol ilimit_limit_cov [J' B J F W] (F_⇐_W : @ilimit J' B J F W) :
   limit_cov F W (sigma_Fst F_⇐_W);
@@ -978,7 +1025,7 @@ symbol graph_elim_cov_hom [C : graph] : Π [E  : cat] [G : func (graph_cat C) E]
   (t_arr : Π (M : graph_Obj C), 
     arr ( (graph_Obj_obj M) ∘>o F) (Unit_mod Id_func (G <∘ (Obj_func (graph_Obj_obj M)))) Terminal_obj)
 //   (t_nat : Π [M N : graph_Obj C] (a : graph_Arr M N), 
-//  π(((Func_cov_hom F _) ∘>'_(_) ∘a' (graph_Arr_cov_arr (graph_Obj_obj M) (graph_Obj_obj N) a)) '∘a (( _ ) _'∘>  (Arr_hom (t_arr N)))
+//  τ(((Func_cov_hom F _) ∘>'_(_) ∘a' (graph_Arr_cov_arr (graph_Obj_obj M) (graph_Obj_obj N) a)) '∘a (( _ ) _'∘>  (Arr_hom (t_arr N)))
 //  =  (t_arr M) '∘a (_)_'∘> (Arr_hom ((Func_cov_hom G _) ∘>'_(_) ∘a' (graph_Arr_cov_arr (graph_Obj_obj M) (graph_Obj_obj N) a)))))
   ,  hom F (Unit_mod Id_func G) Id_func;
 
@@ -1084,7 +1131,7 @@ injective symbol  category_elim_cov_func [C : category] : Π [E : cat]
 (E_cov_arr : Π [M N : category_Obj C] (a : category_Arr M N), 
   arr (E_obj M) (Unit_mod Id_func (Obj_func (E_obj N))) Terminal_obj)
 // (E_cov_hom_nat : Π [M N : category_Obj C] (a : category_Arr M N) [M'] (b : category_Arr M' M), 
-//   π ((E_cov_arr M' M b) '∘a (( _ ) _'∘>  (Arr_hom (E_cov_arr M N a))) = E_cov_arr M' N (category_Comp b a)))
+//   τ ((E_cov_arr M' M b) '∘a (( _ ) _'∘>  (Arr_hom (E_cov_arr M N a))) = E_cov_arr M' N (category_Comp b a)))
 ,  func (category_cat C) E;
 
 //TODO later as accumulator? for redirecting associativity
@@ -1113,7 +1160,7 @@ injective symbol  cat_elim_cov_func [C : cat] : Π [E : cat]
   arr (E_obj M) (Unit_mod Id_func (Obj_func (E_obj N))) Terminal_obj)
 // (E_cov_hom_nat : Π [M N : obj C] (a : arr M (Unit_mod Id_func (Obj_func N)) Terminal_obj) 
 //   [M'] (b : arr M' (Unit_mod Id_func (Obj_func M)) Terminal_obj), 
-//   π ((E_cov_arr M' M b) '∘a (( _ ) _'∘>  (Arr_hom _ _ (E_cov_arr M N a))) 
+//   τ ((E_cov_arr M' M b) '∘a (( _ ) _'∘>  (Arr_hom _ _ (E_cov_arr M N a))) 
 //       = E_cov_arr M' N (b '∘a ((_) _'∘> (Arr_hom _ _ a)))))
 ,  func C E;
 rule $M ∘>o ( cat_elim_cov_func $E_obj $E_cov_arr)
@@ -1155,7 +1202,7 @@ symbol category_elim_cov_hom [C : category] : Π [E  : cat] [G : func (category_
   (t_arr : Π (M : category_Obj C), 
   arr ((category_Obj_obj M) ∘>o F) (Unit_mod Id_func (G <∘ (Obj_func (category_Obj_obj M)))) Terminal_obj) //TODO  o<∘
 //   (t_nat : Π [M N : category_Obj C] (a : category_Arr M N), 
-//  π(((Func_cov_hom F _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M) (category_Obj_obj N) a)) '∘a (( _ ) _'∘>  (Arr_hom _ _ (t_arr N)))
+//  τ(((Func_cov_hom F _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M) (category_Obj_obj N) a)) '∘a (( _ ) _'∘>  (Arr_hom _ _ (t_arr N)))
 //  =   (t_arr M) '∘a (_)_'∘> (Arr_hom _ _ ((Func_cov_hom G _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M) (category_Obj_obj N) a)))))
   ,  hom F (Unit_mod Id_func G) Id_func;
 
@@ -1171,7 +1218,7 @@ symbol category_elim_cov_hom0 [C : category] : Π [E  : cat] [G : func (category
   (t_arr : Π (M : category_Obj C), 
   arr ((category_Obj_obj M) ∘>o F) (Unit_mod H (G <∘ (Obj_func (category_Obj_obj M)))) Terminal_obj) //TODO  o<∘
 //   (t_nat : Π [M N : category_Obj C] (a : category_Arr M N), 
-//  π(((Func_cov_hom F _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M) (category_Obj_obj N) a)) '∘a (( _ ) _'∘>  (Arr_hom _ _ (t_arr N)))
+//  τ(((Func_cov_hom F _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M) (category_Obj_obj N) a)) '∘a (( _ ) _'∘>  (Arr_hom _ _ (t_arr N)))
 //  =   (t_arr M) '∘a (_)_'∘> (Arr_hom _ _ ((Func_cov_hom G _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M) (category_Obj_obj N) a)))))
   ,  hom F (Unit_mod H G) Id_func;
 
@@ -1197,7 +1244,7 @@ symbol cat_elim_cov_hom [C : cat] : Π [E  : cat] [G : func C E] [E'] [F : func 
   (t_arr : Π (M : obj C), 
   arr (M ∘>o F) (Unit_mod H ((Obj_func M) ∘> G)) Terminal_obj) //TODO  o<∘
   // (t_nat : Π [M N : obj C] (a : arr M (Unit_mod Id_func (Obj_func N)) Terminal_obj), 
-  //       π(  ((Func_cov_hom F _) ∘>'_(_) ∘a' a) '∘a (( _ ) _'∘>  (Arr_hom _ _ (t_arr N)))
+  //       τ(  ((Func_cov_hom F _) ∘>'_(_) ∘a' a) '∘a (( _ ) _'∘>  (Arr_hom _ _ (t_arr N)))
   //            =   (t_arr M) '∘a (_)_'∘> (Arr_hom _ _ ((Func_cov_hom G _) ∘>'_(_) ∘a' a))  ))
   ,  hom F (Unit_mod H G) Id_func;
 rule  (cat_elim_cov_hom $t_arr) ∘>'_(_) ∘a' (Id_cov_arr $M) ↪ ($t_arr  $M );
@@ -1209,7 +1256,7 @@ rule (cat_elim_cov_hom $x) '∘ (( _ ) _'∘>  (cat_elim_cov_hom $h))
 //   (t_arr : Π (M : category_Obj C), 
 //   arr ((category_Obj_obj M) ∘>o F) (Unit_mod Id_func (G <∘ (Obj_func (category_Obj_obj M)))) Terminal_obj) //TODO  o<∘
 // //   (t_nat : Π [M N : category_Obj C] (a : category_Arr M N), 
-// //  π(((Func_cov_hom F _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M) (category_Obj_obj N) a)) '∘a (( _ ) _'∘>  (Arr_hom (t_arr N)))
+// //  τ(((Func_cov_hom F _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M) (category_Obj_obj N) a)) '∘a (( _ ) _'∘>  (Arr_hom (t_arr N)))
 // //  =   (t_arr M) '∘a (_)_'∘> (Arr_hom ((Func_cov_hom G _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M) (category_Obj_obj N) a)))))
 //   ,  hom F (Unit_mod Id_func G) Id_func ≔
 //   begin
@@ -1225,7 +1272,7 @@ symbol  categoryunitprofunctor_elim_hom [C : category] : Π [A B: cat]  (F : fun
         arr ((category_Obj_obj M) ∘>o F) R ((category_Obj_obj N) ∘>o G))
 //  (t_hom_nat : Π [M : category_Obj C] [N : category_Obj C] (r : category_Arr  M N),
 //           Π [M' : category_Obj C] (a : category_Arr M' M),
-//         π (((Func_cov_hom F _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M') (category_Obj_obj M) a)) '∘a (_)_'∘> (Arr_hom (t_arr _ _ r))
+//         τ (((Func_cov_hom F _) ∘>'_(_) ∘a' (category_Arr_cov_arr (category_Obj_obj M') (category_Obj_obj M) a)) '∘a (_)_'∘> (Arr_hom (t_arr _ _ r))
 //         = t_arr _ _ (category_Comp a r)))
 , hom F R G;
 
@@ -1303,7 +1350,7 @@ rule (@transformation_cov_hom $C $D $F $G $h) '∘ (( _ ) _'∘>  (Func_con_hom 
 // (E_cov_arr : Π [M N : category_Obj C] (a : category_Arr M N), 
 //    homs (Arr_hom _ _ (category_Arr_cov_arr _ _ a))  (E_obj M) (Unit_modd Id_funcd (Funcs_funcd (E_obj N))) (Func_funcs Id_func))
 // // (E_nat : Π [M N : category_Obj C] (a : category_Arr M N), 
-// //         π (Fibration_con_funcd E_isf (E_obj N) (Arr_hom (category_Arr_con_arr a))
+// //         τ (Fibration_con_funcd E_isf (E_obj N) (Arr_hom (category_Arr_con_arr a))
 // //                     = Fibre_intro_funcd _ _ Id_func (E_obj M) ))
 // ,  funcs Id_func E;
 
@@ -1320,7 +1367,7 @@ symbol  category_elim_cov_funcd' :  //maybe quantify over abstract obj
           (E_obj M) (Unit_modd Id_funcd (E_obj N)) Id_funcd),
 
 // Π (E_nat : Π M: category_Obj C, Π N: category_Obj C, Π a: category_Arr M N, 
-//       π (Fibration_con_funcd E_isf (E_obj N) 
+//       τ (Fibration_con_funcd E_isf (E_obj N) 
 //               (Arr_hom Id_func (Obj_func (category_Obj_obj N)) 
 //                   (category_Arr_con_arr (category_Obj_obj M) (category_Obj_obj N) a)) 
 //         = Fibre_intro_funcd E (Obj_func (category_Obj_obj M)) Id_func (E_obj M))),
@@ -1332,7 +1379,7 @@ funcd (Terminal_catd (category_cat C)) Id_func E;
 
 //TODO: in adition to weightprof
 (C D : category) inductive profunctor : TYPE ≔ | Struct_profunctor : Π 
-(profunctor_Arr : category_Obj C → category_Obj D → Set)
+(profunctor_Arr : category_Obj C → category_Obj D → Type)
 (profunctor_cov_Comp : Π [M : category_Obj C] [K L : category_Obj D], category_Arr K L → τ (profunctor_Arr M K →_ profunctor_Arr M L))
 (profunctor_con_Comp : Π [M N : category_Obj C] [K : category_Obj D], category_Arr M N →  τ (profunctor_Arr N K →_ profunctor_Arr M K)), profunctor C D;
 injective symbol profunctor_Arr [C D : category] (R : profunctor C D) : category_Obj C → category_Obj D → TYPE;
@@ -1378,7 +1425,7 @@ inductive iproducing [J' : cat] [B : cat]  [A : graph]
 (iproducing_Imply : hom S (((Unit_mod iproducing_Func F)) ⇐ W) Id_func)
 (iproducing_Hom : hom S (Unit_mod iproducing_Func L) Id_func), @iproducing J' B A F W L l;
 
-//TODO iproducing_Set
+//TODO iproducing_type
 injective symbol iproducing_I [J' B A F W L l] (e : @iproducing J' B A F W L l): cat;
 rule iproducing_I (Struct_iproducing $I $S $1 $2 $3) ↪ $I;
 injective symbol iproducing_S [J' B A F W L l] (e : @iproducing J' B A F W L l): func J' (iproducing_I e);
@@ -1405,7 +1452,7 @@ inductive iproduct [J' : cat] [B : cat]  [A : graph]
    hom (iproducing_S e) (Unit_mod (iproducing_Func e)  iproduct_Func) Id_func ), 
    @iproduct J' B A F W L l;
 
-//TODO iproduct_Set
+//TODO iproduct_type
 injective symbol iproduct_Func [J' B A F W L l] (e : @iproduct J' B A F W L l): func J' B;
 rule iproduct_Func (Struct_iproduct $1 $2 $3 $4) ↪ $1;
 injective symbol iproduct_Hom [J' B A F W L l] (e : @iproduct J' B A F W L l): hom (@iproduct_Func J' B A F W L l e) (Unit_mod Id_func L) Id_func;
@@ -1429,7 +1476,7 @@ inductive iqualizing [J' : cat] [B : cat]  [A : graph] [X : graph_Obj A] [Y : gr
 (iqualizing_Imply : hom S (((Unit_mod iqualizing_Func F)) ⇐ W) Id_func)
 (iqualizing_Hom : hom S (Unit_mod iqualizing_Func L) Id_func), @iqualizing J' B A X Y F W L l;
 
-//TODO iqualizing_Set
+//TODO iqualizing_type
 injective symbol iqualizing_I [J' B A X Y F W L l] (e : @iqualizing J' B A X Y F W L l): cat;
 rule iqualizing_I (Struct_iqualizing $I $S $1 $2 $3) ↪ $I;
 injective symbol iqualizing_S [J' B A X Y F W L l] (e : @iqualizing J' B A X Y F W L l): func J' (iqualizing_I e);
@@ -1456,7 +1503,7 @@ inductive iqualizer [J' : cat] [B : cat]  [A : graph] [X : graph_Obj A] [Y : gra
    hom (iqualizing_S e) (Unit_mod (iqualizing_Func e)  iqualizer_Func) Id_func ), 
    @iqualizer J' B A X Y F W L l;
 
-//TODO iqualizer_Set
+//TODO iqualizer_type
 injective symbol iqualizer_Func [J' B A X Y F W L l] (e : @iqualizer J' B A X Y F W L l): func J' B;
 rule iqualizer_Func (Struct_iqualizer $1 $2 $3 $4) ↪ $1;
 injective symbol iqualizer_Hom [J' B A X Y F W L l] (e : @iqualizer J' B A X Y F W L l): hom (@iqualizer_Func J' B A X Y F W L l e) (Unit_mod Id_func L) Id_func;
@@ -1468,7 +1515,7 @@ rule iqualizer_Univ (Struct_iqualizer $1 $2 $3 $4) ↪ $4;
 
 
 (C : category) inductive weightprof (D : graph) : TYPE ≔ | Struct_weightprof [D] : Π 
-(weightprof_Arr : category_Obj C → graph_Obj D → Set)
+(weightprof_Arr : category_Obj C → graph_Obj D → Type)
 (weightprof_cov_Comp : Π [M : category_Obj C] [K L : graph_Obj D], 
   graph_Arr K L → 
     τ (weightprof_Arr M K →_ weightprof_Arr M L)) 
@@ -1477,18 +1524,18 @@ rule iqualizer_Univ (Struct_iqualizer $1 $2 $3 $4) ↪ $4;
    τ (weightprof_Arr N K →_ weightprof_Arr M K))
 , weightprof C D;
 
-constant symbol weightprof_Set (C : category) (D : graph) : Set;
-rule τ (weightprof_Set $C $D) ↪ weightprof $C $D;
-injective symbol weightprof_Arr_Set [C : category] [D : graph] (R : weightprof C D) : category_Obj C → graph_Obj D → Set;
-rule @weightprof_Arr_Set _ _ (Struct_weightprof $1 $2 $3) ↪ $1 ;
-/* injective */ symbol weightprof_Arr [C : category] [D : graph] (R : weightprof C D) : category_Obj C → graph_Obj D  → TYPE ≔ λ M N, τ (weightprof_Arr_Set R  M N);
+constant symbol weightprof_type (C : category) (D : graph) : Type;
+rule τ (weightprof_type $C $D) ↪ weightprof $C $D;
+injective symbol weightprof_Arr_type [C : category] [D : graph] (R : weightprof C D) : category_Obj C → graph_Obj D → Type;
+rule @weightprof_Arr_type _ _ (Struct_weightprof $1 $2 $3) ↪ $1 ;
+/* injective */ symbol weightprof_Arr [C : category] [D : graph] (R : weightprof C D) : category_Obj C → graph_Obj D  → TYPE ≔ λ M N, τ (weightprof_Arr_type R  M N);
 injective symbol weightprof_cov_Comp [C : category] [D : graph] [R : weightprof C D] : Π [M : category_Obj C] [K L : graph_Obj D], 
 graph_Arr K L →
-  τ (weightprof_Arr_Set R M K →_ weightprof_Arr_Set R M L);
+  τ (weightprof_Arr_type R M K →_ weightprof_Arr_type R M L);
 rule @weightprof_cov_Comp _ _ (Struct_weightprof $1 $2 $3) ↪ $2;
 injective symbol weightprof_con_Comp [C : category] [D : graph] [R : weightprof C D] : Π [N : category_Obj C] [K : graph_Obj D] [M : category_Obj C],
 category_Arr M N → 
- τ (weightprof_Arr_Set R N K →_ weightprof_Arr_Set R M K);
+ τ (weightprof_Arr_type R N K →_ weightprof_Arr_type R M K);
 rule @weightprof_con_Comp _ _ (Struct_weightprof $1 $2 $3) ↪ $3;
 
 
@@ -1523,7 +1570,7 @@ rule (arr_weightprof_Arr (weightprof_Arr_arr _ _ $a)) ↪ $a;
              arr ( (category_Obj_obj M) ∘>o F) R ((graph_Obj_obj N) ∘>o G))
 //  (t_hom_con_nat : Π [M : category_Obj A'] [N : category_Obj B'] (r : weightprof_Arr R' M N),
 //           Π [M' : category_Obj A'] (a : category_Arr M' M),
-//         π (((Func_cov_hom F _) ∘>'_(_) ∘' (category_Arr_cov_arr a)) '∘ (_)_'∘> t_arr _ _ r
+//         τ (((Func_cov_hom F _) ∘>'_(_) ∘' (category_Arr_cov_arr a)) '∘ (_)_'∘> t_arr _ _ r
 //         = t_arr _ _ (weightprof_con_Comp a r)))
 // t_hom_cov_nat
 , transf (weightprof_mod R') F R G;
@@ -1540,7 +1587,7 @@ symbol  mod_elim_transf [A' : cat] [B' : graph] [R' : mod A' (graph_cat B')] : �
             arr ( M ∘>o F) R ((graph_Obj_obj N) ∘>o G))
 //  (t_hom_con_nat : Π [M : category_Obj A'] [N : category_Obj B'] (r : weightprof_Arr R' M N),
 //           Π [M' : category_Obj A'] (a : category_Arr M' M),
-//         π (((Func_cov_hom F _) ∘>'_(_) ∘' (category_Arr_cov_arr a)) '∘ (_)_'∘> t_arr _ _ r
+//         τ (((Func_cov_hom F _) ∘>'_(_) ∘' (category_Arr_cov_arr a)) '∘ (_)_'∘> t_arr _ _ r
 //         = t_arr _ _ (weightprof_con_Comp a r)))
 // t_hom_cov_nat
 , transf R' F R G;
@@ -1588,7 +1635,7 @@ rule (mod_elim_transf $F Id_func (@mod_elim_transf_cov_Arr _ _ _ _ $F _ $t)) ↪
 symbol subst_cov_weightprof [C D] (R : weightprof C D) [E] (F : graphMorph E D) : weightprof C E ≔
 begin 
   assume C D R E F;
-  refine (Struct_weightprof (λ M N, weightprof_Arr_Set R M (graphMorph_Obj F N)) _ _)
+  refine (Struct_weightprof (λ M N, weightprof_Arr_type R M (graphMorph_Obj F N)) _ _)
   { assume M K L a h;
   refine (weightprof_cov_Comp (graphMorph_Arr F a) h);
 }
@@ -1604,7 +1651,7 @@ rule (weightprof_mod $R) <<∘ (graphMorph_func $F)
 symbol subst_con_weightprof [C D] (R : weightprof C D) [C'] (F : functor C' C) : weightprof C' D ≔
 begin 
 assume C D R C' F;
-refine (Struct_weightprof (λ M N, weightprof_Arr_Set R (functor_Obj F M ) N) _ _) 
+refine (Struct_weightprof (λ M N, weightprof_Arr_type R (functor_Obj F M ) N) _ _) 
 { assume M K L a h;
   refine (weightprof_cov_Comp a h);
 }
@@ -1618,7 +1665,7 @@ rule (functor_func $F) ∘>> (weightprof_mod $R)
 
 
 symbol terminal_weightprof (C : category) (D : graph) : weightprof C D ≔ 
-  Struct_weightprof (λ M N, one_Set) (λ M K L a r, One) (λ N K M a r, One);
+  Struct_weightprof (λ M N, one_type) (λ M K L a r, One) (λ N K M a r, One);
   
 //could use Terminal_mod instead? but datatype is required, or add datatype properties on top of Terminal_mod
 assert (C : category) (D : graph) (E : graph) (F : graphMorph E D) ⊢ 
@@ -1714,7 +1761,7 @@ apply Struct_sigma
   { refine (iproduct_Imply Prod_F_lim_F_comp) 
   }
   { assume I M S  c_F;
-    have c_F_side : τ (hom_Set S (Unit_mod M (sigma_Fst lim_F_comp)) Id_func)
+    have c_F_side : τ (hom_type S (Unit_mod M (sigma_Fst lim_F_comp)) Id_func)
     { refine ((sigma_Snd lim_F_comp)₂ _ _ _
       (c_F '∘ (subst_Imply_cov_mod (graphMorph_func (optionGraph_graphMorph A))))) 
     };
@@ -1760,7 +1807,7 @@ apply Struct_sigma
 { refine (_ & _)
   {  refine (iqualizer_Imply Eq_F_lim_F_comp) }
   { assume I M S c_F;
-    have c_F_side : τ (hom_Set S (Unit_mod M (sigma_Fst lim_F_comp)) Id_func)
+    have c_F_side : τ (hom_type S (Unit_mod M (sigma_Fst lim_F_comp)) Id_func)
     { refine ((sigma_Snd lim_F_comp)₂ _ _ _ (c_F '∘ (subst_Imply_cov_mod (graphMorph_func (joinGraph_graphMorph X Y))))) };
 
     have c_F_iqualizing : iqualizing F (weightprof_mod W)  ((sigma_Snd lim_F_comp)₁)
@@ -1981,7 +2028,7 @@ symbol construct_inductively_limit : Π [J': category], Π [B: cat],
 Π A: graph, isFiniteGraph A → 
 τ `Π_ F: func (graph_cat A) B, 
 `Π_ W: weightprof J' A, 
-ilimit_Set F (weightprof_mod W) ≔ 
+ilimit_type F (weightprof_mod W) ≔ 
 begin
 assume J' B Hterminal Hprod Hequa;
 refine (rect_isFiniteGraph _ _ _ _ )
@@ -2011,7 +2058,7 @@ end;
 // Π A: graph, isFiniteGraph A → 
 // τ `Π_ F: func (graph_cat A) B, 
 // `Π_ W: mod J' (graph_cat A), 
-// ilimit_Set F W ≔ 
+// ilimit_type F W ≔ 
 // begin
 // assume J' B Hterminal Hprod Hequa;
 // refine (rect_isFiniteGraph _ _ _ _ )
@@ -2036,7 +2083,7 @@ symbol construct_inductively_limit_instance : Π [J' B : category ],
 Π A: graph, isFiniteGraph A → 
 τ `Π_ F: func (graph_cat A) (category_cat B), 
 `Π_ W: weightprof J' A, 
-ilimit_Set F (weightprof_mod W) ≔ 
+ilimit_type F (weightprof_mod W) ≔ 
 begin 
 assume J' B Hterminal Hprod Hequa;
 refine @construct_inductively_limit J' (category_cat B)
@@ -2063,9 +2110,9 @@ compute obj_category_Obj ((category_Obj_obj One) ∘>o (sigma_Fst (construct_ind
  natUniv_snd 
  '∘a (Id_func _'∘> Func_cov_hom 
  (diagram_func (Struct_diagram (λ _, Base_natUniv 2 ⸬ (Base_natUniv 1 ⸬ □)) (λ _ _ a, rect_empty a))) 
- (Obj_func (graph_Obj_obj (Struct_sub (Base_natUniv 2) top)))))
+ (Obj_func (graph_Obj_obj (Struct_sigma (Base_natUniv 2) top)))))
  (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2)))) 
-(Pair_natUniv (Base_natUniv 2) (Base_natUniv 2) ⸬ if (natUniv_eq (Base_natUniv 1) (arr_category_Arr (category_Arr_cov_arr (category_Obj_obj (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2) ⸬ (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1) ⸬ (Pair_natUniv (Base_natUniv 1) (Base_natUniv 2) ⸬ (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1) ⸬ □))))) (category_Obj_obj (Base_natUniv 2 ⸬ (Base_natUniv 1 ⸬ □))) natUniv_snd '∘a (Id_func _'∘> Func_cov_hom (diagram_func (Struct_diagram (λ _, Base_natUniv 2 ⸬ (Base_natUniv 1 ⸬ □)) (λ _ _ a, rect_empty a))) (Obj_func (graph_Obj_obj (Struct_sub (Base_natUniv 2) top))))) (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1)))) (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1) ⸬ if (natUniv_eq (Base_natUniv 1) (arr_category_Arr (category_Arr_cov_arr (category_Obj_obj (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2) ⸬ (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1) ⸬ (Pair_natUniv (Base_natUniv 1) (Base_natUniv 2) ⸬ (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1) ⸬ □))))) (category_Obj_obj (Base_natUniv 2 ⸬ (Base_natUniv 1 ⸬ □))) natUniv_snd '∘a (Id_func _'∘> Func_cov_hom (diagram_func (Struct_diagram (λ _, Base_natUniv 2 ⸬ (Base_natUniv 1 ⸬ □)) (λ _ _ a, rect_empty a))) ...
+(Pair_natUniv (Base_natUniv 2) (Base_natUniv 2) ⸬ if (natUniv_eq (Base_natUniv 1) (arr_category_Arr (category_Arr_cov_arr (category_Obj_obj (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2) ⸬ (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1) ⸬ (Pair_natUniv (Base_natUniv 1) (Base_natUniv 2) ⸬ (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1) ⸬ □))))) (category_Obj_obj (Base_natUniv 2 ⸬ (Base_natUniv 1 ⸬ □))) natUniv_snd '∘a (Id_func _'∘> Func_cov_hom (diagram_func (Struct_diagram (λ _, Base_natUniv 2 ⸬ (Base_natUniv 1 ⸬ □)) (λ _ _ a, rect_empty a))) (Obj_func (graph_Obj_obj (Struct_sigma (Base_natUniv 2) top))))) (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1)))) (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1) ⸬ if (natUniv_eq (Base_natUniv 1) (arr_category_Arr (category_Arr_cov_arr (category_Obj_obj (Pair_natUniv (Base_natUniv 2) (Base_natUniv 2) ⸬ (Pair_natUniv (Base_natUniv 2) (Base_natUniv 1) ⸬ (Pair_natUniv (Base_natUniv 1) (Base_natUniv 2) ⸬ (Pair_natUniv (Base_natUniv 1) (Base_natUniv 1) ⸬ □))))) (category_Obj_obj (Base_natUniv 2 ⸬ (Base_natUniv 1 ⸬ □))) natUniv_snd '∘a (Id_func _'∘> Func_cov_hom (diagram_func (Struct_diagram (λ _, Base_natUniv 2 ⸬ (Base_natUniv 1 ⸬ □)) (λ _ _ a, rect_empty a))) ...
  */
 
 //limit cone sides arrows
@@ -2093,7 +2140,7 @@ begin
   }
   { refine (category_Arr_cov_arr0 _ _ _ _ );
     simplify;
-    refine (@rect_option _ (λ _, natUniv_Set →_ natUniv_Set  ) _ _ N)
+    refine (@rect_option _ (λ _, natUniv_type →_ natUniv_type  ) _ _ N)
     {
       refine rect_option _ _ 
       { 

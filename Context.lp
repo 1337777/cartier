@@ -1,24 +1,8 @@
-/* https://github.com/1337777/cartier/blob/master/cartierSolution16_short.lp 
-https://github.com/1337777/cartier/blob/master/Kosta_Dosen_outline_alt.pdf
-
-Kosta Dosen's functorial programming: « m— » (read as « emdash » or « modos »), a new proof assistant for schemes.
-  A computational logic (co-inductive) interface for algebraic geometry schemes.
-
-cartierSolution13.lp : DOSEN'S FUNCTORIAL PROGRAMMING
-cartierSolution14.lp : 1+2=3 VIA 3 METHODS: HIGHER DATA TYPE, ADJUNCTION, COLIMIT
-cartierSolution15.lp : POLYNOMIAL FUNCTORS AND CATEGORIES AS POLYNOMIAL COMONOIDS
-cartierSolution16.lp : COMPUTATIONAL LOGIC (CO-INDUCTIVE) INTERFACE FOR SHEAVES AND SCHEMES
-
-https://github.com/1337777/cartier/blob/master/cartierSolution13.lp 
-https://github.com/1337777/cartier/blob/master/cartierSolution14.lp 
-https://github.com/1337777/cartier/blob/master/cartierSolution15.lp 
-https://github.com/1337777/cartier/blob/master/cartierSolution16.lp 
-https://github.com/1337777/cartier/blob/master/Kosta_Dosen_outline_alt.pdf 
-https://github.com/1337777/cartier/blob/master/Kosta_Dosen_outline_alt.docx 
-
-https://github.com/1337777/cartier/blob/master/Kosta_Dosen_2pages.pdf
-https://github.com/1337777/cartier/blob/master/Kosta_Dosen_polynomial_univalence.pdf
-
+/* Preliminary: alternative context-extension for dependent-types.
+  This file will compare a usual traditional context-extension 
+  (categories with families, etc) versus a more general and clearer 
+  direct computational (strictified via Lambdapi rewrite rules) implementation 
+  as required for a proof assistant for categories/sheaves/schemes
 */
 
 /*****************************************
