@@ -502,4 +502,91 @@ symbol general_ind_eq : Π [a: Type], Π [x: τ a], Π [y: τ a] (e : τ (x = y)
   Π P: (Π w : τ a, τ (x = w) → Type), τ (P x (eq_refl x)) → τ (P y e);
 symbol coh_sym_Eq [A : Type] [X Y : τ A] (e: τ (X = Y)): τ (trans_Eq e (sym_Eq e) = eq_refl X)
 ≔ begin 
-assume A X Y e; refine (general_ind_eq e (λ z e', (trans_Eq e' (sym_Eq 
+assume A X Y e; refine (general_ind_eq e (λ z e', (trans_Eq e' (sym_Eq e') = eq_refl X)) _ );
+simplify; refine (eq_refl (eq_refl X));
+end;
+// rule isEquiv_coUnit_Eq (Eq_Hom_isEquiv $e) ↪ coh_sym_Eq ...
+
+
+// # --- TODO: Modules/profunctors without Set classifier vs functors to Set ---
+
+// evidence that the map (λ f, m _∘> f) is transf 
+// cannot use constructors mkTransf,
+// proof is via meta case analysis, must assume this symbol
+// .. hence its naturality prop gives new general conversion rules
+constant symbol module_action : Π [A : Cat] (M : Functor A Set) [X : Obj A],
+τ (fapp0 M X) → Transf (hom_cov X) M;
+
+// notation `m ⋅>_ f` for  tapp (module_action _ m) _ f
+// m ⋅>_ f  ↪ M f m , 
+// and in particular when M is  compose_fuctor (hom_cov W) F
+// m ⋅>_ f  ↪   m _∘> F f    
+rule tapp (module_action $M $m) $Y $f ↪ fapp1 $M $f $m;
+
+// REMARK: anticipating adjunctions, module_action is motivated by adjunctions formulations
+//  η ⋅>_ g                                ↪   η _∘> F g  (hom_cov) =   Φ g    ...   
+//  f _⋅> ϵ (abbreviates ϵ ⋅>_ f on Aᵒᵖ)   ↪   G f ∘>_ ϵ  (hom_con) =   Γ f    ...   
+// so for this transpose operation, η is in special position of data  η _∘>    (in hom_cov)
+// but usually for antecedent/consequent forms it is in position of actor  η ∘>_   (in hom_con)
+// similarly for data position  ∘>_ ϵ   (in hom_con)  vs  actor position  _∘> ϵ   (in hom_cov)
+
+// TODO: double category DblCat ? so a bimodule is  A^op x A -> Set  but viewed as an relation morphism in DblCat? 
+// TODO: half-double category (sigma A. A -> Set) where A can vary
+
+// ===== END OF BASIC STANDARD LIBRARY PRELUDE =====
+
+
+// # --- Test 3, Utilities ---
+
+symbol rule_functoriality_TYPE (A : Cat) (B : Cat) (fapp0 : Π(X: Obj A), Obj B)
+(fapp1' : Π[X: Obj A], Π[Y: Obj A], Π(a: Hom X Y), Hom (fapp0 X) (fapp0 Y)) : TYPE ≔ 
+Π [X Y Z : Obj A] (a : Hom Y Z) (a' : Hom X Y) [W : Obj B] (f : Hom W (fapp0 X)),
+  τ (compose_morph (fapp1' _ _ a) (fapp1 (hom_cov W) (fapp1' _ _ a') f)
+    = (fapp1 (hom_cov W) (fapp1' _ _ (compose_morph a a'))) f) ;
+  
+symbol rule_functoriality [A:Cat] [B:Cat] (F : Functor A B)
+   : rule_functoriality_TYPE A B (@fapp0 A B F) (@fapp1 A B F)
+    ≔ λ X Y Z a a' W f, eq_refl _ ;
+  
+symbol functoriality_from_rule_functoriality (A : Cat) (B : Cat) (fapp0 : Π(X: Obj A), Obj B)
+(fapp1 : Π[X: Obj A], Π[Y: Obj A], Π(a: Hom X Y), Hom (fapp0 X) (fapp0 Y))
+: rule_functoriality_TYPE A B fapp0 fapp1 → functoriality_TYPE A B fapp0 fapp1 
+≔ λ H X Y Z a a', (H X Y Z a a' _ (identity_morph _));
+
+// id _∘> a  ↪  a
+assert A [W : Obj A] [Y : Obj A] (a : Hom W Y) ⊢ ( (fapp1 (hom_cov W) a) (identity_morph _)) ≡ a;
+
+// a _∘> id  ≡  a
+assert A [W : Obj A]  ⊢ ( (fapp1 (hom_cov W) (identity_morph _))) ≡ identity_morph _;
+
+symbol rule_fapp1_hom_cov [A : Cat] [W X Y : Obj A] (aa : Hom X Y) (f : Hom W X):
+τ ((fapp1 (hom_cov W) aa) f = compose_morph aa f) ≔ eq_refl _;
+
+symbol rule_accumulation_transf [A : Cat] [B : Cat] (F : Functor A B) (G : Functor A B)
+  (ϵ : Hom F G) (X : Obj A) [Y : Obj B] (f : Hom Y (fapp0 F X)) [Y' : Obj B] (a : Hom Y' Y) :
+   τ( (compose_morph (fapp1 (hom_cov Y) (tapp ( ϵ) X) f) a) 
+  = (fapp1 (hom_cov Y') (tapp ( ϵ) X)) (compose_morph f a)) ≔ eq_refl _;
+
+injective symbol rule_naturality_TYPE [A : Cat] [B : Cat] (F G : Functor A B) (tapp : Π (X: Obj A), Hom (fapp0 F X) (fapp0 G X)) : TYPE ≔ 
+Π [X : Obj A] [X' : Obj A] (a : Hom X X') [Y : Obj B] (f : Hom Y (fapp0 F X)),
+τ( (compose_morph (fapp1 G a) (fapp1 (hom_cov Y) (tapp X) f))
+  =  (fapp1 (hom_cov Y) (tapp X') (compose_morph (fapp1 F a) f)));
+
+symbol rule_naturality [A : Cat] [B : Cat] [F : Functor A B] [G : Functor A B]
+(ϵ : Transf F G)
+: rule_naturality_TYPE F G (tapp ( ϵ)) ≔ λ X X' a Y f , eq_refl _;
+
+// user-facing naturality from computational rule naturality
+symbol naturality_from_rule_naturality [A : Cat] [B : Cat] [F G : Functor A B] [tapp : Π (X: Obj A), Hom (fapp0 F X) (fapp0 G X)] 
+: rule_naturality_TYPE F G tapp → naturality_TYPE F G tapp
+≔ λ H X X' a, (H X X' a _ (identity_morph (fapp0 F X)));
+
+injective symbol rule_naturality_direct_TYPE [A : Cat] [B : Cat] (F G : Functor A B) (tapp : Π (X: Obj A), Hom (fapp0 F X) (fapp0 G X)) : TYPE ≔ 
+Π [X : Obj A] [X' : Obj A] (a : Hom X X'),
+τ( compose_morph (fapp1 G a) (tapp X)
+  = fapp1 (hom_cov _) (tapp X') (fapp1 F a));
+
+symbol rule_naturality_direct [A : Cat] [B : Cat] [F : Functor A B] [G : Functor A B]
+(ϵ : Transf F G) 
+: rule_naturality_direct_TYPE F G (tapp ( ϵ)) ≔ λ X X' a , eq_refl _;
+
